@@ -14,11 +14,17 @@
 #    Object Properties
 #################################################################
 
+###  http://purl.org/nemo/gufo#isProperPartOf
+gufo:isProperPartOf owl:inverseOf :hasProperPart .
+
+
 ###  http://w3id.org/nemo/gufoevents#changed
 :changed rdf:type owl:ObjectProperty ;
          rdfs:subPropertyOf owl:topObjectProperty ;
+         rdf:type owl:FunctionalProperty ;
          rdfs:domain :EndurantChange ;
-         rdfs:range gufo:Endurant .
+         rdfs:range gufo:Endurant ;
+         rdfs:comment "Identifies the gufo:Endurant which was changed in an :EndurantChange." .
 
 
 ###  http://w3id.org/nemo/gufoevents#changedEndurantRelativeTo
@@ -107,6 +113,10 @@
                                   rdfs:range gufo:Endurant .
 
 
+###  http://w3id.org/nemo/gufoevents#hasProperPart
+:hasProperPart rdf:type owl:ObjectProperty .
+
+
 ###  http://w3id.org/nemo/gufoevents#incorporatedAsConstituent
 :incorporatedAsConstituent rdf:type owl:ObjectProperty ;
                            rdfs:subPropertyOf :changed ;
@@ -184,6 +194,8 @@
 
 Since an achievement is instantaneous, its begin and end points coincide. An achievement is usually considered the culmination of an accomplishment (which is telic but extended in time.)
 
+An anchievement may be simple (having no proper parts) or complex. In complex achievements, all parts are achievements and have the same begin and end points.
+
 Corresponds to \"Achievement\" in DOLCE. See Casati, R., & Varzi, A. (2015), following Vendler, Z. (1957) and G. Ryle (1949).
 
 Casati, R., & Varzi, A. (2015). Events. In E. N. Zalta (Ed.), The Stanford encyclopedia of philosophy. Metaphysics Research Lab, Stanford University.
@@ -196,7 +208,22 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.""" .
 ###  http://w3id.org/nemo/gufoevents#Classification
 :Classification rdf:type owl:Class ;
                 rdfs:subClassOf :EndurantChange ;
-                rdfs:comment "A gufoevents:EndurantChange in which one particular endurant was classified as an instance of a specific non-rigid type." .
+                rdfs:comment """An :EndurantChange in which one endurant was classified as an instance of a specific non-rigid type.
+
+A :Classification brings about a situation in which the classified endurant is an instance of the specific type.""" .
+
+
+###  http://w3id.org/nemo/gufoevents#ComplexAchievement
+:ComplexAchievement rdf:type owl:Class ;
+                    rdfs:subClassOf :Achievement ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty [ owl:inverseOf gufo:isEventProperPartOf
+                                                     ] ;
+                                      owl:someValuesFrom owl:Thing
+                                    ] ;
+                    rdfs:comment """An :Achievement that has proper parts.
+
+All parts of a complex achievement occur simultaneously (have the same begin and end points).""" .
 
 
 ###  http://w3id.org/nemo/gufoevents#ConstituentDisincorporation
@@ -220,35 +247,43 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.""" .
 ###  http://w3id.org/nemo/gufoevents#Declassification
 :Declassification rdf:type owl:Class ;
                   rdfs:subClassOf :EndurantChange ;
-                  rdfs:comment "A gufoevents:EndurantChange in which one endurant ceased to instantiate a specific non-rigid type." .
+                  rdfs:comment """A gufoevents:EndurantChange in which one endurant ceased to instantiate a specific non-rigid type.
+
+A :Classification brings about a situation in which the classified endurant is no longer instance of the specific type.""" .
 
 
 ###  http://w3id.org/nemo/gufoevents#EndurantChange
 :EndurantChange rdf:type owl:Class ;
-                rdfs:subClassOf :Achievement ;
-                rdfs:comment """An :Achievement in which one endurant undergoes change.
+                rdfs:subClassOf :SimpleAchievement ;
+                rdfs:comment """A :SimpleAchievement in which one endurant underwent change.
 
 Subclasses of :EndurantChange include classification and declassification of an endurant to/from non-rigid types, change in the value of a quality of an endurant, incorporation or separation into/from a whole and incorporation or incorporation as a constituent of a constituted endurant.
 
-(Are these instantaneous? - would creatly simplify)""" .
+Each endurant change concerns one endurant in particular. When more than one endurant changes at the same time, there are simultaneous endurant changes. Complex achievements with multiple endurant changes may also be used.""" .
 
 
 ###  http://w3id.org/nemo/gufoevents#EndurantCreation
 :EndurantCreation rdf:type owl:Class ;
-                  rdfs:subClassOf :Achievement ;
-                  rdfs:comment """An :Achievement in which one endurant was created.
+                  rdfs:subClassOf :SimpleAchievement ;
+                  rdfs:comment """A :SimpleAchievement in which one endurant was created.
 
-end time should correlate with begin time for endurant
-and endurant was created in""" .
+See :created for the property that identifies the created endurant.
+
+The end point of the endurant creation coincides with the begin point of the created endurant.
+
+Further, we can infer that the endurant gufo:wasCreatedIn the endurant creation (or any other complex event that contains the endurant creation as part).""" .
 
 
 ###  http://w3id.org/nemo/gufoevents#EndurantTermination
 :EndurantTermination rdf:type owl:Class ;
-                     rdfs:subClassOf :Achievement ;
-                     rdfs:comment """An :Achievement in which one endurant was terminated.
+                     rdfs:subClassOf :SimpleAchievement ;
+                     rdfs:comment """A :SimpleAchievement in which one endurant was terminated.
 
-end time should correlate with end time for object
-and endurant was terminated in""" .
+See :terminated for the property that identifies the terminated endurant.
+
+The begin and end points of the endurant termination coincides with the end point of the terminated endurant.
+
+Further, we can infer that the endurant gufo:wasTerminatedIn the endurant termination (or any other complex event that contains the endurant termination as part).""" .
 
 
 ###  http://w3id.org/nemo/gufoevents#PartIncorporation
@@ -275,7 +310,20 @@ and endurant was terminated in""" .
                     rdfs:subClassOf :EndurantChange ;
                     rdfs:comment """An :EndurantChange in which one quality has a new value.
 
+A :QualityValueChange brings about a situation in which the quality has a new value.
+
 (Change implies the value is different from what it was before the event occurred.)""" .
+
+
+###  http://w3id.org/nemo/gufoevents#SimpleAchievement
+:SimpleAchievement rdf:type owl:Class ;
+                   rdfs:subClassOf :Achievement ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty [ owl:inverseOf gufo:isEventProperPartOf
+                                                    ] ;
+                                     owl:cardinality "0"^^xsd:nonNegativeInteger
+                                   ] ;
+                   rdfs:comment "An :Achievement that has no proper parts." .
 
 
 #################################################################
