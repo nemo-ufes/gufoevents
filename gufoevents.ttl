@@ -1,0 +1,303 @@
+@prefix : <http://w3id.org/nemo/gufoevents#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gufo: <http://purl.org/nemo/gufo#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://w3id.org/nemo/gufoevents#> .
+
+<http://w3id.org/nemo/gufoevents> rdf:type owl:Ontology ;
+                                   owl:imports <http://purl.org/nemo/gufo#/1.0.0> .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://w3id.org/nemo/gufoevents#changed
+:changed rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf owl:topObjectProperty ;
+         rdfs:domain :EndurantChange ;
+         rdfs:range gufo:Endurant .
+
+
+###  http://w3id.org/nemo/gufoevents#changedEndurantRelativeTo
+:changedEndurantRelativeTo rdf:type owl:ObjectProperty ;
+                           rdfs:subPropertyOf owl:topObjectProperty ;
+                           rdfs:domain :EndurantChange .
+
+
+###  http://w3id.org/nemo/gufoevents#changedReifiedValueTo
+:changedReifiedValueTo rdf:type owl:ObjectProperty ;
+                       rdfs:subPropertyOf :changedEndurantRelativeTo ;
+                       rdf:type owl:FunctionalProperty ;
+                       rdfs:domain :QualityValueChange ;
+                       rdfs:range gufo:QualityValue ;
+                       rdfs:comment "Identifies the gufo:QualityValue (i.e., the reified quality value) for the quality changed in a gufoevents:QualityValueChange." .
+
+
+###  http://w3id.org/nemo/gufoevents#changedValueOf
+:changedValueOf rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf :changed ;
+                rdf:type owl:FunctionalProperty ;
+                rdfs:domain :QualityValueChange ;
+                rdfs:range gufo:Quality ;
+                rdfs:comment "Identifies the gufo:Quality changed in a gufoevents:QualityValueChange." .
+
+
+###  http://w3id.org/nemo/gufoevents#classified
+:classified rdf:type owl:ObjectProperty ;
+            rdfs:subPropertyOf :changed ;
+            rdf:type owl:FunctionalProperty ;
+            rdfs:domain :Classification ;
+            rdfs:range gufo:Endurant ;
+            rdfs:comment "Identifies the gufo:Endurant that is classified in a gufoevents:Classification." .
+
+
+###  http://w3id.org/nemo/gufoevents#classifiedAsInstanceOf
+:classifiedAsInstanceOf rdf:type owl:ObjectProperty ;
+                        rdfs:subPropertyOf :changedEndurantRelativeTo ;
+                        rdf:type owl:FunctionalProperty ;
+                        rdfs:domain :Classification ;
+                        rdfs:range gufo:NonRigidType ;
+                        rdfs:comment "Identifies the gufo:NonRigidType that is instantiated by the endurant in a gufoevents:Classification." .
+
+
+###  http://w3id.org/nemo/gufoevents#created
+:created rdf:type owl:ObjectProperty ,
+                  owl:FunctionalProperty ;
+         rdfs:domain :EndurantCreation ;
+         rdfs:range gufo:Endurant ;
+         rdfs:comment "Identifies the gufo:Endurant that is created in a gufoevents:EndurantCreation." .
+
+
+###  http://w3id.org/nemo/gufoevents#declassified
+:declassified rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf :changed ;
+              rdf:type owl:FunctionalProperty ;
+              rdfs:domain :Declassification ;
+              rdfs:range gufo:Endurant ;
+              rdfs:comment "Identifies the gufo:Endurant that is declassified in a gufoevents:Declassification." ;
+              rdfs:seeAlso :declassifiedFrom .
+
+
+###  http://w3id.org/nemo/gufoevents#declassifiedAsInstanceOf
+:declassifiedAsInstanceOf rdf:type owl:ObjectProperty ;
+                          rdfs:subPropertyOf :changedEndurantRelativeTo ;
+                          rdf:type owl:FunctionalProperty ;
+                          rdfs:domain :Declassification ;
+                          rdfs:range gufo:NonRigidType ;
+                          rdfs:comment "Identifies the gufo:NonRigidType that is no longer instantiated by the endurant in a gufoevents:Declassification." ;
+                          rdfs:seeAlso :declassified .
+
+
+###  http://w3id.org/nemo/gufoevents#disincorporatedAsConstituent
+:disincorporatedAsConstituent rdf:type owl:ObjectProperty ;
+                              rdfs:subPropertyOf :changed ;
+                              rdf:type owl:FunctionalProperty ;
+                              rdfs:domain :ConstituentDisincorporation ;
+                              rdfs:range gufo:Endurant .
+
+
+###  http://w3id.org/nemo/gufoevents#disincorporatedAsConstituentFrom
+:disincorporatedAsConstituentFrom rdf:type owl:ObjectProperty ;
+                                  rdfs:subPropertyOf :changedEndurantRelativeTo ;
+                                  rdf:type owl:FunctionalProperty ;
+                                  rdfs:domain :ConstituentDisincorporation ;
+                                  rdfs:range gufo:Endurant .
+
+
+###  http://w3id.org/nemo/gufoevents#incorporatedAsConstituent
+:incorporatedAsConstituent rdf:type owl:ObjectProperty ;
+                           rdfs:subPropertyOf :changed ;
+                           rdf:type owl:FunctionalProperty ;
+                           rdfs:domain :ConstituentIncorporation ;
+                           rdfs:range gufo:Endurant .
+
+
+###  http://w3id.org/nemo/gufoevents#incorporatedAsConstituentOf
+:incorporatedAsConstituentOf rdf:type owl:ObjectProperty ;
+                             rdfs:subPropertyOf :changedEndurantRelativeTo ;
+                             rdf:type owl:FunctionalProperty ;
+                             rdfs:domain :ConstituentIncorporation ;
+                             rdfs:range gufo:Endurant .
+
+
+###  http://w3id.org/nemo/gufoevents#incorporatedAsPart
+:incorporatedAsPart rdf:type owl:ObjectProperty ;
+                    rdfs:subPropertyOf :changed ;
+                    rdf:type owl:FunctionalProperty ;
+                    rdfs:domain :PartIncorporation ;
+                    rdfs:range gufo:Endurant .
+
+
+###  http://w3id.org/nemo/gufoevents#incorporatedAsPartInto
+:incorporatedAsPartInto rdf:type owl:ObjectProperty ;
+                        rdfs:subPropertyOf :changedEndurantRelativeTo ;
+                        rdf:type owl:FunctionalProperty ;
+                        rdfs:domain :PartIncorporation ;
+                        rdfs:range gufo:Endurant .
+
+
+###  http://w3id.org/nemo/gufoevents#separatedAsPart
+:separatedAsPart rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf :changed ;
+                 rdf:type owl:FunctionalProperty ;
+                 rdfs:domain :PartSeparation ;
+                 rdfs:range gufo:Endurant .
+
+
+###  http://w3id.org/nemo/gufoevents#separatedAsPartFrom
+:separatedAsPartFrom rdf:type owl:ObjectProperty ;
+                     rdfs:subPropertyOf :changedEndurantRelativeTo ;
+                     rdf:type owl:FunctionalProperty ;
+                     rdfs:domain :PartSeparation ;
+                     rdfs:range gufo:Endurant .
+
+
+###  http://w3id.org/nemo/gufoevents#terminated
+:terminated rdf:type owl:ObjectProperty ,
+                     owl:FunctionalProperty ;
+            rdfs:domain :EndurantTermination ;
+            rdfs:range gufo:Endurant ;
+            rdfs:comment "Identifies the gufo:Endurant that is created in a gufoevents:EndurantTermination." .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://w3id.org/nemo/gufoevents#changedValueTo
+:changedValueTo rdf:type owl:DatatypeProperty ,
+                         owl:FunctionalProperty ;
+                rdfs:domain :QualityValueChange .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://w3id.org/nemo/gufoevents#Achievement
+:Achievement rdf:type owl:Class ;
+             rdfs:subClassOf gufo:Event ;
+             rdfs:comment """A gufo:Event that is instantaneous and telic/resultative.
+
+Since an achievement is instantaneous, its begin and end points coincide. An achievement is usually considered the culmination of an accomplishment (which is telic but extended in time.)
+
+Corresponds to \"Achievement\" in DOLCE. See Casati, R., & Varzi, A. (2015), following Vendler, Z. (1957) and G. Ryle (1949).
+
+Casati, R., & Varzi, A. (2015). Events. In E. N. Zalta (Ed.), The Stanford encyclopedia of philosophy. Metaphysics Research Lab, Stanford University.
+
+G. Ryle (1949), The Concept of Mind, pp. 44, 118.
+
+Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.""" .
+
+
+###  http://w3id.org/nemo/gufoevents#Classification
+:Classification rdf:type owl:Class ;
+                rdfs:subClassOf :EndurantChange ;
+                rdfs:comment "A gufoevents:EndurantChange in which one particular endurant was classified as an instance of a specific non-rigid type." .
+
+
+###  http://w3id.org/nemo/gufoevents#ConstituentDisincorporation
+:ConstituentDisincorporation rdf:type owl:Class ;
+                             rdfs:subClassOf :ConstitutionChange .
+
+
+###  http://w3id.org/nemo/gufoevents#ConstituentIncorporation
+:ConstituentIncorporation rdf:type owl:Class ;
+                          rdfs:subClassOf :ConstitutionChange .
+
+
+###  http://w3id.org/nemo/gufoevents#ConstitutionChange
+:ConstitutionChange rdf:type owl:Class ;
+                    rdfs:subClassOf :EndurantChange ;
+                    owl:disjointUnionOf ( :ConstituentDisincorporation
+                                          :ConstituentIncorporation
+                                        ) .
+
+
+###  http://w3id.org/nemo/gufoevents#Declassification
+:Declassification rdf:type owl:Class ;
+                  rdfs:subClassOf :EndurantChange ;
+                  rdfs:comment "A gufoevents:EndurantChange in which one endurant ceased to instantiate a specific non-rigid type." .
+
+
+###  http://w3id.org/nemo/gufoevents#EndurantChange
+:EndurantChange rdf:type owl:Class ;
+                rdfs:subClassOf :Achievement ;
+                rdfs:comment """An :Achievement in which one endurant undergoes change.
+
+Subclasses of :EndurantChange include classification and declassification of an endurant to/from non-rigid types, change in the value of a quality of an endurant, incorporation or separation into/from a whole and incorporation or incorporation as a constituent of a constituted endurant.
+
+(Are these instantaneous? - would creatly simplify)""" .
+
+
+###  http://w3id.org/nemo/gufoevents#EndurantCreation
+:EndurantCreation rdf:type owl:Class ;
+                  rdfs:subClassOf :Achievement ;
+                  rdfs:comment """An :Achievement in which one endurant was created.
+
+end time should correlate with begin time for endurant
+and endurant was created in""" .
+
+
+###  http://w3id.org/nemo/gufoevents#EndurantTermination
+:EndurantTermination rdf:type owl:Class ;
+                     rdfs:subClassOf :Achievement ;
+                     rdfs:comment """An :Achievement in which one endurant was terminated.
+
+end time should correlate with end time for object
+and endurant was terminated in""" .
+
+
+###  http://w3id.org/nemo/gufoevents#PartIncorporation
+:PartIncorporation rdf:type owl:Class ;
+                   rdfs:subClassOf :ParthoodChange ;
+                   rdfs:comment "can only be applied to temporary parts" .
+
+
+###  http://w3id.org/nemo/gufoevents#PartSeparation
+:PartSeparation rdf:type owl:Class ;
+                rdfs:subClassOf :ParthoodChange .
+
+
+###  http://w3id.org/nemo/gufoevents#ParthoodChange
+:ParthoodChange rdf:type owl:Class ;
+                rdfs:subClassOf :EndurantChange ;
+                owl:disjointUnionOf ( :PartIncorporation
+                                      :PartSeparation
+                                    ) .
+
+
+###  http://w3id.org/nemo/gufoevents#QualityValueChange
+:QualityValueChange rdf:type owl:Class ;
+                    rdfs:subClassOf :EndurantChange ;
+                    rdfs:comment """An :EndurantChange in which one quality has a new value.
+
+(Change implies the value is different from what it was before the event occurred.)""" .
+
+
+#################################################################
+#    General axioms
+#################################################################
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :Classification
+                :ConstitutionChange
+                :Declassification
+                :ParthoodChange
+                :QualityValueChange
+              )
+] .
+
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :EndurantChange
+                :EndurantCreation
+                :EndurantTermination
+              )
+] .
+
+
+###  Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi
