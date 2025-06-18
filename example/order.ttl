@@ -1,0 +1,146 @@
+@prefix : <http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/> .
+
+<http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68> rdf:type owl:Ontology ;
+                                                                            owl:imports <http://w3id.org/nemo/gufoevents> .
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/FulfilledOrder
+:FulfilledOrder rdf:type owl:Class ;
+                rdfs:subClassOf :Order ;
+                owl:disjointWith :PendingOrder .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/Order
+:Order rdf:type owl:Class ;
+       rdfs:subClassOf <http://purl.org/nemo/gufo#Object> .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/OrderAcceptance
+:OrderAcceptance rdf:type owl:Class ;
+                 rdfs:subClassOf <http://w3id.org/nemo/gufoevents#Achievement> .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/OrderCreation
+:OrderCreation rdf:type owl:Class ;
+               rdfs:subClassOf <http://w3id.org/nemo/gufoevents#EndurantCreation> .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/OrderDelivery
+:OrderDelivery rdf:type owl:Class ;
+               rdfs:subClassOf <http://w3id.org/nemo/gufoevents#Achievement> .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/OrderFulfilledClassification
+:OrderFulfilledClassification rdf:type owl:Class ;
+                              rdfs:subClassOf <http://w3id.org/nemo/gufoevents#Classification> .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/OrderPendingClassification
+:OrderPendingClassification rdf:type owl:Class ;
+                            rdfs:subClassOf <http://w3id.org/nemo/gufoevents#Classification> .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/OrderPendingDeclassification
+:OrderPendingDeclassification rdf:type owl:Class ;
+                              rdfs:subClassOf <http://w3id.org/nemo/gufoevents#Declassification> .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/PendingOrder
+:PendingOrder rdf:type owl:Class ;
+              rdfs:subClassOf :Order .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/FulfilledOrder
+:FulfilledOrder rdf:type owl:NamedIndividual ,
+                         <http://purl.org/nemo/gufo#Phase> .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/PendingOrder
+:PendingOrder rdf:type owl:NamedIndividual ,
+                       <http://purl.org/nemo/gufo#Phase> .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/order123
+:order123 rdf:type owl:NamedIndividual ,
+                   :Order .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/order123acceptance
+:order123acceptance rdf:type owl:NamedIndividual ,
+                             :OrderAcceptance .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/order123creation
+:order123creation rdf:type owl:NamedIndividual ,
+                           :OrderCreation ;
+                  <http://purl.org/nemo/gufo#isEventProperPartOf> :order123acceptance ;
+                  <http://w3id.org/nemo/gufoevents#created> :order123 .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/order123delivery
+:order123delivery rdf:type owl:NamedIndividual ,
+                           :OrderDelivery .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/order123fulfillment
+:order123fulfillment rdf:type owl:NamedIndividual ,
+                              :OrderFulfilledClassification ;
+                     <http://w3id.org/nemo/gufoevents#classified> :order123 ;
+                     <http://w3id.org/nemo/gufoevents#classifiedAsInstanceOf> :FulfilledOrder .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/order123initialclassification
+:order123initialclassification rdf:type owl:NamedIndividual ,
+                                        :OrderPendingClassification ;
+                               <http://purl.org/nemo/gufo#isEventProperPartOf> :order123acceptance ;
+                               <http://w3id.org/nemo/gufoevents#classified> :order123 ;
+                               <http://w3id.org/nemo/gufoevents#classifiedAsInstanceOf> :PendingOrder .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/order123pendingdeclassification
+:order123pendingdeclassification rdf:type owl:NamedIndividual ,
+                                          :OrderPendingDeclassification ;
+                                 <http://purl.org/nemo/gufo#isEventProperPartOf> :order123delivery ;
+                                 <http://w3id.org/nemo/gufoevents#declassified> :order123 ;
+                                 <http://w3id.org/nemo/gufoevents#declassifiedAsInstanceOf> :PendingOrder .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/order456
+:order456 rdf:type owl:NamedIndividual ,
+                   :Order .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/order456acceptance
+:order456acceptance rdf:type owl:NamedIndividual ,
+                             :OrderAcceptance .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/order456creation
+:order456creation rdf:type owl:NamedIndividual ,
+                           :OrderCreation ;
+                  <http://purl.org/nemo/gufo#isEventProperPartOf> :order456acceptance ;
+                  <http://w3id.org/nemo/gufoevents#created> :order456 .
+
+
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/untitled-ontology-68/order456initialclassification
+:order456initialclassification rdf:type owl:NamedIndividual ,
+                                        :OrderPendingClassification ;
+                               <http://purl.org/nemo/gufo#isEventProperPartOf> :order456acceptance ;
+                               <http://w3id.org/nemo/gufoevents#classified> :order456 ;
+                               <http://w3id.org/nemo/gufoevents#classifiedAsInstanceOf> :PendingOrder .
+
+
+###  Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi
