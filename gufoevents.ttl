@@ -215,6 +215,15 @@ A :Classification brings about a situation in which the classified endurant is a
 
 ###  http://w3id.org/nemo/gufoevents#ComplexAchievement
 :ComplexAchievement rdf:type owl:Class ;
+                    owl:equivalentClass [ owl:intersectionOf ( :Achievement
+                                                               [ rdf:type owl:Restriction ;
+                                                                 owl:onProperty [ owl:inverseOf gufo:isEventProperPartOf
+                                                                                ] ;
+                                                                 owl:someValuesFrom owl:Thing
+                                                               ]
+                                                             ) ;
+                                          rdf:type owl:Class
+                                        ] ;
                     rdfs:subClassOf :Achievement ,
                                     [ rdf:type owl:Restriction ;
                                       owl:onProperty [ owl:inverseOf gufo:isEventProperPartOf
