@@ -63,6 +63,11 @@
 #    Individuals
 #################################################################
 
+###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/order#Order
+:Order rdf:type owl:NamedIndividual ,
+                <http://purl.org/nemo/gufo#Kind> .
+
+
 ###  http://nemo.inf.ufes.br/jpalmeida/ontologies/2025/5/order/FulfilledOrder
 :FulfilledOrder rdf:type owl:NamedIndividual ,
                          <http://purl.org/nemo/gufo#Phase> .
