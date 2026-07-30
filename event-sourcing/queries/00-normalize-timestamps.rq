@@ -1,0 +1,39 @@
+# Normalize the log: give every achievement its own begin and end point.
+#
+# The parts of a complex achievement are simultaneous with it, so a bundle may
+# be dated once and its parts left undated -- which is how the examples are
+# written, and how a real writer would emit them. Every projection, though,
+# folds the log in time order, and an undated event has no place in that fold.
+#
+# Run this CONSTRUCT first and add the result to the graph. It is idempotent:
+# an achievement that already has a begin point is left alone.
+#
+# Note the + on the property path: parts of parts are covered too.
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX gufo: <http://purl.org/nemo/gufo#>
+PREFIX gufoevents: <http://w3id.org/nemo/gufoevents#>
+
+CONSTRUCT {
+  ?part gufo:hasBeginPointInXSDDateTimeStamp ?beginTs ;
+        gufo:hasEndPointInXSDDateTimeStamp   ?endTs ;
+        gufo:hasBeginPointInXSDDate          ?beginD ;
+        gufo:hasEndPointInXSDDate            ?endD .
+}
+WHERE {
+  ?part gufo:isEventProperPartOf+ ?whole .
+
+  FILTER NOT EXISTS { ?part gufo:hasBeginPointInXSDDateTimeStamp [] }
+  FILTER NOT EXISTS { ?part gufo:hasBeginPointInXSDDate [] }
+
+  OPTIONAL { ?whole gufo:hasBeginPointInXSDDateTimeStamp ?beginTs }
+  OPTIONAL { ?whole gufo:hasEndPointInXSDDateTimeStamp   ?endTs }
+  OPTIONAL { ?whole gufo:hasBeginPointInXSDDate          ?beginD }
+  OPTIONAL { ?whole gufo:hasEndPointInXSDDate            ?endD }
+
+  # Only inherit from a whole that is itself an achievement: the parts of an
+  # accomplishment extended in time are NOT simultaneous with it.
+  ?whole a/rdfs:subClassOf* gufoevents:ComplexAchievement .
+
+  FILTER (BOUND(?beginTs) || BOUND(?beginD))
+}

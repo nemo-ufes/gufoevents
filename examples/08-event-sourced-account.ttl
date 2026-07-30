@@ -1,0 +1,338 @@
+# Example 8 of 8 — An event-sourced bank account (retail banking)
+#
+# Level: advanced; this is the pattern example rather than a construct tour.
+# Shows: gUFOevents used as an append-only event log, with no current state
+#        stored anywhere, and the two things that distinguishes such a log from
+#        an ordinary one -- corrections by compensation, and projection.
+#
+# THE PATTERN
+#
+# Nothing in this file records the account's balance, or its status, or whether
+# it is still open. Every one of those is *projected* from the events by the
+# queries in ../event-sourcing/queries/. The log is the only thing written; the
+# read model is derived and disposable.
+#
+# gUFOevents suits this well because its events are already the right shape: an
+# endurant change names exactly one endurant and exactly one thing it changed
+# relative to, which is precisely an event-sourcing "fact". The three simple
+# achievements are the three primitive facts a log needs -- something began to
+# exist, something ceased to, something about it became different.
+#
+# THREE RULES THIS FILE OBEYS, AND WHY
+#
+# 1. Append only. No triple here is ever retracted. The mis-posting on 14 March
+#    is corrected by *adding* an event, not by editing the one that was wrong.
+#    See :depositCorrection below.
+#
+# 2. Every event is individually dated, with xsd:dateTimeStamp rather than
+#    xsd:date. A projection folds the log in time order, and a log dated only
+#    to the day cannot order two events on the same day.
+#
+# 3. Every event that is caused by another says so with
+#    gufo:historicallyDependsOn. That is what makes "why is the balance what it
+#    is?" answerable -- see queries/09-causal-chain.rq.
+#
+# Validate with:  python event-sourcing/run.py --validate examples/08-event-sourced-account.ttl
+# Project with:   python event-sourcing/run.py --query 04-current-quality-values examples/08-event-sourced-account.ttl
+
+@prefix : <https://w3id.org/nemo/gufoevents/examples/account#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gufo: <http://purl.org/nemo/gufo#> .
+@prefix gufoevents: <http://w3id.org/nemo/gufoevents#> .
+@base <https://w3id.org/nemo/gufoevents/examples/account#> .
+
+<https://w3id.org/nemo/gufoevents/examples/account> rdf:type owl:Ontology ;
+    rdfs:label "gUFOevents example 8: an event-sourced bank account"@en ;
+    owl:imports <http://w3id.org/nemo/gufoevents> .
+
+#################################################################
+#    The domain
+#################################################################
+
+:Account rdf:type owl:Class ;
+         rdfs:subClassOf gufo:Object ;
+         rdf:type gufo:Kind ;
+         rdfs:label "Account"@en .
+
+# The account's status, as phases. Note that these are phases and not just
+# labels: the account survives a freeze, so freezing is a reclassification and
+# not a termination. Closing, likewise, leaves the account in existence as a
+# closed account -- a bank does not stop having had the account.
+
+:ActiveAccount rdf:type owl:Class ;
+               rdfs:subClassOf :Account ;
+               rdf:type gufo:Phase ;
+               rdfs:label "ActiveAccount"@en .
+
+:FrozenAccount rdf:type owl:Class ;
+               rdfs:subClassOf :Account ;
+               rdf:type gufo:Phase ;
+               rdfs:label "FrozenAccount"@en .
+
+:ClosedAccount rdf:type owl:Class ;
+               rdfs:subClassOf :Account ;
+               rdf:type gufo:Phase ;
+               rdfs:label "ClosedAccount"@en .
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :ActiveAccount :FrozenAccount :ClosedAccount ) ] .
+
+# The balance is a quality of the account. It is reified precisely so that its
+# changes can be events; a data property on the account would leave nothing for
+# an event to be about.
+
+:Balance rdf:type owl:Class ;
+         rdfs:subClassOf gufo:Quality ;
+         rdfs:label "Balance"@en .
+
+:AccountHolder rdf:type owl:Class ;
+               rdfs:subClassOf gufo:Object ;
+               rdf:type gufo:Role ;
+               rdfs:label "AccountHolder"@en .
+
+#################################################################
+#    The event types: the log's vocabulary
+#################################################################
+
+:AccountOpening rdf:type owl:Class ;
+                rdfs:subClassOf gufoevents:ComplexAchievement ;
+                rdfs:label "AccountOpening"@en .
+
+:AccountClosure rdf:type owl:Class ;
+                rdfs:subClassOf gufoevents:Reclassification ;
+                rdfs:label "AccountClosure"@en .
+
+:Freeze rdf:type owl:Class ;
+        rdfs:subClassOf gufoevents:Reclassification ;
+        rdfs:label "Freeze"@en .
+
+:Unfreeze rdf:type owl:Class ;
+          rdfs:subClassOf gufoevents:Reclassification ;
+          rdfs:label "Unfreeze"@en .
+
+# Every movement of money is a change in the balance quality. Deposit and
+# withdrawal are distinguished by type, not by the sign of the value: the value
+# recorded is the new balance, because that is what a fold needs.
+
+:Posting rdf:type owl:Class ;
+         rdfs:subClassOf gufoevents:QualityValueChange ;
+         rdfs:label "Posting"@en .
+
+:Deposit rdf:type owl:Class ;
+         rdfs:subClassOf :Posting ;
+         rdfs:label "Deposit"@en .
+
+:Withdrawal rdf:type owl:Class ;
+            rdfs:subClassOf :Posting ;
+            rdfs:label "Withdrawal"@en .
+
+# A correction is a posting like any other: it is appended, it has its own
+# timestamp, and it depends historically on the posting it corrects. It does
+# not undo that posting -- nothing in an event-sourced log is ever undone --
+# it supersedes its effect from its own instant onwards.
+
+:Correction rdf:type owl:Class ;
+            rdfs:subClassOf :Posting ;
+            rdfs:label "Correction"@en .
+
+:corrects rdf:type owl:ObjectProperty ;
+          rdfs:subPropertyOf gufo:historicallyDependsOn ;
+          rdfs:domain :Correction ;
+          rdfs:range :Posting ;
+          rdfs:comment "Identifies the posting whose effect this correction supersedes. A sub-property of gufo:historicallyDependsOn, so corrections show up in causal-chain queries for free."@en ;
+          rdfs:label "corrects"@en .
+
+:changedBalanceInEurosTo rdf:type owl:DatatypeProperty ;
+                         rdfs:subPropertyOf gufoevents:changedValueTo ;
+                         rdfs:domain :Posting ;
+                         rdfs:range xsd:decimal ;
+                         rdfs:label "changedBalanceInEurosTo"@en .
+
+#################################################################
+#    The aggregate
+#################################################################
+
+:account0042 rdf:type :Account ;
+             rdfs:label "account 0042"@en .
+
+:account0042Balance rdf:type :Balance ;
+                    gufo:inheresIn :account0042 ;
+                    rdfs:label "balance of account 0042"@en .
+
+:mariana rdf:type :AccountHolder ;
+         rdfs:label "Mariana"@en .
+
+#################################################################
+#    THE LOG
+#################################################################
+#
+# From here down, everything is an event, in the order it was appended. This
+# is the whole of the write model.
+
+# --- 2025-01-15 09:00:00Z : the account is opened -------------------------
+#
+# Four facts at one instant: the account begins to exist, its balance begins to
+# exist, the account enters the Active phase, and the opening deposit lands.
+# Each is a separate simple achievement because each names one endurant; the
+# opening is the complex achievement that bundles them.
+
+:opening rdf:type :AccountOpening ;
+         gufo:hasBeginPointInXSDDateTimeStamp "2025-01-15T09:00:00Z"^^xsd:dateTimeStamp ;
+         gufo:hasEndPointInXSDDateTimeStamp "2025-01-15T09:00:00Z"^^xsd:dateTimeStamp .
+
+:mariana gufo:participatedIn :opening .
+
+:accountCreation rdf:type gufoevents:EndurantCreation ;
+                 gufo:isEventProperPartOf :opening ;
+                 gufoevents:created :account0042 .
+
+:balanceCreation rdf:type gufoevents:EndurantCreation ;
+                 gufo:isEventProperPartOf :opening ;
+                 gufoevents:created :account0042Balance .
+
+:accountBecomesActive rdf:type gufoevents:Classification ;
+                      gufo:isEventProperPartOf :opening ;
+                      gufoevents:classified :account0042 ;
+                      gufoevents:classifiedAsInstanceOf :ActiveAccount .
+
+:openingDeposit rdf:type :Deposit ;
+                gufo:isEventProperPartOf :opening ;
+                gufoevents:changedValueOf :account0042Balance ;
+                :changedBalanceInEurosTo "500.00"^^xsd:decimal .
+
+# --- 2025-02-03 14:22:10Z : a deposit --------------------------------------
+
+:deposit1 rdf:type :Deposit ;
+          gufo:historicallyDependsOn :openingDeposit ;
+          gufoevents:changedValueOf :account0042Balance ;
+          :changedBalanceInEurosTo "1250.00"^^xsd:decimal ;
+          gufo:hasBeginPointInXSDDateTimeStamp "2025-02-03T14:22:10Z"^^xsd:dateTimeStamp ;
+          gufo:hasEndPointInXSDDateTimeStamp "2025-02-03T14:22:10Z"^^xsd:dateTimeStamp .
+
+# --- 2025-03-14 11:05:00Z : a mis-posting -----------------------------------
+#
+# 750 euros were credited that should have been 75. The event stays in the log
+# for ever: it is what the bank believed on 14 March, and any query asking what
+# the balance was on 15 March must still answer 2000.00.
+
+:deposit2 rdf:type :Deposit ;
+          gufo:historicallyDependsOn :deposit1 ;
+          gufoevents:changedValueOf :account0042Balance ;
+          :changedBalanceInEurosTo "2000.00"^^xsd:decimal ;
+          gufo:hasBeginPointInXSDDateTimeStamp "2025-03-14T11:05:00Z"^^xsd:dateTimeStamp ;
+          gufo:hasEndPointInXSDDateTimeStamp "2025-03-14T11:05:00Z"^^xsd:dateTimeStamp .
+
+# --- 2025-03-18 08:30:00Z : the correction ---------------------------------
+#
+# The compensating event. It is appended four days later, at its own instant,
+# and sets the balance to what it should have been. Note what it does NOT do:
+# it does not retract :deposit2, and it does not carry :deposit2's timestamp.
+# Backdating a correction would destroy the property that makes the log worth
+# keeping -- that the state as of any past instant is reproducible.
+
+:depositCorrection rdf:type :Correction ;
+                   :corrects :deposit2 ;
+                   gufoevents:changedValueOf :account0042Balance ;
+                   :changedBalanceInEurosTo "1325.00"^^xsd:decimal ;
+                   gufo:hasBeginPointInXSDDateTimeStamp "2025-03-18T08:30:00Z"^^xsd:dateTimeStamp ;
+                   gufo:hasEndPointInXSDDateTimeStamp "2025-03-18T08:30:00Z"^^xsd:dateTimeStamp .
+
+# --- 2025-06-02 16:45:00Z : the account is frozen ---------------------------
+#
+# A reclassification: Active out, Frozen in, at one instant.
+
+:freeze rdf:type :Freeze ;
+        gufo:historicallyDependsOn :accountBecomesActive ;
+        gufo:hasBeginPointInXSDDateTimeStamp "2025-06-02T16:45:00Z"^^xsd:dateTimeStamp ;
+        gufo:hasEndPointInXSDDateTimeStamp "2025-06-02T16:45:00Z"^^xsd:dateTimeStamp .
+
+:accountCeasesActive rdf:type gufoevents:Declassification ;
+                     gufo:isEventProperPartOf :freeze ;
+                     gufoevents:declassified :account0042 ;
+                     gufoevents:declassifiedAsInstanceOf :ActiveAccount .
+
+:accountBecomesFrozen rdf:type gufoevents:Classification ;
+                      gufo:isEventProperPartOf :freeze ;
+                      gufoevents:classified :account0042 ;
+                      gufoevents:classifiedAsInstanceOf :FrozenAccount .
+
+# --- 2025-07-21 10:00:00Z : and unfrozen -----------------------------------
+
+:unfreeze rdf:type :Unfreeze ;
+          gufo:historicallyDependsOn :freeze ;
+          gufo:hasBeginPointInXSDDateTimeStamp "2025-07-21T10:00:00Z"^^xsd:dateTimeStamp ;
+          gufo:hasEndPointInXSDDateTimeStamp "2025-07-21T10:00:00Z"^^xsd:dateTimeStamp .
+
+:accountCeasesFrozen rdf:type gufoevents:Declassification ;
+                     gufo:isEventProperPartOf :unfreeze ;
+                     gufoevents:declassified :account0042 ;
+                     gufoevents:declassifiedAsInstanceOf :FrozenAccount .
+
+:accountBecomesActiveAgain rdf:type gufoevents:Classification ;
+                           gufo:isEventProperPartOf :unfreeze ;
+                           gufoevents:classified :account0042 ;
+                           gufoevents:classifiedAsInstanceOf :ActiveAccount .
+
+# --- 2025-09-30 12:00:00Z : a withdrawal ------------------------------------
+
+:withdrawal1 rdf:type :Withdrawal ;
+             gufo:historicallyDependsOn :depositCorrection ;
+             gufoevents:changedValueOf :account0042Balance ;
+             :changedBalanceInEurosTo "325.00"^^xsd:decimal ;
+             gufo:hasBeginPointInXSDDateTimeStamp "2025-09-30T12:00:00Z"^^xsd:dateTimeStamp ;
+             gufo:hasEndPointInXSDDateTimeStamp "2025-09-30T12:00:00Z"^^xsd:dateTimeStamp .
+
+# --- 2025-11-11 15:00:00Z : the account is closed ---------------------------
+#
+# Closing is a reclassification, not a termination: the account still exists,
+# as a closed account. Contrast the balance, which is terminated -- a closed
+# account has no balance, not a balance of zero. That distinction is exactly
+# the one gUFOevents is for, and it is invisible in a schema where the balance
+# is a column.
+
+:closure rdf:type :AccountClosure ;
+         gufo:historicallyDependsOn :withdrawal1 ;
+         gufo:hasBeginPointInXSDDateTimeStamp "2025-11-11T15:00:00Z"^^xsd:dateTimeStamp ;
+         gufo:hasEndPointInXSDDateTimeStamp "2025-11-11T15:00:00Z"^^xsd:dateTimeStamp .
+
+:finalWithdrawal rdf:type :Withdrawal ;
+                 gufo:isEventProperPartOf :closure ;
+                 gufoevents:changedValueOf :account0042Balance ;
+                 :changedBalanceInEurosTo "0.00"^^xsd:decimal .
+
+:accountCeasesActiveOnClosure rdf:type gufoevents:Declassification ;
+                              gufo:isEventProperPartOf :closure ;
+                              gufoevents:declassified :account0042 ;
+                              gufoevents:declassifiedAsInstanceOf :ActiveAccount .
+
+:accountBecomesClosed rdf:type gufoevents:Classification ;
+                      gufo:isEventProperPartOf :closure ;
+                      gufoevents:classified :account0042 ;
+                      gufoevents:classifiedAsInstanceOf :ClosedAccount .
+
+:balanceTermination rdf:type gufoevents:EndurantTermination ;
+                    gufo:isEventProperPartOf :closure ;
+                    gufoevents:terminated :account0042Balance .
+
+#################################################################
+#    What the log answers
+#################################################################
+#
+# Run these against this file (see ../event-sourcing/queries/):
+#
+#   01-timeline              every event touching :account0042, in order
+#   02-current-types         :account0042 is a :ClosedAccount, and nothing else
+#   03-types-as-of           on 2025-06-15 it was a :FrozenAccount
+#   04-current-quality-values nothing -- the balance was terminated at closure
+#   06-lifespans             the account is alive; its balance is not
+#   09-causal-chain          why the balance is what it is, back to the opening
+#   10-audit-value           the full history: 500, 1250, 2000, 1325, 325, 0
+#
+# The last of those is the one to look at. It shows 2000.00 in force from
+# 14 March to 18 March, which is wrong and is *supposed* to be there: the bank
+# did believe it, statements were issued on it, and an auditor asking what the
+# system said on 16 March must be told 2000.00. A store that overwrote the
+# value on correction could not answer that question at all.

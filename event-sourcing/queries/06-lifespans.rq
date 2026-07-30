@@ -1,0 +1,32 @@
+# Projection: the lifespan of every endurant the log knows about.
+#
+# ?terminatedAt unbound means still in existence -- but only in the sense that
+# no termination has been recorded. Under the open world assumption that is not
+# the same as a positive claim that the thing still exists; in an event-sourced
+# graph, where the log is by construction complete, it is.
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX gufo: <http://purl.org/nemo/gufo#>
+PREFIX gufoevents: <http://w3id.org/nemo/gufoevents#>
+
+SELECT ?endurant ?createdAt ?createdIn ?terminatedAt ?terminatedIn ?alive
+WHERE {
+  ?createdIn ?pc ?endurant .
+  ?pc rdfs:subPropertyOf* gufoevents:created .
+
+  OPTIONAL { ?createdIn gufo:hasBeginPointInXSDDateTimeStamp ?cts }
+  OPTIONAL { ?createdIn gufo:hasBeginPointInXSDDate ?cd }
+  BIND(COALESCE(xsd:dateTime(STR(?cts)), xsd:dateTime(CONCAT(STR(?cd), "T00:00:00Z"))) AS ?createdAt)
+
+  OPTIONAL {
+    ?terminatedIn ?pt ?endurant .
+    ?pt rdfs:subPropertyOf* gufoevents:terminated .
+    OPTIONAL { ?terminatedIn gufo:hasBeginPointInXSDDateTimeStamp ?tts }
+    OPTIONAL { ?terminatedIn gufo:hasBeginPointInXSDDate ?td }
+    BIND(COALESCE(xsd:dateTime(STR(?tts)), xsd:dateTime(CONCAT(STR(?td), "T00:00:00Z"))) AS ?terminatedAt)
+  }
+
+  BIND(!BOUND(?terminatedIn) AS ?alive)
+}
+ORDER BY ?createdAt ?endurant

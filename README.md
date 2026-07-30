@@ -58,8 +58,10 @@ Authors:
 | [`docs/`](docs) | Generated documentation (usage guide and reference), published at <https://w3id.org/nemo/doc/gufoevents>. |
 | [`docs/overview.md`](docs/overview.md) | Source of the usage guide section of the documentation. |
 | [`docs/build.py`](docs/build.py) | Script that regenerates `docs/index.html` from the ontology and the usage guide. |
-| [`examples/`](examples) | A guided tour in seven worked examples from seven domains, in increasing order of difficulty. See [`examples/README.md`](examples/README.md). |
+| [`examples/`](examples) | A guided tour in eight worked examples from eight domains, in increasing order of difficulty. See [`examples/README.md`](examples/README.md). |
 | [`examples/validate.py`](examples/validate.py) | Checks every example with an OWL 2 DL reasoner, and checks that the constraints gUFOevents states are actually enforced. |
+| [`docs/explorer.html`](docs/explorer.html) | Interactive companion to the examples: scrub through a log and watch the state be projected from it. Built by [`examples/build-explorer.py`](examples/build-explorer.py). |
+| [`event-sourcing/`](event-sourcing) | SHACL shapes and SPARQL projections for using gUFOevents as an append-only event log. See [`event-sourcing/README.md`](event-sourcing/README.md). |
 
 ## Usage
 

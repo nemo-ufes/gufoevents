@@ -1,0 +1,58 @@
+# Projection: which endurants are parts of which, and which constitute which.
+#
+# Parthood and constitution fold exactly like classification: an incorporation
+# holds until a separation of the same pair, an introduction until a removal.
+# The two are kept in one query because applications usually want both.
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX gufo: <http://purl.org/nemo/gufo#>
+PREFIX gufoevents: <http://w3id.org/nemo/gufoevents#>
+
+SELECT ?relation ?part ?whole ?since ?establishedBy
+WHERE {
+  {
+    BIND("part of" AS ?relation)
+    ?establishedBy a/rdfs:subClassOf* gufoevents:PartIncorporation ;
+                   ?pi ?part ; ?piw ?whole .
+    ?pi rdfs:subPropertyOf* gufoevents:incorporatedAsPart .
+    ?piw rdfs:subPropertyOf* gufoevents:incorporatedAsPartInto .
+
+    OPTIONAL { ?establishedBy gufo:hasBeginPointInXSDDateTimeStamp ?its }
+    OPTIONAL { ?establishedBy gufo:hasBeginPointInXSDDate ?id }
+    BIND(COALESCE(xsd:dateTime(STR(?its)), xsd:dateTime(CONCAT(STR(?id), "T00:00:00Z"))) AS ?since)
+
+    FILTER NOT EXISTS {
+      ?sep a/rdfs:subClassOf* gufoevents:PartSeparation ;
+           ?ps ?part ; ?psw ?whole .
+      ?ps rdfs:subPropertyOf* gufoevents:separatedAsPart .
+      ?psw rdfs:subPropertyOf* gufoevents:separatedAsPartFrom .
+      OPTIONAL { ?sep gufo:hasBeginPointInXSDDateTimeStamp ?sts }
+      OPTIONAL { ?sep gufo:hasBeginPointInXSDDate ?sd }
+      BIND(COALESCE(xsd:dateTime(STR(?sts)), xsd:dateTime(CONCAT(STR(?sd), "T00:00:00Z"))) AS ?until)
+      FILTER (?until >= ?since)
+    }
+  } UNION {
+    BIND("constitutes" AS ?relation)
+    ?establishedBy a/rdfs:subClassOf* gufoevents:ConstituentIntroduction ;
+                   ?ii ?part ; ?iiw ?whole .
+    ?ii rdfs:subPropertyOf* gufoevents:introducedAsConstituent .
+    ?iiw rdfs:subPropertyOf* gufoevents:introducedAsConstituentOf .
+
+    OPTIONAL { ?establishedBy gufo:hasBeginPointInXSDDateTimeStamp ?its2 }
+    OPTIONAL { ?establishedBy gufo:hasBeginPointInXSDDate ?id2 }
+    BIND(COALESCE(xsd:dateTime(STR(?its2)), xsd:dateTime(CONCAT(STR(?id2), "T00:00:00Z"))) AS ?since)
+
+    FILTER NOT EXISTS {
+      ?rem a/rdfs:subClassOf* gufoevents:ConstituentRemoval ;
+           ?rr ?part ; ?rrw ?whole .
+      ?rr rdfs:subPropertyOf* gufoevents:removedAsConstituent .
+      ?rrw rdfs:subPropertyOf* gufoevents:removedAsConstituentFrom .
+      OPTIONAL { ?rem gufo:hasBeginPointInXSDDateTimeStamp ?rts }
+      OPTIONAL { ?rem gufo:hasBeginPointInXSDDate ?rd }
+      BIND(COALESCE(xsd:dateTime(STR(?rts)), xsd:dateTime(CONCAT(STR(?rd), "T00:00:00Z"))) AS ?until)
+      FILTER (?until >= ?since)
+    }
+  }
+}
+ORDER BY ?relation ?whole ?part

@@ -1,0 +1,46 @@
+# Audit: for every quality, the full sequence of values it has held, with the
+# event that set each one and the interval over which it was in force.
+#
+# This is the report an auditor asks for and a snapshot-based store cannot
+# produce. ?until unbound means the value is the one currently in force.
+#
+# Parameter: ?quality (leave free for every quality in the log).
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX gufo: <http://purl.org/nemo/gufo#>
+PREFIX gufoevents: <http://w3id.org/nemo/gufoevents#>
+
+SELECT ?quality ?value ?from ?until ?setBy
+WHERE {
+  ?setBy a/rdfs:subClassOf* gufoevents:QualityValueChange ;
+         ?pq ?quality .
+  ?pq rdfs:subPropertyOf* gufoevents:changedValueOf .
+
+  { ?setBy ?pv ?value . ?pv rdfs:subPropertyOf* gufoevents:changedValueTo }
+  UNION
+  { ?setBy ?pr ?value . ?pr rdfs:subPropertyOf* gufoevents:changedReifiedValueTo }
+
+  OPTIONAL { ?setBy gufo:hasBeginPointInXSDDateTimeStamp ?fts }
+  OPTIONAL { ?setBy gufo:hasBeginPointInXSDDate ?fd }
+  BIND(COALESCE(xsd:dateTime(STR(?fts)), xsd:dateTime(CONCAT(STR(?fd), "T00:00:00Z"))) AS ?from)
+
+  # the next change to the same quality closes the interval
+  OPTIONAL {
+    ?next ?pq2 ?quality .
+    ?pq2 rdfs:subPropertyOf* gufoevents:changedValueOf .
+    OPTIONAL { ?next gufo:hasBeginPointInXSDDateTimeStamp ?nts }
+    OPTIONAL { ?next gufo:hasBeginPointInXSDDate ?nd }
+    BIND(COALESCE(xsd:dateTime(STR(?nts)), xsd:dateTime(CONCAT(STR(?nd), "T00:00:00Z"))) AS ?until)
+    FILTER (?until > ?from)
+    FILTER NOT EXISTS {
+      ?mid ?pq3 ?quality .
+      ?pq3 rdfs:subPropertyOf* gufoevents:changedValueOf .
+      OPTIONAL { ?mid gufo:hasBeginPointInXSDDateTimeStamp ?mts }
+      OPTIONAL { ?mid gufo:hasBeginPointInXSDDate ?md }
+      BIND(COALESCE(xsd:dateTime(STR(?mts)), xsd:dateTime(CONCAT(STR(?md), "T00:00:00Z"))) AS ?midAt)
+      FILTER (?midAt > ?from && ?midAt < ?until)
+    }
+  }
+}
+ORDER BY ?quality ?from

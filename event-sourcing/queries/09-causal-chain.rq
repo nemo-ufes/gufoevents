@@ -1,0 +1,26 @@
+# Provenance: everything an event depends on, transitively.
+#
+# gufo:historicallyDependsOn is the causal backbone of the log, and it is
+# transitive in gUFO, so a reasoner would give you the closure for free. The +
+# here computes it without one.
+#
+# Use this to answer "why did this happen?" -- and, read the other way round
+# (swap ?event and ?antecedent), "what does this event affect?", which is the
+# question you need answered before you dare correct a past entry.
+#
+# Parameter: ?event.
+
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX gufo: <http://purl.org/nemo/gufo#>
+
+SELECT ?antecedent ?at ?directness
+WHERE {
+  ?event gufo:historicallyDependsOn+ ?antecedent .
+  BIND(IF(EXISTS { ?event gufo:historicallyDependsOn ?antecedent },
+          "direct", "transitive") AS ?directness)
+
+  OPTIONAL { ?antecedent gufo:hasBeginPointInXSDDateTimeStamp ?ts }
+  OPTIONAL { ?antecedent gufo:hasBeginPointInXSDDate ?d }
+  BIND(COALESCE(xsd:dateTime(STR(?ts)), xsd:dateTime(CONCAT(STR(?d), "T00:00:00Z"))) AS ?at)
+}
+ORDER BY DESC(?at)

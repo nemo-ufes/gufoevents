@@ -1,0 +1,48 @@
+# Projection: which types did each endurant instantiate at a given instant?
+#
+# The same fold as 02, cut off at ?asOf instead of at the end of the log. This
+# is the query that makes an event-sourced graph worth the trouble: the state
+# of the world at any past moment, with no snapshots stored.
+#
+# Parameter: ?asOf -- bind it, e.g.
+#   VALUES ?asOf { "1990-01-01T00:00:00Z"^^xsd:dateTime }
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX gufo: <http://purl.org/nemo/gufo#>
+PREFIX gufoevents: <http://w3id.org/nemo/gufoevents#>
+
+SELECT ?endurant ?type ?since ?enteredBy
+WHERE {
+  ?enteredBy a/rdfs:subClassOf* gufoevents:Classification ;
+             ?pc ?endurant ;
+             ?pt ?type .
+  ?pc rdfs:subPropertyOf* gufoevents:classified .
+  ?pt rdfs:subPropertyOf* gufoevents:classifiedAsInstanceOf .
+
+  OPTIONAL { ?enteredBy gufo:hasBeginPointInXSDDateTimeStamp ?cts }
+  OPTIONAL { ?enteredBy gufo:hasBeginPointInXSDDate ?cd }
+  BIND(COALESCE(xsd:dateTime(STR(?cts)), xsd:dateTime(CONCAT(STR(?cd), "T00:00:00Z"))) AS ?since)
+  FILTER (?since <= ?asOf)
+
+  FILTER NOT EXISTS {
+    ?left a/rdfs:subClassOf* gufoevents:Declassification ;
+          ?pd ?endurant ; ?pdt ?type .
+    ?pd rdfs:subPropertyOf* gufoevents:declassified .
+    ?pdt rdfs:subPropertyOf* gufoevents:declassifiedAsInstanceOf .
+    OPTIONAL { ?left gufo:hasBeginPointInXSDDateTimeStamp ?dts }
+    OPTIONAL { ?left gufo:hasBeginPointInXSDDate ?dd }
+    BIND(COALESCE(xsd:dateTime(STR(?dts)), xsd:dateTime(CONCAT(STR(?dd), "T00:00:00Z"))) AS ?until)
+    FILTER (?until >= ?since && ?until <= ?asOf)
+  }
+
+  # Not yet created, or already terminated, at ?asOf.
+  FILTER NOT EXISTS {
+    ?t ?pterm ?endurant . ?pterm rdfs:subPropertyOf* gufoevents:terminated .
+    OPTIONAL { ?t gufo:hasBeginPointInXSDDateTimeStamp ?tts }
+    OPTIONAL { ?t gufo:hasBeginPointInXSDDate ?td }
+    BIND(COALESCE(xsd:dateTime(STR(?tts)), xsd:dateTime(CONCAT(STR(?td), "T00:00:00Z"))) AS ?tend)
+    FILTER (?tend <= ?asOf)
+  }
+}
+ORDER BY ?endurant ?since

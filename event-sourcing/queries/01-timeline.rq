@@ -1,0 +1,44 @@
+# The timeline of one endurant: every event that mentions it, in order.
+#
+# This is the query event sourcing exists for. Nothing about the endurant's
+# state is stored; its whole history is read off the log.
+#
+# The three UNION branches are the three ways an achievement can mention an
+# endurant, and they are three separate properties because gUFOevents keeps
+# them apart on purpose: creation and termination are not changes.
+#
+# Parameter: ?endurant (bind it, or leave it free to get every history).
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX gufo: <http://purl.org/nemo/gufo#>
+PREFIX gufoevents: <http://w3id.org/nemo/gufoevents#>
+
+SELECT ?at ?event ?kind ?relatedTo
+WHERE {
+  {
+    ?event ?p ?endurant .
+    ?p rdfs:subPropertyOf* gufoevents:created .
+    BIND("created" AS ?kind)
+  } UNION {
+    ?event ?p ?endurant .
+    ?p rdfs:subPropertyOf* gufoevents:terminated .
+    BIND("terminated" AS ?kind)
+  } UNION {
+    ?event ?p ?endurant .
+    ?p rdfs:subPropertyOf* gufoevents:changed .
+    BIND("changed" AS ?kind)
+    OPTIONAL {
+      ?event ?q ?relatedTo .
+      ?q rdfs:subPropertyOf* gufoevents:changedEndurantRelativeTo .
+    }
+  }
+
+  # The timestamp idiom used throughout these queries: prefer the
+  # dateTimeStamp, fall back on the date widened to midnight UTC, so that
+  # events dated either way sort together.
+  OPTIONAL { ?event gufo:hasBeginPointInXSDDateTimeStamp ?ts }
+  OPTIONAL { ?event gufo:hasBeginPointInXSDDate ?d }
+  BIND(COALESCE(xsd:dateTime(STR(?ts)), xsd:dateTime(CONCAT(STR(?d), "T00:00:00Z"))) AS ?at)
+}
+ORDER BY ?at ?event

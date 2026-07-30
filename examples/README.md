@@ -1,11 +1,12 @@
 # gUFOevents by example
 
-A guided tour of [gUFOevents](../README.md) in seven examples, from seven domains, in
+A guided tour of [gUFOevents](../README.md) in eight examples, from eight domains, in
 increasing order of difficulty. Each is a self-contained Turtle file that imports
 gUFOevents and can be opened in Protégé or loaded into any triplestore.
 
 Read them in order. Each one introduces a few constructs and then leans on what came
-before; the last is a capstone that uses almost everything.
+before; the seventh is a capstone that uses almost everything, and the eighth shows the
+whole thing put to work as an event-sourced log.
 
 | # | File | Domain | Introduces |
 | --- | --- | --- | --- |
@@ -16,6 +17,22 @@ before; the last is a capstone that uses almost everything.
 | 5 | [`05-employment-relators.ttl`](05-employment-relators.ttl) | human resources | creation and termination of *aspects*: relators, extrinsic modes, qualities |
 | 6 | [`06-corporate-restructuring.ttl`](06-corporate-restructuring.ttl) | company law | `Transformation`, `Merging`, `Splitting`, `Transmutation` |
 | 7 | [`07-clinical-episode.ttl`](07-clinical-episode.ttl) | healthcare | everything above, plus accomplishments vs achievements, `contributedToTrigger`, dispositions |
+| 8 | [`08-event-sourced-account.ttl`](08-event-sourced-account.ttl) | retail banking | the event-sourcing pattern: an append-only log, a correction by compensation, no state stored |
+
+## The interactive companion
+
+[**gUFOevents by example**](../docs/explorer.html) is a browser page that pairs with
+every one of these files. Pick an example, drag the scrubber, and watch the state on
+the right be rebuilt from the events on the left, one instant at a time — which is the
+whole argument for recording change as events rather than as situations, made visible.
+
+It is generated from the `.ttl` files by [`build-explorer.py`](build-explorer.py),
+running the same SPARQL as the projections in [`../event-sourcing/queries/`](../event-sourcing/queries),
+so it cannot drift from the examples. Rebuild it after editing any of them:
+
+```
+python examples/build-explorer.py
+```
 
 ## The one idea
 
@@ -90,7 +107,8 @@ much as the price of staying in OWL 2 DL, but you should know where the guard ra
    begin and end points coincide, but no axiom relates the two temporal properties, so
    an `Achievement` running from 2020 to 2021 loads without complaint. Likewise nothing
    requires the parts of a complex achievement to be simultaneous, or a termination to
-   follow a creation. If temporal integrity matters to you, check it with SHACL or SPARQL.
+   follow a creation. All of this *is* checked by the SHACL shapes in
+   [`../event-sourcing/`](../event-sourcing), which exist largely for this reason.
 2. **`SimpleAchievement` is never inferred.** It is defined by the *absence* of parts,
    and under the open world assumption absence is not provable. Assert it, or assert one
    of its subclasses.
@@ -142,3 +160,11 @@ of `changed`, and the thing it changed relative to with a sub-property of
 Because the left column is functional throughout, "several things changed at once" is
 always several simple achievements grouped under one complex achievement — never one
 event with several objects. Examples 5 and 7 lean on this heavily.
+
+## Beyond the reasoner
+
+Everything in the list above that a reasoner cannot check, SHACL can. See
+[`../event-sourcing/`](../event-sourcing) for shapes that enforce temporal integrity and
+the structure of transformations, and for SPARQL projections that read current state,
+state as of any past instant, and full audit trails off the log. Every example in this
+folder is validated against those shapes as well as by the reasoner.

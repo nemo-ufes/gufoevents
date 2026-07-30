@@ -1,0 +1,44 @@
+# Projection: the value in force for every quality.
+#
+# The last quality value change wins. Note what the fold ranges over: the
+# *quality* (John's mass), not its bearer. gufo:inheresIn gets you from one to
+# the other, and is included here because an application almost always wants
+# to report the value against the bearer.
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX gufo: <http://purl.org/nemo/gufo#>
+PREFIX gufoevents: <http://w3id.org/nemo/gufoevents#>
+
+SELECT ?bearer ?quality ?value ?since ?setBy
+WHERE {
+  ?setBy a/rdfs:subClassOf* gufoevents:QualityValueChange ;
+         ?pq ?quality .
+  ?pq rdfs:subPropertyOf* gufoevents:changedValueOf .
+
+  OPTIONAL { ?quality gufo:inheresIn ?bearer }
+
+  # Either kind of value: a literal, or a reified gufo:QualityValue.
+  { ?setBy ?pv ?value . ?pv rdfs:subPropertyOf* gufoevents:changedValueTo }
+  UNION
+  { ?setBy ?pr ?value . ?pr rdfs:subPropertyOf* gufoevents:changedReifiedValueTo }
+
+  OPTIONAL { ?setBy gufo:hasBeginPointInXSDDateTimeStamp ?sts }
+  OPTIONAL { ?setBy gufo:hasBeginPointInXSDDate ?sd }
+  BIND(COALESCE(xsd:dateTime(STR(?sts)), xsd:dateTime(CONCAT(STR(?sd), "T00:00:00Z"))) AS ?since)
+
+  # No later change to the same quality.
+  FILTER NOT EXISTS {
+    ?later ?pq2 ?quality .
+    ?pq2 rdfs:subPropertyOf* gufoevents:changedValueOf .
+    OPTIONAL { ?later gufo:hasBeginPointInXSDDateTimeStamp ?lts }
+    OPTIONAL { ?later gufo:hasBeginPointInXSDDate ?ld }
+    BIND(COALESCE(xsd:dateTime(STR(?lts)), xsd:dateTime(CONCAT(STR(?ld), "T00:00:00Z"))) AS ?lat)
+    FILTER (?lat > ?since)
+  }
+
+  FILTER NOT EXISTS {
+    ?t ?pterm ?quality . ?pterm rdfs:subPropertyOf* gufoevents:terminated .
+  }
+}
+ORDER BY ?bearer ?quality

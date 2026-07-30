@@ -1,0 +1,46 @@
+# Projection: which non-rigid types does each endurant instantiate *now*?
+#
+# The fold: an endurant is in a type from the classification that entered it
+# until the declassification that left it. A classification with no later
+# declassification of the same type is still in force.
+#
+# This is the read model most applications actually want, and the reason
+# gufoevents:Classification and gufoevents:Declassification are separate,
+# disjoint events rather than one "phase transition".
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX gufo: <http://purl.org/nemo/gufo#>
+PREFIX gufoevents: <http://w3id.org/nemo/gufoevents#>
+
+SELECT ?endurant ?type ?since ?enteredBy
+WHERE {
+  ?enteredBy a/rdfs:subClassOf* gufoevents:Classification ;
+             ?pc ?endurant ;
+             ?pt ?type .
+  ?pc rdfs:subPropertyOf* gufoevents:classified .
+  ?pt rdfs:subPropertyOf* gufoevents:classifiedAsInstanceOf .
+
+  OPTIONAL { ?enteredBy gufo:hasBeginPointInXSDDateTimeStamp ?cts }
+  OPTIONAL { ?enteredBy gufo:hasBeginPointInXSDDate ?cd }
+  BIND(COALESCE(xsd:dateTime(STR(?cts)), xsd:dateTime(CONCAT(STR(?cd), "T00:00:00Z"))) AS ?since)
+
+  FILTER NOT EXISTS {
+    ?left a/rdfs:subClassOf* gufoevents:Declassification ;
+          ?pd ?endurant ;
+          ?pdt ?type .
+    ?pd rdfs:subPropertyOf* gufoevents:declassified .
+    ?pdt rdfs:subPropertyOf* gufoevents:declassifiedAsInstanceOf .
+
+    OPTIONAL { ?left gufo:hasBeginPointInXSDDateTimeStamp ?dts }
+    OPTIONAL { ?left gufo:hasBeginPointInXSDDate ?dd }
+    BIND(COALESCE(xsd:dateTime(STR(?dts)), xsd:dateTime(CONCAT(STR(?dd), "T00:00:00Z"))) AS ?until)
+    FILTER (?until >= ?since)
+  }
+
+  # An endurant that no longer exists instantiates nothing.
+  FILTER NOT EXISTS {
+    ?t ?pterm ?endurant . ?pterm rdfs:subPropertyOf* gufoevents:terminated .
+  }
+}
+ORDER BY ?endurant ?since

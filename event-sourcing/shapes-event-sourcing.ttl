@@ -1,0 +1,366 @@
+# SHACL shapes for gUFOevents used as an event-sourced log
+#
+# These are stricter than shapes-core.ttl, and they only make sense when the
+# event log is the source of truth: when current state is not asserted but
+# projected from the events, as queries/ does. They enforce the invariants a
+# projection depends on. Break one and the projections silently disagree.
+#
+# Run them *after* queries/00-normalize-timestamps.rq, so that every
+# achievement carries its own begin point. run.py does this.
+#
+# Use with shapes-core.ttl, not instead of it.
+#
+# ---------------------------------------------------------------------------
+# THE TIMESTAMP IDIOM
+#
+# Every constraint below that compares two instants normalizes them first:
+#
+#     OPTIONAL { ?e gufo:hasBeginPointInXSDDateTimeStamp ?e_ts }
+#     OPTIONAL { ?e gufo:hasBeginPointInXSDDate ?e_d }
+#     BIND(COALESCE(xsd:dateTime(STR(?e_ts)),
+#                   xsd:dateTime(CONCAT(STR(?e_d), "T00:00:00Z"))) AS ?at)
+#
+# Two reasons, and both are traps worth knowing about.
+#
+# 1. gUFO offers two begin-point properties, one ranging over xsd:date and one
+#    over xsd:dateTimeStamp. A constraint written against only one of them
+#    silently passes on data that uses the other -- a false negative, which is
+#    the worst kind of check.
+#
+# 2. xsd:dateTimeStamp is an XSD 1.1 datatype, and not every SPARQL engine
+#    gives it a value space. rdflib, for one, neither orders nor casts it: a
+#    FILTER comparing two xsd:dateTimeStamp literals yields no error and no
+#    rows. Going through STR() and casting to xsd:dateTime sidesteps this and
+#    is portable.
+# ---------------------------------------------------------------------------
+
+@prefix : <https://w3id.org/nemo/gufoevents/shapes/event-sourcing#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gufo: <http://purl.org/nemo/gufo#> .
+@prefix gufoevents: <http://w3id.org/nemo/gufoevents#> .
+
+<https://w3id.org/nemo/gufoevents/shapes/event-sourcing>
+    rdf:type owl:Ontology ;
+    rdfs:label "SHACL shapes for event-sourced gUFOevents graphs"@en ;
+    sh:declare
+        [ sh:prefix "gufo" ; sh:namespace "http://purl.org/nemo/gufo#"^^xsd:anyURI ] ,
+        [ sh:prefix "gufoevents" ; sh:namespace "http://w3id.org/nemo/gufoevents#"^^xsd:anyURI ] ,
+        [ sh:prefix "rdf" ; sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ,
+        [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ,
+        [ sh:prefix "xsd" ; sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] .
+
+#################################################################
+#    1. Every achievement is dated
+#################################################################
+#
+# A projection folds the log in time order. An undated event has no position
+# in that fold.
+
+:EveryAchievementIsDatedShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:Achievement ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Achievement {$this} carries no begin point of its own. In an event-sourced graph every event must be individually dated; run queries/00-normalize-timestamps.rq to propagate the timestamps of complex achievements to their parts." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/event-sourcing> ;
+        sh:select """
+            SELECT $this WHERE {
+              FILTER NOT EXISTS { $this gufo:hasBeginPointInXSDDateTimeStamp ?a }
+              FILTER NOT EXISTS { $this gufo:hasBeginPointInXSDDate ?b }
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    2. An endurant has one life
+#################################################################
+
+:SingleCreationShape
+    a sh:NodeShape ;
+    sh:targetClass gufo:Endurant ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Endurant {$this} is created by two different events ({?e1} and {?e2}). An endurant comes into existence once." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/event-sourcing> ;
+        sh:select """
+            SELECT $this ?e1 ?e2 WHERE {
+              ?e1 ?p1 $this . ?p1 rdfs:subPropertyOf* gufoevents:created .
+              ?e2 ?p2 $this . ?p2 rdfs:subPropertyOf* gufoevents:created .
+              FILTER (STR(?e1) < STR(?e2))
+            }
+        """ ;
+    ] .
+
+:SingleTerminationShape
+    a sh:NodeShape ;
+    sh:targetClass gufo:Endurant ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Endurant {$this} is terminated by two different events ({?e1} and {?e2}). An endurant goes out of existence once." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/event-sourcing> ;
+        sh:select """
+            SELECT $this ?e1 ?e2 WHERE {
+              ?e1 ?p1 $this . ?p1 rdfs:subPropertyOf* gufoevents:terminated .
+              ?e2 ?p2 $this . ?p2 rdfs:subPropertyOf* gufoevents:terminated .
+              FILTER (STR(?e1) < STR(?e2))
+            }
+        """ ;
+    ] .
+
+:CreationPrecedesTerminationShape
+    a sh:NodeShape ;
+    sh:targetClass gufo:Endurant ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Endurant {$this} is terminated at {?tEnd} but created at {?tStart}: it goes out of existence before it comes into it." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/event-sourcing> ;
+        sh:select """
+            SELECT $this ?tStart ?tEnd WHERE {
+              ?c ?pc $this . ?pc rdfs:subPropertyOf* gufoevents:created .
+              ?t ?pt $this . ?pt rdfs:subPropertyOf* gufoevents:terminated .
+              OPTIONAL { ?c gufo:hasBeginPointInXSDDateTimeStamp ?cts }
+              OPTIONAL { ?c gufo:hasBeginPointInXSDDate ?cd }
+              BIND(COALESCE(xsd:dateTime(STR(?cts)), xsd:dateTime(CONCAT(STR(?cd), "T00:00:00Z"))) AS ?tStart)
+              OPTIONAL { ?t gufo:hasBeginPointInXSDDateTimeStamp ?tts }
+              OPTIONAL { ?t gufo:hasBeginPointInXSDDate ?td }
+              BIND(COALESCE(xsd:dateTime(STR(?tts)), xsd:dateTime(CONCAT(STR(?td), "T00:00:00Z"))) AS ?tEnd)
+              FILTER (?tEnd < ?tStart)
+            }
+        """ ;
+    ] .
+
+# Nothing may happen to an endurant before it exists or after it has ceased to.
+# This is the shape most likely to catch a genuine bug in a real log: a late
+# event arriving after the aggregate was closed.
+
+:NoChangeOutsideLifespanShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:EndurantChange ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Change {$this} at {?tChange} concerns {?x}, which was created at {?tStart}: nothing happens to an endurant before it exists." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/event-sourcing> ;
+        sh:select """
+            SELECT $this ?x ?tChange ?tStart WHERE {
+              $this ?p ?x . ?p rdfs:subPropertyOf* gufoevents:changed .
+              ?c ?pc ?x . ?pc rdfs:subPropertyOf* gufoevents:created .
+              OPTIONAL { $this gufo:hasBeginPointInXSDDateTimeStamp ?ets }
+              OPTIONAL { $this gufo:hasBeginPointInXSDDate ?ed }
+              BIND(COALESCE(xsd:dateTime(STR(?ets)), xsd:dateTime(CONCAT(STR(?ed), "T00:00:00Z"))) AS ?tChange)
+              OPTIONAL { ?c gufo:hasBeginPointInXSDDateTimeStamp ?cts }
+              OPTIONAL { ?c gufo:hasBeginPointInXSDDate ?cd }
+              BIND(COALESCE(xsd:dateTime(STR(?cts)), xsd:dateTime(CONCAT(STR(?cd), "T00:00:00Z"))) AS ?tStart)
+              FILTER (?tChange < ?tStart)
+            }
+        """ ;
+    ] ,
+    [
+        a sh:SPARQLConstraint ;
+        sh:message "Change {$this} at {?tChange} concerns {?x}, which was terminated at {?tEnd}: nothing happens to an endurant after it has ceased to exist." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/event-sourcing> ;
+        sh:select """
+            SELECT $this ?x ?tChange ?tEnd WHERE {
+              $this ?p ?x . ?p rdfs:subPropertyOf* gufoevents:changed .
+              ?t ?pt ?x . ?pt rdfs:subPropertyOf* gufoevents:terminated .
+              OPTIONAL { $this gufo:hasBeginPointInXSDDateTimeStamp ?ets }
+              OPTIONAL { $this gufo:hasBeginPointInXSDDate ?ed }
+              BIND(COALESCE(xsd:dateTime(STR(?ets)), xsd:dateTime(CONCAT(STR(?ed), "T00:00:00Z"))) AS ?tChange)
+              OPTIONAL { ?t gufo:hasBeginPointInXSDDateTimeStamp ?tts }
+              OPTIONAL { ?t gufo:hasBeginPointInXSDDate ?td }
+              BIND(COALESCE(xsd:dateTime(STR(?tts)), xsd:dateTime(CONCAT(STR(?td), "T00:00:00Z"))) AS ?tEnd)
+              FILTER (?tChange > ?tEnd)
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    3. The log must fold without contradiction
+#################################################################
+#
+# These are the invariants the projections in queries/ rely on. Each says: the
+# fold never enters a state it is already in, and never leaves one it is not in.
+
+:NoRedundantClassificationShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:Classification ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "{$this} classifies {?x} as {?t} at {?at2}, but {?x} was already classified as {?t} at {?at1} and never declassified in between." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/event-sourcing> ;
+        sh:select """
+            SELECT $this ?x ?t ?at1 ?at2 WHERE {
+              $this ?pn ?x ; ?pnt ?t .
+              ?pn rdfs:subPropertyOf* gufoevents:classified .
+              ?pnt rdfs:subPropertyOf* gufoevents:classifiedAsInstanceOf .
+              OPTIONAL { $this gufo:hasBeginPointInXSDDateTimeStamp ?nts }
+              OPTIONAL { $this gufo:hasBeginPointInXSDDate ?nd }
+              BIND(COALESCE(xsd:dateTime(STR(?nts)), xsd:dateTime(CONCAT(STR(?nd), "T00:00:00Z"))) AS ?at2)
+
+              ?earlier ?pe ?x ; ?pet ?t .
+              ?pe rdfs:subPropertyOf* gufoevents:classified .
+              ?pet rdfs:subPropertyOf* gufoevents:classifiedAsInstanceOf .
+              OPTIONAL { ?earlier gufo:hasBeginPointInXSDDateTimeStamp ?ets }
+              OPTIONAL { ?earlier gufo:hasBeginPointInXSDDate ?ed }
+              BIND(COALESCE(xsd:dateTime(STR(?ets)), xsd:dateTime(CONCAT(STR(?ed), "T00:00:00Z"))) AS ?at1)
+              FILTER (?at1 < ?at2)
+
+              FILTER NOT EXISTS {
+                ?dc ?pd ?x ; ?pdt ?t .
+                ?pd rdfs:subPropertyOf* gufoevents:declassified .
+                ?pdt rdfs:subPropertyOf* gufoevents:declassifiedAsInstanceOf .
+                OPTIONAL { ?dc gufo:hasBeginPointInXSDDateTimeStamp ?dts }
+                OPTIONAL { ?dc gufo:hasBeginPointInXSDDate ?dd }
+                BIND(COALESCE(xsd:dateTime(STR(?dts)), xsd:dateTime(CONCAT(STR(?dd), "T00:00:00Z"))) AS ?at3)
+                FILTER (?at1 < ?at3 && ?at3 <= ?at2)
+              }
+            }
+        """ ;
+    ] .
+
+:DeclassificationNeedsPriorClassificationShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:Declassification ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "{$this} declassifies {?x} from {?t}, but no earlier event classified {?x} as {?t}. The fold cannot leave a state it never entered." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/event-sourcing> ;
+        sh:select """
+            SELECT $this ?x ?t WHERE {
+              $this ?pd ?x ; ?pdt ?t .
+              ?pd rdfs:subPropertyOf* gufoevents:declassified .
+              ?pdt rdfs:subPropertyOf* gufoevents:declassifiedAsInstanceOf .
+              OPTIONAL { $this gufo:hasBeginPointInXSDDateTimeStamp ?dts }
+              OPTIONAL { $this gufo:hasBeginPointInXSDDate ?dd }
+              BIND(COALESCE(xsd:dateTime(STR(?dts)), xsd:dateTime(CONCAT(STR(?dd), "T00:00:00Z"))) AS ?at2)
+
+              FILTER NOT EXISTS {
+                ?cl ?pc ?x ; ?pct ?t .
+                ?pc rdfs:subPropertyOf* gufoevents:classified .
+                ?pct rdfs:subPropertyOf* gufoevents:classifiedAsInstanceOf .
+                OPTIONAL { ?cl gufo:hasBeginPointInXSDDateTimeStamp ?cts }
+                OPTIONAL { ?cl gufo:hasBeginPointInXSDDate ?cd }
+                BIND(COALESCE(xsd:dateTime(STR(?cts)), xsd:dateTime(CONCAT(STR(?cd), "T00:00:00Z"))) AS ?at1)
+                FILTER (?at1 <= ?at2)
+              }
+            }
+        """ ;
+    ] .
+
+:SeparationNeedsPriorIncorporationShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:PartSeparation ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "{$this} separates {?x} from {?w}, but no earlier event incorporated {?x} into {?w}." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/event-sourcing> ;
+        sh:select """
+            SELECT $this ?x ?w WHERE {
+              $this ?ps ?x ; ?psw ?w .
+              ?ps rdfs:subPropertyOf* gufoevents:separatedAsPart .
+              ?psw rdfs:subPropertyOf* gufoevents:separatedAsPartFrom .
+              OPTIONAL { $this gufo:hasBeginPointInXSDDateTimeStamp ?sts }
+              OPTIONAL { $this gufo:hasBeginPointInXSDDate ?sd }
+              BIND(COALESCE(xsd:dateTime(STR(?sts)), xsd:dateTime(CONCAT(STR(?sd), "T00:00:00Z"))) AS ?at2)
+
+              FILTER NOT EXISTS {
+                ?inc ?pi ?x ; ?piw ?w .
+                ?pi rdfs:subPropertyOf* gufoevents:incorporatedAsPart .
+                ?piw rdfs:subPropertyOf* gufoevents:incorporatedAsPartInto .
+                OPTIONAL { ?inc gufo:hasBeginPointInXSDDateTimeStamp ?its }
+                OPTIONAL { ?inc gufo:hasBeginPointInXSDDate ?id }
+                BIND(COALESCE(xsd:dateTime(STR(?its)), xsd:dateTime(CONCAT(STR(?id), "T00:00:00Z"))) AS ?at1)
+                FILTER (?at1 <= ?at2)
+              }
+            }
+        """ ;
+    ] .
+
+# A quality value change is a *change*: the new value must differ from the one
+# in force. Two consecutive assessments recording the same grade are a
+# duplicated command, not a change.
+
+:QualityValueActuallyChangesShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:QualityValueChange ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "{$this} sets {?q} to {?v} at {?at2}, but {?v} was already its value from {?at1}. Change implies the value differs from the one in force." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/event-sourcing> ;
+        sh:select """
+            SELECT $this ?q ?v ?at1 ?at2 WHERE {
+              $this ?pq ?q . ?pq rdfs:subPropertyOf* gufoevents:changedValueOf .
+              OPTIONAL { $this gufo:hasBeginPointInXSDDateTimeStamp ?nts }
+              OPTIONAL { $this gufo:hasBeginPointInXSDDate ?nd }
+              BIND(COALESCE(xsd:dateTime(STR(?nts)), xsd:dateTime(CONCAT(STR(?nd), "T00:00:00Z"))) AS ?at2)
+
+              ?earlier ?pq2 ?q . ?pq2 rdfs:subPropertyOf* gufoevents:changedValueOf .
+              OPTIONAL { ?earlier gufo:hasBeginPointInXSDDateTimeStamp ?ets }
+              OPTIONAL { ?earlier gufo:hasBeginPointInXSDDate ?ed }
+              BIND(COALESCE(xsd:dateTime(STR(?ets)), xsd:dateTime(CONCAT(STR(?ed), "T00:00:00Z"))) AS ?at1)
+              FILTER (?at1 < ?at2)
+
+              {
+                $this ?pv ?v . ?pv rdfs:subPropertyOf* gufoevents:changedValueTo .
+                ?earlier ?pv2 ?v . ?pv2 rdfs:subPropertyOf* gufoevents:changedValueTo .
+              } UNION {
+                $this ?pr ?v . ?pr rdfs:subPropertyOf* gufoevents:changedReifiedValueTo .
+                ?earlier ?pr2 ?v . ?pr2 rdfs:subPropertyOf* gufoevents:changedReifiedValueTo .
+              }
+
+              FILTER NOT EXISTS {
+                ?between ?pq3 ?q . ?pq3 rdfs:subPropertyOf* gufoevents:changedValueOf .
+                OPTIONAL { ?between gufo:hasBeginPointInXSDDateTimeStamp ?bts }
+                OPTIONAL { ?between gufo:hasBeginPointInXSDDate ?bd }
+                BIND(COALESCE(xsd:dateTime(STR(?bts)), xsd:dateTime(CONCAT(STR(?bd), "T00:00:00Z"))) AS ?at3)
+                FILTER (?at1 < ?at3 && ?at3 < ?at2)
+              }
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    4. Causality is acyclic and respects time
+#################################################################
+#
+# gufo:historicallyDependsOn is the causal backbone of the log. A cycle in it
+# makes provenance queries non-terminating in some engines and meaningless in
+# all of them.
+
+:HistoricalDependenceIsAcyclicShape
+    a sh:NodeShape ;
+    sh:targetClass gufo:Event ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Event {$this} historically depends on itself, directly or transitively." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/event-sourcing> ;
+        sh:select """
+            SELECT $this WHERE {
+              $this gufo:historicallyDependsOn+ $this .
+            }
+        """ ;
+    ] .
+
+:HistoricalDependenceRespectsTimeShape
+    a sh:NodeShape ;
+    sh:targetClass gufo:Event ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Event {$this} at {?at1} historically depends on {?other} at {?at2}, which is later." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/event-sourcing> ;
+        sh:select """
+            SELECT $this ?other ?at1 ?at2 WHERE {
+              $this gufo:historicallyDependsOn ?other .
+              OPTIONAL { $this gufo:hasBeginPointInXSDDateTimeStamp ?sts }
+              OPTIONAL { $this gufo:hasBeginPointInXSDDate ?sd }
+              BIND(COALESCE(xsd:dateTime(STR(?sts)), xsd:dateTime(CONCAT(STR(?sd), "T00:00:00Z"))) AS ?at1)
+              OPTIONAL { ?other gufo:hasBeginPointInXSDDateTimeStamp ?ots }
+              OPTIONAL { ?other gufo:hasBeginPointInXSDDate ?od }
+              BIND(COALESCE(xsd:dateTime(STR(?ots)), xsd:dateTime(CONCAT(STR(?od), "T00:00:00Z"))) AS ?at2)
+              FILTER (?at2 > ?at1)
+            }
+        """ ;
+    ] .

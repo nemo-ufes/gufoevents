@@ -1,0 +1,53 @@
+# Projection as a graph: the current state, materialized as ordinary triples.
+#
+# Everything above returns tables. This returns a graph, which is what you
+# want if the read model is itself an RDF store: run it, load the result into
+# a named graph, and query current state with plain rdf:type and gufo:
+# properties, no folding.
+#
+# Rebuild it after every append, or maintain it incrementally. It is derived
+# data: never edit it, and never let it become the source of truth.
+
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX gufo: <http://purl.org/nemo/gufo#>
+PREFIX gufoevents: <http://w3id.org/nemo/gufoevents#>
+
+CONSTRUCT {
+  ?endurant rdf:type ?type ;
+            gufo:wasCreatedIn ?createdIn ;
+            gufo:hasBeginPointInXSDDateTimeStamp ?createdAt .
+}
+WHERE {
+  {
+    # types currently in force
+    ?cl a/rdfs:subClassOf* gufoevents:Classification ;
+        ?pc ?endurant ; ?pt ?type .
+    ?pc rdfs:subPropertyOf* gufoevents:classified .
+    ?pt rdfs:subPropertyOf* gufoevents:classifiedAsInstanceOf .
+    OPTIONAL { ?cl gufo:hasBeginPointInXSDDateTimeStamp ?a1 }
+    OPTIONAL { ?cl gufo:hasBeginPointInXSDDate ?a2 }
+    BIND(COALESCE(xsd:dateTime(STR(?a1)), xsd:dateTime(CONCAT(STR(?a2), "T00:00:00Z"))) AS ?since)
+    FILTER NOT EXISTS {
+      ?dc a/rdfs:subClassOf* gufoevents:Declassification ;
+          ?pd ?endurant ; ?pdt ?type .
+      ?pd rdfs:subPropertyOf* gufoevents:declassified .
+      ?pdt rdfs:subPropertyOf* gufoevents:declassifiedAsInstanceOf .
+      OPTIONAL { ?dc gufo:hasBeginPointInXSDDateTimeStamp ?b1 }
+      OPTIONAL { ?dc gufo:hasBeginPointInXSDDate ?b2 }
+      BIND(COALESCE(xsd:dateTime(STR(?b1)), xsd:dateTime(CONCAT(STR(?b2), "T00:00:00Z"))) AS ?until)
+      FILTER (?until >= ?since)
+    }
+  } UNION {
+    # existence, and when it began
+    ?createdIn ?pcr ?endurant .
+    ?pcr rdfs:subPropertyOf* gufoevents:created .
+    OPTIONAL { ?createdIn gufo:hasBeginPointInXSDDateTimeStamp ?createdAt }
+  }
+
+  # nothing that has been terminated appears in the snapshot
+  FILTER NOT EXISTS {
+    ?t ?pterm ?endurant . ?pterm rdfs:subPropertyOf* gufoevents:terminated .
+  }
+}

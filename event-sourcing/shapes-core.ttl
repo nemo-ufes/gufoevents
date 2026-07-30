@@ -1,0 +1,487 @@
+# Core SHACL shapes for gUFOevents
+#
+# These check the well-formedness and temporal integrity of any gUFOevents
+# graph, event-sourced or not. They are the constraints that OWL 2 DL cannot
+# express: the *presence* of required properties (OWL is open-world, so a
+# missing property is never an error), the cardinalities that distinguish
+# merging from splitting (blocked in OWL because gufo:isEventProperPartOf is
+# transitive and hence non-simple), and everything temporal (gUFOevents relates
+# events to time points but states no axiom over them).
+#
+# Companion file shapes-event-sourcing.ttl adds the constraints that make sense
+# only when the event log is the source of truth.
+#
+# TWO THINGS TO KNOW BEFORE RUNNING THESE
+#
+# 1. Supply gUFO *and* gUFOevents as the ontology graph. sh:class and
+#    sh:targetClass resolve subclass hierarchies, and most of them live in
+#    gufo.ttl. run.py does this for you.
+#
+# 2. Validate the ASSERTED graph, not a materialized one.
+#    gufo:isEventProperPartOf is transitive, so against a graph whose closure
+#    has been materialized the part counts below would include indirect parts
+#    and the cardinality shapes would misfire.
+#
+# No reasoner is required: wherever a property or class hierarchy has to be
+# followed, these shapes walk rdfs:subPropertyOf* / rdfs:subClassOf* in SPARQL.
+# That matters because domain ontologies normally specialize the gUFOevents
+# properties (":mountedTyre rdfs:subPropertyOf gufoevents:incorporatedAsPart"),
+# and a shape written against the bare property would not see those.
+#
+# Usage: python event-sourcing/run.py --validate
+
+@prefix : <https://w3id.org/nemo/gufoevents/shapes/core#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gufo: <http://purl.org/nemo/gufo#> .
+@prefix gufoevents: <http://w3id.org/nemo/gufoevents#> .
+
+<https://w3id.org/nemo/gufoevents/shapes/core>
+    rdf:type owl:Ontology ;
+    rdfs:label "Core SHACL shapes for gUFOevents"@en ;
+    sh:declare
+        [ sh:prefix "gufo" ; sh:namespace "http://purl.org/nemo/gufo#"^^xsd:anyURI ] ,
+        [ sh:prefix "gufoevents" ; sh:namespace "http://w3id.org/nemo/gufoevents#"^^xsd:anyURI ] ,
+        [ sh:prefix "rdf" ; sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ] ,
+        [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ,
+        [ sh:prefix "xsd" ; sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ] .
+
+#################################################################
+#    1. Temporal integrity
+#################################################################
+#
+# gufoevents:InstantaneousEvent says its begin and end points coincide, but no
+# OWL axiom relates the two properties: nothing stops an "instantaneous" event
+# from spanning a year. This is the single most valuable shape in the file.
+
+:InstantaneousEventShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:InstantaneousEvent ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Instantaneous event {$this} begins at {?begin} but ends at {?end}; its begin and end points must coincide." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/core> ;
+        sh:select """
+            SELECT $this ?begin ?end WHERE {
+              OPTIONAL { $this gufo:hasBeginPointInXSDDateTimeStamp ?bts }
+              OPTIONAL { $this gufo:hasBeginPointInXSDDate ?bd }
+              BIND(COALESCE(xsd:dateTime(STR(?bts)), xsd:dateTime(CONCAT(STR(?bd), "T00:00:00Z"))) AS ?begin)
+              OPTIONAL { $this gufo:hasEndPointInXSDDateTimeStamp ?ets }
+              OPTIONAL { $this gufo:hasEndPointInXSDDate ?ed }
+              BIND(COALESCE(xsd:dateTime(STR(?ets)), xsd:dateTime(CONCAT(STR(?ed), "T00:00:00Z"))) AS ?end)
+              FILTER (?begin != ?end)
+            }
+        """ ;
+    ] .
+
+# An achievement that cannot be placed in time cannot be placed in a history.
+#
+# It need not carry a begin point of its own: the parts of a complex
+# achievement are simultaneous with it, so a part of a dated whole is dated
+# too. That is what queries/00-normalize-timestamps.rq materializes, and it is
+# why the examples date the bundle rather than each of its parts. What this
+# shape rejects is an achievement whose time is not recoverable at all.
+
+:AchievementIsDatableShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:Achievement ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Achievement {$this} has no begin point and is not part of any dated event, so it cannot be placed in a history." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/core> ;
+        sh:select """
+            SELECT $this WHERE {
+              FILTER NOT EXISTS { $this gufo:hasBeginPointInXSDDateTimeStamp ?a }
+              FILTER NOT EXISTS { $this gufo:hasBeginPointInXSDDate ?b }
+              FILTER NOT EXISTS { $this gufo:hasBeginPoint ?c }
+              FILTER NOT EXISTS {
+                $this gufo:isEventProperPartOf+ ?w .
+                { ?w gufo:hasBeginPointInXSDDateTimeStamp ?d }
+                UNION { ?w gufo:hasBeginPointInXSDDate ?e }
+                UNION { ?w gufo:hasBeginPoint ?f }
+              }
+            }
+        """ ;
+    ] .
+
+# All parts of a complex achievement occur at the same instant as the whole.
+# The ontology says so in a comment; here it is checked.
+
+:ComplexAchievementPartsSimultaneousShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:ComplexAchievement ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Part {?part} of complex achievement {$this} begins at {?partBegin}, but the whole begins at {?wholeBegin}; the parts of a complex achievement are simultaneous with it." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/core> ;
+        sh:select """
+            SELECT $this ?part ?partBegin ?wholeBegin WHERE {
+              ?part gufo:isEventProperPartOf $this .
+              OPTIONAL { $this gufo:hasBeginPointInXSDDateTimeStamp ?wts }
+              OPTIONAL { $this gufo:hasBeginPointInXSDDate ?wd }
+              BIND(COALESCE(xsd:dateTime(STR(?wts)), xsd:dateTime(CONCAT(STR(?wd), "T00:00:00Z"))) AS ?wholeBegin)
+              OPTIONAL { ?part gufo:hasBeginPointInXSDDateTimeStamp ?pts }
+              OPTIONAL { ?part gufo:hasBeginPointInXSDDate ?pd }
+              BIND(COALESCE(xsd:dateTime(STR(?pts)), xsd:dateTime(CONCAT(STR(?pd), "T00:00:00Z"))) AS ?partBegin)
+              FILTER (?partBegin != ?wholeBegin)
+            }
+        """ ;
+    ] .
+
+#################################################################
+#    2. Structure of achievements
+#################################################################
+
+# ComplexAchievement is a defined class, so a reasoner infers it from the
+# presence of parts. Without a reasoner, an asserted complex achievement with
+# no parts is a modelling slip worth catching.
+
+:ComplexAchievementHasPartsShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:ComplexAchievement ;
+    sh:property [
+        sh:path [ sh:inversePath gufo:isEventProperPartOf ] ;
+        sh:minCount 1 ;
+        sh:message "A complex achievement must have at least one event proper part." ;
+    ] .
+
+# The comment on ComplexAchievement says all its parts are achievements. No
+# axiom enforces it, and an extended event is easy to slip in by mistake.
+
+:ComplexAchievementPartsAreAchievementsShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:ComplexAchievement ;
+    sh:property [
+        sh:path [ sh:inversePath gufo:isEventProperPartOf ] ;
+        sh:class gufoevents:Achievement ;
+        sh:message "Every part of a complex achievement must itself be an achievement." ;
+    ] .
+
+# Conversely, a simple achievement has no parts. OWL already makes this
+# inconsistent; SHACL reports it without a reasoner and with a better message.
+
+:SimpleAchievementHasNoPartsShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:SimpleAchievement ;
+    sh:property [
+        sh:path [ sh:inversePath gufo:isEventProperPartOf ] ;
+        sh:maxCount 0 ;
+        sh:message "A simple achievement (a creation, termination or endurant change) has no event proper parts. Use a complex achievement to group simultaneous changes." ;
+    ] .
+
+# Reclassification: the ontology requires a classification part and a
+# declassification part, but cannot require that they concern the same
+# endurant, nor that the two types differ.
+
+:ReclassificationShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:Reclassification ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Reclassification {$this} must have a classification part and a declassification part, both concerning the same endurant, with different types." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/core> ;
+        sh:select """
+            SELECT $this WHERE {
+              {
+                FILTER NOT EXISTS {
+                  ?cl gufo:isEventProperPartOf $this ;
+                      rdf:type/rdfs:subClassOf* gufoevents:Classification .
+                }
+              } UNION {
+                FILTER NOT EXISTS {
+                  ?dc gufo:isEventProperPartOf $this ;
+                      rdf:type/rdfs:subClassOf* gufoevents:Declassification .
+                }
+              } UNION {
+                ?cl gufo:isEventProperPartOf $this ;
+                    rdf:type/rdfs:subClassOf* gufoevents:Classification ;
+                    ?pc ?x .
+                ?pc rdfs:subPropertyOf* gufoevents:classified .
+                ?dc gufo:isEventProperPartOf $this ;
+                    rdf:type/rdfs:subClassOf* gufoevents:Declassification ;
+                    ?pd ?y .
+                ?pd rdfs:subPropertyOf* gufoevents:declassified .
+                FILTER (?x != ?y)
+              } UNION {
+                ?cl gufo:isEventProperPartOf $this ;
+                    rdf:type/rdfs:subClassOf* gufoevents:Classification ;
+                    ?pc ?t .
+                ?pc rdfs:subPropertyOf* gufoevents:classifiedAsInstanceOf .
+                ?dc gufo:isEventProperPartOf $this ;
+                    rdf:type/rdfs:subClassOf* gufoevents:Declassification ;
+                    ?pd ?t .
+                ?pd rdfs:subPropertyOf* gufoevents:declassifiedAsInstanceOf .
+              }
+            }
+        """ ;
+    ] .
+
+# Transformation and its three specializations. These cardinalities are exactly
+# the ones OWL 2 DL cannot state, gufo:isEventProperPartOf being non-simple.
+
+:TransformationShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:Transformation ;
+    sh:property [
+        sh:path [ sh:inversePath gufo:isEventProperPartOf ] ;
+        sh:qualifiedValueShape [ sh:class gufoevents:EndurantCreation ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:message "A transformation must have at least one endurant creation as a part." ;
+    ] ,
+    [
+        sh:path [ sh:inversePath gufo:isEventProperPartOf ] ;
+        sh:qualifiedValueShape [ sh:class gufoevents:EndurantTermination ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:message "A transformation must have at least one endurant termination as a part." ;
+    ] .
+
+:MergingShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:Merging ;
+    sh:property [
+        sh:path [ sh:inversePath gufo:isEventProperPartOf ] ;
+        sh:qualifiedValueShape [ sh:class gufoevents:EndurantTermination ] ;
+        sh:qualifiedMinCount 2 ;
+        sh:message "A merging terminates two or more endurants." ;
+    ] ,
+    [
+        sh:path [ sh:inversePath gufo:isEventProperPartOf ] ;
+        sh:qualifiedValueShape [ sh:class gufoevents:EndurantCreation ] ;
+        sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ;
+        sh:message "A merging creates exactly one endurant." ;
+    ] .
+
+:SplittingShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:Splitting ;
+    sh:property [
+        sh:path [ sh:inversePath gufo:isEventProperPartOf ] ;
+        sh:qualifiedValueShape [ sh:class gufoevents:EndurantTermination ] ;
+        sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ;
+        sh:message "A splitting terminates exactly one endurant." ;
+    ] ,
+    [
+        sh:path [ sh:inversePath gufo:isEventProperPartOf ] ;
+        sh:qualifiedValueShape [ sh:class gufoevents:EndurantCreation ] ;
+        sh:qualifiedMinCount 2 ;
+        sh:message "A splitting creates two or more endurants." ;
+    ] .
+
+:TransmutationShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:Transmutation ;
+    sh:property [
+        sh:path [ sh:inversePath gufo:isEventProperPartOf ] ;
+        sh:qualifiedValueShape [ sh:class gufoevents:EndurantTermination ] ;
+        sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ;
+        sh:message "A transmutation terminates exactly one endurant." ;
+    ] ,
+    [
+        sh:path [ sh:inversePath gufo:isEventProperPartOf ] ;
+        sh:qualifiedValueShape [ sh:class gufoevents:EndurantCreation ] ;
+        sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ;
+        sh:message "A transmutation creates exactly one endurant." ;
+    ] .
+
+#################################################################
+#    3. Completeness of the change properties
+#################################################################
+#
+# Every gufoevents:changed sub-property is functional in OWL, which bounds it
+# above at one. Nothing bounds it below: an endurant change naming no endurant
+# at all is perfectly consistent. These shapes supply the lower bound, and,
+# for graphs used without a reasoner, restate the upper one.
+#
+# All of them walk rdfs:subPropertyOf*, so a domain sub-property such as
+# :mountedTyre counts as a use of gufoevents:incorporatedAsPart.
+
+:EndurantChangeNamesItsEndurantShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:EndurantChange ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Endurant change {$this} does not name the endurant that changed. Use gufoevents:changed or one of its sub-properties (classified, declassified, changedValueOf, incorporatedAsPart, separatedAsPart, introducedAsConstituent, removedAsConstituent)." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/core> ;
+        sh:select """
+            SELECT $this WHERE {
+              FILTER NOT EXISTS {
+                $this ?p ?v . ?p rdfs:subPropertyOf* gufoevents:changed .
+              }
+            }
+        """ ;
+    ] ,
+    [
+        a sh:SPARQLConstraint ;
+        sh:message "Endurant change {$this} names two different changed endurants ({?a} and {?b}); each change concerns exactly one." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/core> ;
+        sh:select """
+            SELECT $this ?a ?b WHERE {
+              $this ?p1 ?a . ?p1 rdfs:subPropertyOf* gufoevents:changed .
+              $this ?p2 ?b . ?p2 rdfs:subPropertyOf* gufoevents:changed .
+              FILTER (STR(?a) < STR(?b))
+            }
+        """ ;
+    ] .
+
+:EndurantChangeNamesItsSecondEndShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:EndurantChange ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Endurant change {$this} does not say what it changed relative to. Use gufoevents:changedEndurantRelativeTo or one of its sub-properties; for a quality value change, gufoevents:changedValueTo is the literal-valued alternative." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/core> ;
+        sh:select """
+            SELECT $this WHERE {
+              FILTER NOT EXISTS {
+                $this ?p ?v . ?p rdfs:subPropertyOf* gufoevents:changedEndurantRelativeTo .
+              }
+              FILTER NOT EXISTS {
+                $this ?q ?w . ?q rdfs:subPropertyOf* gufoevents:changedValueTo .
+              }
+            }
+        """ ;
+    ] .
+
+:EndurantCreationShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:EndurantCreation ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Endurant creation {$this} must name exactly one created endurant with gufoevents:created (or a sub-property)." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/core> ;
+        sh:select """
+            SELECT $this WHERE {
+              {
+                FILTER NOT EXISTS {
+                  $this ?p ?v . ?p rdfs:subPropertyOf* gufoevents:created .
+                }
+              } UNION {
+                $this ?p1 ?a . ?p1 rdfs:subPropertyOf* gufoevents:created .
+                $this ?p2 ?b . ?p2 rdfs:subPropertyOf* gufoevents:created .
+                FILTER (STR(?a) < STR(?b))
+              }
+            }
+        """ ;
+    ] .
+
+:EndurantTerminationShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:EndurantTermination ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Endurant termination {$this} must name exactly one terminated endurant with gufoevents:terminated (or a sub-property)." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/core> ;
+        sh:select """
+            SELECT $this WHERE {
+              {
+                FILTER NOT EXISTS {
+                  $this ?p ?v . ?p rdfs:subPropertyOf* gufoevents:terminated .
+                }
+              } UNION {
+                $this ?p1 ?a . ?p1 rdfs:subPropertyOf* gufoevents:terminated .
+                $this ?p2 ?b . ?p2 rdfs:subPropertyOf* gufoevents:terminated .
+                FILTER (STR(?a) < STR(?b))
+              }
+            }
+        """ ;
+    ] .
+
+# The type entered or left must be non-rigid. OWL catches this too, via the
+# range of classifiedAsInstanceOf, but only with a reasoner and only as a flat
+# "inconsistent"; here the offending triple is named.
+
+:ClassificationTypeShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:Classification ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Classification {$this} enters {?t}, which is not a gufo:NonRigidType. Only phases, roles and their mixin counterparts are entered; a kind, subkind or category applies necessarily." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/core> ;
+        sh:select """
+            SELECT $this ?t WHERE {
+              $this ?p ?t . ?p rdfs:subPropertyOf* gufoevents:classifiedAsInstanceOf .
+              FILTER NOT EXISTS { ?t rdf:type/rdfs:subClassOf* gufo:NonRigidType }
+            }
+        """ ;
+    ] .
+
+:DeclassificationTypeShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:Declassification ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Declassification {$this} leaves {?t}, which is not a gufo:NonRigidType. A rigid type is never left." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/core> ;
+        sh:select """
+            SELECT $this ?t WHERE {
+              $this ?p ?t . ?p rdfs:subPropertyOf* gufoevents:declassifiedAsInstanceOf .
+              FILTER NOT EXISTS { ?t rdf:type/rdfs:subClassOf* gufo:NonRigidType }
+            }
+        """ ;
+    ] .
+
+# A quality value change needs a new value, and exactly one way of giving it:
+# a literal with gufoevents:changedValueTo, or a reified gufo:QualityValue with
+# gufoevents:changedReifiedValueTo. Both at once is ambiguous.
+
+:QualityValueChangeShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:QualityValueChange ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Quality value change {$this} must give a new value with exactly one of gufoevents:changedValueTo (a literal) or gufoevents:changedReifiedValueTo (a reified gufo:QualityValue)." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/core> ;
+        sh:select """
+            SELECT $this WHERE {
+              {
+                FILTER NOT EXISTS {
+                  $this ?p ?l . ?p rdfs:subPropertyOf* gufoevents:changedValueTo .
+                }
+                FILTER NOT EXISTS {
+                  $this ?q ?r . ?q rdfs:subPropertyOf* gufoevents:changedReifiedValueTo .
+                }
+              } UNION {
+                $this ?p ?l . ?p rdfs:subPropertyOf* gufoevents:changedValueTo .
+                $this ?q ?r . ?q rdfs:subPropertyOf* gufoevents:changedReifiedValueTo .
+              }
+            }
+        """ ;
+    ] .
+
+# What changes is a quality, not the endurant it inheres in. The commonest
+# beginner's error with gUFOevents is to point changedValueOf at the bearer.
+
+:QualityValueChangeTargetsQualityShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:QualityValueChange ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "In quality value change {$this}, gufoevents:changedValueOf names {?q}, which is not a gufo:Quality. What changes is the quality (e.g. John's mass), not its bearer (John); reach the bearer with gufo:inheresIn." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/core> ;
+        sh:select """
+            SELECT $this ?q WHERE {
+              $this ?p ?q . ?p rdfs:subPropertyOf* gufoevents:changedValueOf .
+              FILTER NOT EXISTS { ?q rdf:type/rdfs:subClassOf* gufo:Quality }
+            }
+        """ ;
+    ] .
+
+# Nothing in OWL forbids an endurant becoming a part or constituent of itself.
+
+:NoSelfParthoodShape
+    a sh:NodeShape ;
+    sh:targetClass gufoevents:EndurantChange ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "In {$this}, the endurant that changed and the entity it changed relative to are the same ({?x}): nothing becomes a part or constituent of itself." ;
+        sh:prefixes <https://w3id.org/nemo/gufoevents/shapes/core> ;
+        sh:select """
+            SELECT $this ?x WHERE {
+              $this ?p1 ?x . ?p1 rdfs:subPropertyOf* gufoevents:changed .
+              $this ?p2 ?x . ?p2 rdfs:subPropertyOf* gufoevents:changedEndurantRelativeTo .
+            }
+        """ ;
+    ] .

@@ -1,0 +1,614 @@
+<title>gUFOevents by example — replaying the log</title>
+<style>
+/* ------------------------------------------------------------------ tokens
+   Ground is a cool paper rather than a warm cream: the subject is a formal
+   ontology and its published documentation, not a magazine. The four data
+   hues are a validated categorical set (all-pairs, both modes) standing for
+   the four families of fact the log records. Direction within a family --
+   entering vs leaving, beginning vs ending -- is carried by fill vs ring and
+   by a visible label, never by hue.                                        */
+:root {
+  color-scheme: light;
+  --ground:    #fbfcfd;
+  --surface:   #f2f5f8;
+  --raised:    #ffffff;
+  --ink:       #101720;
+  --ink-2:     #46545f;
+  --ink-3:     #6f7f8c;
+  --rule:      #dbe3ea;
+  --rule-2:    #eaeff4;
+  --accent:    #2a78d6;
+  --fam-exist: #2a78d6;
+  --fam-class: #eb6834;
+  --fam-qual:  #1baf7a;
+  --fam-comp:  #e87ba4;
+  --shadow: 0 1px 2px rgba(16,23,32,.06), 0 8px 24px -12px rgba(16,23,32,.18);
+
+  --f-display: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --f-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-data: ui-monospace, SFMono-Regular, Menlo, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground:  #0e141a;
+    --surface: #151d25;
+    --raised:  #1a232c;
+    --ink:     #e9eef3;
+    --ink-2:   #a9b7c3;
+    --ink-3:   #7d8c99;
+    --rule:    #27323d;
+    --rule-2:  #1e2831;
+    --accent:  #6aa8f0;
+    --fam-exist: #3987e5;
+    --fam-class: #d95926;
+    --fam-qual:  #199e70;
+    --fam-comp:  #d55181;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground:  #0e141a;  --surface: #151d25;  --raised:  #1a232c;
+  --ink:     #e9eef3;  --ink-2:   #a9b7c3;  --ink-3:   #7d8c99;
+  --rule:    #27323d;  --rule-2:  #1e2831;  --accent:  #6aa8f0;
+  --fam-exist: #3987e5; --fam-class: #d95926;
+  --fam-qual:  #199e70; --fam-comp:  #d55181;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ground:  #fbfcfd;  --surface: #f2f5f8;  --raised:  #ffffff;
+  --ink:     #101720;  --ink-2:   #46545f;  --ink-3:   #6f7f8c;
+  --rule:    #dbe3ea;  --rule-2:  #eaeff4;  --accent:  #2a78d6;
+  --fam-exist: #2a78d6; --fam-class: #eb6834;
+  --fam-qual:  #1baf7a; --fam-comp:  #e87ba4;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font-family: var(--f-ui); font-size: 15px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+:where(a) { color: var(--accent); }
+:where(button, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+}
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+
+/* ------------------------------------------------------------------ header */
+header { border-bottom: 1px solid var(--rule); background: var(--ground); }
+.masthead { display: flex; flex-wrap: wrap; gap: 16px 28px;
+  align-items: baseline; padding: 26px 0 18px; }
+h1 { font-family: var(--f-display); font-weight: 600; font-size: 26px;
+  margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+h1 em { font-style: normal; color: var(--ink-3); font-weight: 400; }
+.tagline { color: var(--ink-2); font-size: 14px; max-width: 62ch; margin: 0; }
+
+/* the example rail: eight worked examples, in reading order */
+nav.rail { display: flex; gap: 6px; overflow-x: auto; padding: 0 0 14px;
+  scrollbar-width: thin; }
+nav.rail button {
+  flex: 0 0 auto; font: inherit; font-size: 13px; cursor: pointer;
+  background: transparent; color: var(--ink-2);
+  border: 1px solid var(--rule); border-radius: 999px;
+  padding: 6px 13px; display: flex; align-items: center; gap: 7px;
+  transition: background .12s, border-color .12s, color .12s;
+}
+nav.rail button:hover { border-color: var(--ink-3); color: var(--ink); }
+nav.rail button[aria-current="true"] {
+  background: var(--ink); color: var(--ground); border-color: var(--ink);
+}
+nav.rail .n { font-family: var(--f-data); font-size: 11px; opacity: .6;
+  font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------------------- brief */
+.brief { padding: 22px 0 18px; display: grid; gap: 8px;
+  grid-template-columns: minmax(0,1fr) auto; align-items: start; }
+.brief h2 { font-family: var(--f-display); font-size: 21px; font-weight: 600;
+  margin: 0; letter-spacing: -.01em; }
+.brief p { margin: 0; color: var(--ink-2); max-width: 68ch; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; justify-self: end; }
+.tag { font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--ink-3); border: 1px solid var(--rule); border-radius: 4px;
+  padding: 3px 8px; white-space: nowrap; }
+.tag.lv { color: var(--ink); border-color: var(--ink-3); }
+.srcline { grid-column: 1 / -1; font-family: var(--f-data); font-size: 12px;
+  color: var(--ink-3); }
+
+/* --------------------------------------------------------------- scrubber
+   The centrepiece. Instants are spaced evenly rather than by real duration:
+   these logs span minutes in one example and two centuries in another, and
+   an honest linear axis would collapse either into a single blot. Every tick
+   is labelled with its real timestamp, and the reading is exact.           */
+.scrub { background: var(--surface); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 18px 20px 14px; margin-bottom: 22px; }
+.scrub-head { display: flex; flex-wrap: wrap; gap: 12px 20px;
+  align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+.scrub-head .lbl { font-size: 11.5px; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--ink-3); }
+.now { font-family: var(--f-data); font-size: 15px; color: var(--ink);
+  font-variant-numeric: tabular-nums; }
+.steps { display: flex; gap: 6px; align-items: center; }
+.steps button { font: inherit; font-size: 13px; cursor: pointer;
+  background: var(--raised); color: var(--ink); border: 1px solid var(--rule);
+  border-radius: 6px; padding: 4px 11px; }
+.steps button:hover:not(:disabled) { border-color: var(--ink-3); }
+.steps button:disabled { opacity: .4; cursor: default; }
+
+.track { position: relative; padding-top: 26px; }
+.ticks { display: flex; align-items: flex-end; height: 34px;
+  border-bottom: 1px solid var(--rule); }
+.tick { flex: 1 1 0; display: flex; flex-direction: column-reverse;
+  align-items: center; gap: 2px; position: relative; cursor: pointer;
+  background: none; border: 0; padding: 0 0 4px; }
+.tick .dot { width: 7px; height: 7px; border-radius: 2px; flex: 0 0 auto; }
+.tick .stem { position: absolute; bottom: 0; width: 1px; height: 4px;
+  background: var(--rule); }
+.tick[data-past="false"] .dot { opacity: .28; }
+.tick[data-cur="true"]::after {
+  content: ""; position: absolute; bottom: -1px; left: 50%;
+  transform: translateX(-50%); width: 2px; height: 40px;
+  background: var(--ink); border-radius: 1px;
+}
+input[type=range].slider { width: 100%; margin: 10px 0 4px; accent-color: var(--accent); }
+.axis-ends { display: flex; justify-content: space-between;
+  font-family: var(--f-data); font-size: 11px; color: var(--ink-3);
+  font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------------------ panels */
+.cols { display: grid; gap: 22px; grid-template-columns: 1.1fr .9fr;
+  align-items: start; padding-bottom: 40px; }
+@media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+.panel { background: var(--raised); border: 1px solid var(--rule);
+  border-radius: 10px; overflow: hidden; }
+.panel > h3 { font-family: var(--f-display); font-size: 16px; font-weight: 600;
+  margin: 0; padding: 14px 18px 12px; border-bottom: 1px solid var(--rule-2); }
+.panel > h3 span { font-family: var(--f-ui); font-weight: 400; font-size: 12.5px;
+  color: var(--ink-3); margin-left: 8px; }
+.panel-body { padding: 6px 0 14px; }
+
+/* the log: one block per instant, bundles nested inside */
+.instant { border-bottom: 1px solid var(--rule-2); padding: 10px 18px 12px; }
+.instant:last-child { border-bottom: 0; }
+.instant[data-past="false"] { opacity: .38; }
+.instant[data-cur="true"] { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.instant time { font-family: var(--f-data); font-size: 11.5px; color: var(--ink-3);
+  font-variant-numeric: tabular-nums; display: block; margin-bottom: 6px; }
+.bundle { border-left: 2px solid var(--rule); padding-left: 11px; margin: 6px 0 2px; }
+.bundle > .bhead { font-family: var(--f-data); font-size: 12px; color: var(--ink-2);
+  margin-bottom: 4px; }
+.bundle > .bhead b { font-weight: 600; color: var(--ink); }
+
+.ev { display: flex; gap: 9px; align-items: baseline; width: 100%;
+  text-align: left; background: none; border: 0; padding: 3px 6px 3px 0;
+  font: inherit; cursor: pointer; border-radius: 4px; }
+.ev:hover { background: var(--surface); }
+.ev[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.swatch { flex: 0 0 auto; width: 9px; height: 9px; border-radius: 2px;
+  margin-top: 6px; border: 1.5px solid var(--fam); }
+.swatch[data-dir="in"] { background: var(--fam); }
+.swatch[data-dir="out"] { background: transparent; }
+.ev .cls { font-family: var(--f-data); font-size: 12.5px; color: var(--ink); }
+.ev .arg { font-family: var(--f-data); font-size: 12.5px; color: var(--ink-2); }
+.ev .op { color: var(--ink-3); font-size: 12px; }
+
+/* projected state */
+.ent { padding: 11px 18px; border-bottom: 1px solid var(--rule-2); }
+.ent:last-child { border-bottom: 0; }
+.ent.gone { opacity: .45; }
+.ent .name { font-family: var(--f-data); font-size: 13px; display: flex;
+  gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.ent .human { font-family: var(--f-ui); font-size: 12.5px; color: var(--ink-3); }
+.ent .rows { margin-top: 6px; display: grid; gap: 4px; }
+.row { display: flex; gap: 8px; align-items: baseline; font-size: 12.5px; }
+.row .k { font-size: 11px; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--ink-3); flex: 0 0 74px; }
+.chip { font-family: var(--f-data); font-size: 12px; border-radius: 4px;
+  padding: 1px 7px; border: 1px solid var(--fam-class);
+  color: var(--ink); background: color-mix(in srgb, var(--fam-class) 14%, transparent); }
+.val { font-family: var(--f-data); font-size: 13px; color: var(--ink);
+  font-variant-numeric: tabular-nums; }
+.val em { font-style: normal; color: var(--ink-3); font-size: 11.5px; }
+.empty { padding: 16px 18px; color: var(--ink-3); font-size: 13px; }
+
+/* detail */
+.detail { padding: 12px 18px 14px; border-top: 1px solid var(--rule-2); }
+.detail dl { margin: 0; display: grid; grid-template-columns: auto 1fr;
+  gap: 4px 12px; font-size: 12.5px; }
+.detail dt { font-size: 11px; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--ink-3); }
+.detail dd { margin: 0; font-family: var(--f-data); overflow-wrap: anywhere; }
+
+/* ------------------------------------------------------------------ legend */
+footer { border-top: 1px solid var(--rule); background: var(--surface);
+  padding: 22px 0 40px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-bottom: 14px; }
+.legend .item { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.legend .k { display: flex; gap: 4px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 2px;
+  border: 1.5px solid var(--fam); }
+.legend .sw.in { background: var(--fam); }
+.notes { color: var(--ink-2); font-size: 13px; max-width: 74ch; }
+.notes p { margin: 0 0 8px; }
+.notes code { font-family: var(--f-data); font-size: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+
+<header>
+  <div class="wrap">
+    <div class="masthead">
+      <h1>gUFOevents <em>by example</em></h1>
+      <p class="tagline">Eight worked logs from eight domains. Drag the scrubber
+        and watch the state on the right be rebuilt from the events on the
+        left — nothing about it is stored.</p>
+    </div>
+    <nav class="rail" id="rail" aria-label="Examples"></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="brief">
+    <h2 id="exTitle"></h2>
+    <div class="tags" id="exTags"></div>
+    <p id="exBlurb"></p>
+    <div class="srcline" id="exSrc"></div>
+  </section>
+
+  <section class="scrub" aria-label="Time scrubber">
+    <div class="scrub-head">
+      <div>
+        <div class="lbl">Replaying to</div>
+        <div class="now" id="nowLabel"></div>
+      </div>
+      <div class="steps">
+        <button id="btnFirst" type="button">Start</button>
+        <button id="btnPrev" type="button">← Prev</button>
+        <button id="btnNext" type="button">Next →</button>
+        <button id="btnLast" type="button">End</button>
+      </div>
+    </div>
+    <div class="track">
+      <div class="ticks" id="ticks"></div>
+      <input type="range" class="slider" id="slider" min="0" max="0" value="0"
+             aria-label="Position in the event log">
+      <div class="axis-ends"><span id="axFrom"></span><span id="axTo"></span></div>
+    </div>
+  </section>
+
+  <div class="cols">
+    <section class="panel">
+      <h3>The log <span id="logCount"></span></h3>
+      <div class="panel-body" id="log"></div>
+      <div class="detail" id="detail" hidden></div>
+    </section>
+    <section class="panel">
+      <h3>State at this instant <span>projected, never stored</span></h3>
+      <div class="panel-body" id="state"></div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="legend" id="legend"></div>
+    <div class="notes">
+      <p>Marks are <b>filled</b> where something begins — created, classified
+        into a type, incorporated as a part — and <b>hollow</b> where something
+        ends. Hue carries the family of fact, never the direction.</p>
+      <p>Instants are spaced evenly along the axis, not by elapsed time: these
+        logs run from minutes (a clinical episode) to two centuries (a statue),
+        and a linear axis would collapse either into a blot. Each tick carries
+        its real timestamp.</p>
+      <p>Generated from the example files by <code>examples/build-explorer.py</code>,
+        using the same SPARQL as <code>event-sourcing/queries/</code>. What you
+        see here is what the projections return.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+const DATA = __DATA__;
+
+/* The four families of fact a gUFOevents log records. Direction is a separate
+   channel (fill vs ring) so that hue never has to carry it. */
+const FAM = {
+  created:       { fam: "exist", dir: "in",  verb: "created" },
+  terminated:    { fam: "exist", dir: "out", verb: "terminated" },
+  classified:    { fam: "class", dir: "in",  verb: "as" },
+  declassified:  { fam: "class", dir: "out", verb: "no longer" },
+  quality:       { fam: "qual",  dir: "in",  verb: "to" },
+  incorporated:  { fam: "comp",  dir: "in",  verb: "into" },
+  separated:     { fam: "comp",  dir: "out", verb: "from" },
+  constituted:   { fam: "comp",  dir: "in",  verb: "of" },
+  deconstituted: { fam: "comp",  dir: "out", verb: "from" },
+  bundle:        { fam: null,    dir: null,  verb: "" },
+  extended:      { fam: null,    dir: null,  verb: "" }
+};
+const FAMVAR = { exist: "--fam-exist", class: "--fam-class",
+                 qual: "--fam-qual", comp: "--fam-comp" };
+const FAMNAME = { exist: "Existence", class: "Classification",
+                  qual: "Quality", comp: "Composition" };
+
+let cur = 0, step = 0, selected = null;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = (iso) => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d)) return String(iso);
+  const date = d.toISOString().slice(0, 10);
+  const time = d.toISOString().slice(11, 19);
+  return time === "00:00:00" ? date : date + " " + time;
+};
+
+/* Distinct instants, in order. The scrubber indexes these, not the events:
+   several facts commonly share one instant, and they must apply together. */
+function instantsOf(ex) {
+  return [...new Set(ex.events.map((e) => e.at).filter(Boolean))].sort();
+}
+
+/* ------------------------------------------------------------- the fold
+   This is the projection, run in the browser over exactly the events the
+   SPARQL in event-sourcing/queries/ would see. Everything in the right-hand
+   panel comes from here; none of it is asserted in the source files.       */
+function project(ex, cutoff) {
+  const st = new Map();
+  const get = (id) => {
+    if (!st.has(id)) {
+      st.set(id, { id, exists: null, createdAt: null, endedAt: null,
+        types: new Set(), value: null, valueAt: null,
+        partOf: new Set(), constitutes: new Set() });
+    }
+    return st.get(id);
+  };
+  for (const e of ex.events) {
+    if (!e.at || e.at > cutoff || !e.subject) continue;
+    const s = get(e.subject);
+    switch (e.kind) {
+      case "created":       s.exists = true;  s.createdAt = e.at; break;
+      case "terminated":    s.exists = false; s.endedAt = e.at;   break;
+      case "classified":    s.types.add(e.object);    break;
+      case "declassified":  s.types.delete(e.object); break;
+      case "quality":
+        s.value = (e.value !== null && e.value !== undefined) ? e.value : e.object;
+        s.valueAt = e.at; break;
+      case "incorporated":  s.partOf.add(e.object);        break;
+      case "separated":     s.partOf.delete(e.object);     break;
+      case "constituted":   s.constitutes.add(e.object);   break;
+      case "deconstituted": s.constitutes.delete(e.object); break;
+    }
+  }
+  return st;
+}
+
+/* ------------------------------------------------------------------ render */
+function renderRail() {
+  const rail = $("rail");
+  rail.innerHTML = "";
+  DATA.forEach((ex, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.setAttribute("aria-current", String(i === cur));
+    b.innerHTML = '<span class="n">' + String(i + 1).padStart(2, "0") +
+                  "</span><span>" + esc(ex.title) + "</span>";
+    b.onclick = () => {
+      cur = i; step = instantsOf(DATA[i]).length - 1; selected = null; renderAll();
+    };
+    rail.appendChild(b);
+  });
+}
+
+function renderBrief(ex) {
+  $("exTitle").textContent = ex.title;
+  $("exBlurb").textContent = ex.blurb;
+  $("exTags").innerHTML =
+    '<span class="tag">' + esc(ex.domain) + '</span>' +
+    '<span class="tag lv">' + esc(ex.level) + "</span>";
+  $("exSrc").textContent = "examples/" + ex.file + " · " + ex.events.length +
+    " events · " + ex.endurants.length +
+    " endurant" + (ex.endurants.length === 1 ? "" : "s");
+}
+
+function renderTicks(ex, inst) {
+  const t = $("ticks");
+  t.innerHTML = "";
+  inst.forEach((iso, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "tick";
+    b.dataset.past = String(i <= step);
+    b.dataset.cur = String(i === step);
+    b.title = fmt(iso);
+    b.setAttribute("aria-label", "Go to " + fmt(iso));
+    const stem = document.createElement("span");
+    stem.className = "stem";
+    b.appendChild(stem);
+    ex.events.filter((e) => e.at === iso && FAM[e.kind] && FAM[e.kind].fam)
+      .forEach((e) => {
+        const f = FAM[e.kind];
+        const d = document.createElement("span");
+        d.className = "dot";
+        d.style.border = "1.5px solid var(" + FAMVAR[f.fam] + ")";
+        d.style.background = f.dir === "in" ? "var(" + FAMVAR[f.fam] + ")" : "transparent";
+        b.appendChild(d);
+      });
+    b.onclick = () => { step = i; selected = null; renderAll(); };
+    t.appendChild(b);
+  });
+}
+
+function evRow(e) {
+  const f = FAM[e.kind] || {};
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "ev";
+  b.setAttribute("aria-pressed", String(selected === e.id));
+  const obj = (e.value !== null && e.value !== undefined) ? e.value : e.object;
+  b.innerHTML =
+    '<span class="swatch" data-dir="' + (f.dir || "") + '" style="--fam:var(' +
+      (FAMVAR[f.fam] || "--ink-3") + ')"></span>' +
+    "<span><span class=\"cls\">" + esc(e.cls) + "</span> " +
+    '<span class="arg">' + esc(e.subject || "") + "</span>" +
+    (obj ? ' <span class="op">' + esc(f.verb) + '</span> <span class="arg">' +
+           esc(obj) + "</span>" : "") +
+    "</span>";
+  b.onclick = () => { selected = (selected === e.id) ? null : e.id; renderAll(); };
+  return b;
+}
+
+function renderLog(ex, inst) {
+  const box = $("log");
+  box.innerHTML = "";
+  const cutoff = inst[step];
+  const byInstant = new Map();
+  ex.events.forEach((e) => {
+    if (!e.at) return;
+    if (!byInstant.has(e.at)) byInstant.set(e.at, []);
+    byInstant.get(e.at).push(e);
+  });
+
+  inst.forEach((iso, i) => {
+    const wrap = document.createElement("div");
+    wrap.className = "instant";
+    wrap.dataset.past = String(iso <= cutoff);
+    wrap.dataset.cur = String(i === step);
+    const t = document.createElement("time");
+    t.textContent = fmt(iso);
+    wrap.appendChild(t);
+
+    const evs = byInstant.get(iso) || [];
+    const bundles = evs.filter((e) => e.kind === "bundle" || e.kind === "extended");
+    const loose = evs.filter((e) => e.kind !== "bundle" && e.kind !== "extended");
+    const inBundle = new Set();
+
+    bundles.forEach((bn) => {
+      const kids = loose.filter((e) => e.partOf === bn.id);
+      if (!kids.length) return;
+      kids.forEach((k) => inBundle.add(k.id));
+      const g = document.createElement("div");
+      g.className = "bundle";
+      const h = document.createElement("div");
+      h.className = "bhead";
+      h.innerHTML = "<b>" + esc(bn.cls) + "</b> " + esc(bn.id);
+      g.appendChild(h);
+      kids.forEach((k) => g.appendChild(evRow(k)));
+      wrap.appendChild(g);
+    });
+    loose.filter((e) => !inBundle.has(e.id))
+         .forEach((e) => wrap.appendChild(evRow(e)));
+    box.appendChild(wrap);
+  });
+  $("logCount").textContent = inst.length + " instants";
+}
+
+function renderDetail(ex) {
+  const d = $("detail");
+  const e = ex.events.find((x) => x.id === selected);
+  if (!e) { d.hidden = true; d.innerHTML = ""; return; }
+  d.hidden = false;
+  const f = FAM[e.kind] || {};
+  const rows = [
+    ["Event", e.id],
+    ["Type", e.cls],
+    ["Family", f.fam ? FAMNAME[f.fam]
+                     : "structural — records no fact of its own"],
+    ["At", fmt(e.at)]
+  ];
+  if (e.subject) rows.push(["Concerns", e.subject]);
+  if (e.object) rows.push(["Relative to", e.object]);
+  if (e.value !== null && e.value !== undefined) rows.push(["New value", e.value]);
+  if (e.partOf) rows.push(["Part of", e.partOf]);
+  if (e.dependsOn && e.dependsOn.length)
+    rows.push(["Depends on", e.dependsOn.join(", ")]);
+  d.innerHTML = "<dl>" + rows.map(
+    (r) => "<dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd>").join("") + "</dl>";
+}
+
+function renderState(ex, inst) {
+  const box = $("state");
+  box.innerHTML = "";
+  const st = project(ex, inst[step]);
+  const known = ex.endurants.filter((en) => st.has(en.id));
+  if (!known.length) {
+    box.innerHTML = '<div class="empty">Nothing has happened yet.</div>';
+    return;
+  }
+  known.forEach((en) => {
+    const s = st.get(en.id);
+    const div = document.createElement("div");
+    div.className = "ent" + (s.exists === false ? " gone" : "");
+    const human = (en.label && en.label !== en.id)
+      ? '<span class="human">' + esc(en.label) + "</span>" : "";
+    let rows = "";
+    if (s.exists === false) {
+      rows += '<div class="row"><span class="k">Existence</span>' +
+              '<span class="val"><em>terminated ' + fmt(s.endedAt) + "</em></span></div>";
+    } else if (s.exists) {
+      rows += '<div class="row"><span class="k">Existence</span>' +
+              '<span class="val"><em>since ' + fmt(s.createdAt) + "</em></span></div>";
+    }
+    if (s.types.size) {
+      rows += '<div class="row"><span class="k">Types</span><span>' +
+        [...s.types].map((t) => '<span class="chip">' + esc(t) + "</span>").join(" ") +
+        "</span></div>";
+    }
+    if (s.value !== null && s.exists !== false) {
+      rows += '<div class="row"><span class="k">Value</span><span class="val">' +
+        esc(s.value) + " <em>at " + fmt(s.valueAt) + "</em></span></div>";
+    }
+    if (s.partOf.size) {
+      rows += '<div class="row"><span class="k">Part of</span><span class="val">' +
+        esc([...s.partOf].join(", ")) + "</span></div>";
+    }
+    if (s.constitutes.size) {
+      rows += '<div class="row"><span class="k">Constitutes</span><span class="val">' +
+        esc([...s.constitutes].join(", ")) + "</span></div>";
+    }
+    div.innerHTML = '<div class="name">' + esc(en.id) + human + "</div>" +
+                    (rows ? '<div class="rows">' + rows + "</div>" : "");
+    box.appendChild(div);
+  });
+}
+
+function renderLegend() {
+  $("legend").innerHTML = Object.keys(FAMNAME).map((k) =>
+    '<span class="item"><span class="k" style="--fam:var(' + FAMVAR[k] + ')">' +
+    '<span class="sw in"></span><span class="sw"></span></span>' +
+    FAMNAME[k] + "</span>").join("");
+}
+
+function renderAll() {
+  const ex = DATA[cur];
+  const inst = instantsOf(ex);
+  step = Math.min(Math.max(step, 0), inst.length - 1);
+  renderRail(); renderBrief(ex); renderTicks(ex, inst);
+  renderLog(ex, inst); renderState(ex, inst); renderDetail(ex);
+  $("nowLabel").textContent = fmt(inst[step]);
+  $("axFrom").textContent = fmt(inst[0]);
+  $("axTo").textContent = fmt(inst[inst.length - 1]);
+  const sl = $("slider");
+  sl.max = String(inst.length - 1);
+  sl.value = String(step);
+  $("btnFirst").disabled = $("btnPrev").disabled = (step === 0);
+  $("btnLast").disabled = $("btnNext").disabled = (step === inst.length - 1);
+}
+
+$("slider").addEventListener("input", (e) => {
+  step = Number(e.target.value); selected = null; renderAll();
+});
+$("btnFirst").onclick = () => { step = 0; renderAll(); };
+$("btnPrev").onclick = () => { step -= 1; renderAll(); };
+$("btnNext").onclick = () => { step += 1; renderAll(); };
+$("btnLast").onclick = () => { step = instantsOf(DATA[cur]).length - 1; renderAll(); };
+
+renderLegend();
+step = instantsOf(DATA[0]).length - 1;
+renderAll();
+</script>

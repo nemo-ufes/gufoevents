@@ -1,0 +1,59 @@
+# Bridge the event view to gUFO's situation view.
+#
+# gUFO records change with gufo:Situation: a configuration that obtained over
+# an interval. gUFOevents records the instants at which configurations begin
+# and end. This CONSTRUCT derives the former from the latter, so that a graph
+# written as an event log can be queried by consumers who expect gUFO
+# situations, with no change to the log.
+#
+# Only classification is covered here; the same shape works for parthood
+# (gufo:TemporaryParthoodSituation), constitution and quality attribution.
+#
+# The situations are blank nodes because they have no identity of their own:
+# they are a view. If you need to refer to them, mint IRIs instead.
+
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX gufo: <http://purl.org/nemo/gufo#>
+PREFIX gufoevents: <http://w3id.org/nemo/gufoevents#>
+
+CONSTRUCT {
+  ?endurant gufo:standsInQualifiedInstantiation _:sit .
+  _:sit rdf:type gufo:TemporaryInstantiationSituation ;
+        gufo:concernsNonRigidType ?type ;
+        gufo:hasBeginPointInXSDDateTimeStamp ?since ;
+        gufo:hasEndPointInXSDDateTimeStamp ?until .
+  ?enteredBy gufo:broughtAbout _:sit .
+}
+WHERE {
+  ?enteredBy a/rdfs:subClassOf* gufoevents:Classification ;
+             ?pc ?endurant ; ?pt ?type .
+  ?pc rdfs:subPropertyOf* gufoevents:classified .
+  ?pt rdfs:subPropertyOf* gufoevents:classifiedAsInstanceOf .
+  OPTIONAL { ?enteredBy gufo:hasBeginPointInXSDDateTimeStamp ?cts }
+  OPTIONAL { ?enteredBy gufo:hasBeginPointInXSDDate ?cd }
+  BIND(COALESCE(xsd:dateTime(STR(?cts)), xsd:dateTime(CONCAT(STR(?cd), "T00:00:00Z"))) AS ?since)
+
+  # The interval closes at the first declassification after ?since, if any.
+  OPTIONAL {
+    ?left a/rdfs:subClassOf* gufoevents:Declassification ;
+          ?pd ?endurant ; ?pdt ?type .
+    ?pd rdfs:subPropertyOf* gufoevents:declassified .
+    ?pdt rdfs:subPropertyOf* gufoevents:declassifiedAsInstanceOf .
+    OPTIONAL { ?left gufo:hasBeginPointInXSDDateTimeStamp ?lts }
+    OPTIONAL { ?left gufo:hasBeginPointInXSDDate ?ld }
+    BIND(COALESCE(xsd:dateTime(STR(?lts)), xsd:dateTime(CONCAT(STR(?ld), "T00:00:00Z"))) AS ?until)
+    FILTER (?until >= ?since)
+    FILTER NOT EXISTS {
+      ?mid a/rdfs:subClassOf* gufoevents:Declassification ;
+           ?pd2 ?endurant ; ?pdt2 ?type .
+      ?pd2 rdfs:subPropertyOf* gufoevents:declassified .
+      ?pdt2 rdfs:subPropertyOf* gufoevents:declassifiedAsInstanceOf .
+      OPTIONAL { ?mid gufo:hasBeginPointInXSDDateTimeStamp ?mts }
+      OPTIONAL { ?mid gufo:hasBeginPointInXSDDate ?md }
+      BIND(COALESCE(xsd:dateTime(STR(?mts)), xsd:dateTime(CONCAT(STR(?md), "T00:00:00Z"))) AS ?midT)
+      FILTER (?midT >= ?since && ?midT < ?until)
+    }
+  }
+}
