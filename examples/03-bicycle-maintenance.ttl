@@ -1,0 +1,192 @@
+# Example 3 of 7 — Bicycle maintenance (asset management)
+#
+# Level: intermediate.
+# Introduces: gufoevents:PartSeparation, gufoevents:PartIncorporation,
+#             changes to a gufo:VariableCollection, the relation between
+#             an achievement and the gufo:Situation it brings about.
+#
+# A functional complex survives the replacement of its parts. This is exactly
+# what gufoevents:EndurantChange is for: the bicycle keeps its identity while
+# a component is swapped out. Contrast with example 6, where the endurant does
+# *not* survive and a transformation is needed instead.
+
+@prefix : <https://w3id.org/nemo/gufoevents/examples/bicycle#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gufo: <http://purl.org/nemo/gufo#> .
+@prefix gufoevents: <http://w3id.org/nemo/gufoevents#> .
+@base <https://w3id.org/nemo/gufoevents/examples/bicycle#> .
+
+<https://w3id.org/nemo/gufoevents/examples/bicycle> rdf:type owl:Ontology ;
+    rdfs:label "gUFOevents example 3: bicycle maintenance"@en ;
+    owl:imports <http://w3id.org/nemo/gufoevents> .
+
+#################################################################
+#    The domain
+#################################################################
+
+:Bicycle rdf:type owl:Class ;
+         rdfs:subClassOf gufo:FunctionalComplex ;
+         rdf:type gufo:Kind ;
+         rdfs:label "Bicycle"@en .
+
+:Wheel rdf:type owl:Class ;
+       rdfs:subClassOf gufo:FunctionalComplex ;
+       rdf:type gufo:Kind ;
+       rdfs:label "Wheel"@en .
+
+:Tyre rdf:type owl:Class ;
+      rdfs:subClassOf gufo:FunctionalComplex ;
+      rdf:type gufo:Kind ;
+      rdfs:label "Tyre"@en .
+
+# A fleet is a collection with varying membership -- bicycles join and leave
+# it. In gUFO terms the members are parts, so membership changes are parthood
+# changes just like component replacement.
+
+:Fleet rdf:type owl:Class ;
+       rdfs:subClassOf gufo:VariableCollection ;
+       rdf:type gufo:Kind ;
+       rdfs:label "Fleet"@en .
+
+:Mechanic rdf:type owl:Class ;
+          rdfs:subClassOf gufo:Object ;
+          rdf:type gufo:Role ;
+          rdfs:label "Mechanic"@en .
+
+#################################################################
+#    Domain event types
+#################################################################
+
+:TyreReplacement rdf:type owl:Class ;
+                 rdfs:subClassOf gufoevents:ComplexAchievement ;
+                 rdfs:label "TyreReplacement"@en .
+
+:TyreRemoval rdf:type owl:Class ;
+             rdfs:subClassOf gufoevents:PartSeparation ;
+             rdfs:label "TyreRemoval"@en .
+
+:TyreMounting rdf:type owl:Class ;
+              rdfs:subClassOf gufoevents:PartIncorporation ;
+              rdfs:label "TyreMounting"@en .
+
+# Sub-properties give the generic change properties a domain-specific reading.
+# gufoevents:incorporatedAsPart and :incorporatedAsPartInto both range over
+# gufo:Endurant, so this is where "a tyre goes onto a wheel" gets stated.
+
+:mountedTyre rdf:type owl:ObjectProperty ;
+             rdfs:subPropertyOf gufoevents:incorporatedAsPart ;
+             rdfs:domain :TyreMounting ;
+             rdfs:range :Tyre ;
+             rdfs:label "mountedTyre"@en .
+
+:mountedTyreOnto rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf gufoevents:incorporatedAsPartInto ;
+                 rdfs:domain :TyreMounting ;
+                 rdfs:range :Wheel ;
+                 rdfs:label "mountedTyreOnto"@en .
+
+:MaintenanceService rdf:type owl:Class ;
+                    rdfs:subClassOf gufo:Event ;
+                    rdfs:label "MaintenanceService"@en .
+
+#################################################################
+#    Assembly: the bicycle and its parts come into existence together
+#################################################################
+
+:bike42 rdf:type :Bicycle ;
+        rdfs:label "bicycle 42"@en ;
+        gufo:wasCreatedIn :bike42Assembly .
+
+:frontWheel42 rdf:type :Wheel ;
+              gufo:isComponentOf :bike42 ;
+              rdfs:label "front wheel of bicycle 42"@en .
+
+:originalTyre rdf:type :Tyre ;
+              rdfs:label "original front tyre"@en .
+
+:bike42Assembly rdf:type gufoevents:ComplexAchievement ;
+                gufo:hasBeginPointInXSDDate "2023-04-03"^^xsd:date ;
+                gufo:hasEndPointInXSDDate "2023-04-03"^^xsd:date .
+
+:bike42Creation rdf:type gufoevents:EndurantCreation ;
+                gufo:isEventProperPartOf :bike42Assembly ;
+                gufoevents:created :bike42 .
+
+# A part incorporation may coincide with the creation of the part or of the
+# whole -- as it does here. The two are still distinct events.
+
+:originalTyreMounting rdf:type :TyreMounting ;
+                      gufo:isEventProperPartOf :bike42Assembly ;
+                      :mountedTyre :originalTyre ;
+                      :mountedTyreOnto :frontWheel42 .
+
+#################################################################
+#    Maintenance: a tyre is replaced
+#################################################################
+#
+# The replacement is a complex achievement with two parts: the old tyre is
+# separated from the wheel and the new one is incorporated, at one instant.
+# Note that the bicycle itself is untouched -- it survives, so no event
+# mentions it. That is the point of an :EndurantChange.
+
+:newTyre rdf:type :Tyre ;
+         rdfs:label "replacement front tyre"@en .
+
+:paulo rdf:type :Mechanic ;
+       rdfs:label "Paulo"@en .
+
+:bike42Service rdf:type :MaintenanceService ;
+               gufo:hasBeginPointInXSDDateTimeStamp "2025-02-11T08:00:00Z"^^xsd:dateTimeStamp ;
+               gufo:hasEndPointInXSDDateTimeStamp "2025-02-11T09:30:00Z"^^xsd:dateTimeStamp .
+
+:paulo gufo:participatedIn :bike42Service .
+
+:frontTyreReplacement rdf:type :TyreReplacement ;
+                      gufo:isEventProperPartOf :bike42Service ;
+                      gufo:hasBeginPointInXSDDateTimeStamp "2025-02-11T08:45:00Z"^^xsd:dateTimeStamp ;
+                      gufo:hasEndPointInXSDDateTimeStamp "2025-02-11T08:45:00Z"^^xsd:dateTimeStamp .
+
+:originalTyreRemoval rdf:type :TyreRemoval ;
+                     gufo:isEventProperPartOf :frontTyreReplacement ;
+                     gufoevents:separatedAsPart :originalTyre ;
+                     gufoevents:separatedAsPartFrom :frontWheel42 .
+
+:newTyreMounting rdf:type :TyreMounting ;
+                 gufo:isEventProperPartOf :frontTyreReplacement ;
+                 :mountedTyre :newTyre ;
+                 :mountedTyreOnto :frontWheel42 .
+
+# The event view and the situation view of gUFO coexist. Here we record the
+# situation the mounting brought about, so that queries about "which tyre was
+# on the wheel during 2025?" can be answered without replaying the history.
+
+:newTyreMounting gufo:broughtAbout :newTyreOnFrontWheel .
+
+:newTyreOnFrontWheel rdf:type gufo:TemporaryParthoodSituation ;
+                     gufo:concernsTemporaryWhole :frontWheel42 ;
+                     gufo:hasBeginPointInXSDDate "2025-02-11"^^xsd:date .
+
+:newTyre gufo:standsInQualifiedParthood :newTyreOnFrontWheel .
+
+#################################################################
+#    Fleet membership: the same machinery, a different kind of whole
+#################################################################
+
+:cityFleet rdf:type :Fleet ;
+           rdfs:label "city bicycle fleet"@en .
+
+:bike42JoinsFleet rdf:type gufoevents:PartIncorporation ;
+                  gufoevents:incorporatedAsPart :bike42 ;
+                  gufoevents:incorporatedAsPartInto :cityFleet ;
+                  gufo:hasBeginPointInXSDDate "2023-04-10"^^xsd:date ;
+                  gufo:hasEndPointInXSDDate "2023-04-10"^^xsd:date .
+
+:bike42LeavesFleet rdf:type gufoevents:PartSeparation ;
+                   gufo:historicallyDependsOn :bike42JoinsFleet ;
+                   gufoevents:separatedAsPart :bike42 ;
+                   gufoevents:separatedAsPartFrom :cityFleet ;
+                   gufo:hasBeginPointInXSDDate "2026-01-20"^^xsd:date ;
+                   gufo:hasEndPointInXSDDate "2026-01-20"^^xsd:date .

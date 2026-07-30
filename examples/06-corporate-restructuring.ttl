@@ -1,0 +1,181 @@
+# Example 6 of 7 — Corporate restructuring (company law)
+#
+# Level: advanced.
+# Introduces: gufoevents:Transformation and its three specializations,
+#             gufoevents:Merging, gufoevents:Splitting, gufoevents:Transmutation.
+#
+# Every earlier example showed an endurant *surviving* a change. This one shows
+# the other case: an endurant that cannot survive, and is replaced. The test is
+# always the same -- is the thing that exists afterwards the same thing, or a
+# different one? If it is different, no gufoevents:EndurantChange will do, and
+# a transformation is needed: terminations and creations at a single instant.
+#
+# Note the deliberate asymmetry with example 3. Swapping a bicycle's tyre is a
+# gufoevents:PartIncorporation, because the bicycle survives. Merging two
+# companies is a gufoevents:Merging, because neither of them does.
+
+@prefix : <https://w3id.org/nemo/gufoevents/examples/corporate#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gufo: <http://purl.org/nemo/gufo#> .
+@prefix gufoevents: <http://w3id.org/nemo/gufoevents#> .
+@base <https://w3id.org/nemo/gufoevents/examples/corporate#> .
+
+<https://w3id.org/nemo/gufoevents/examples/corporate> rdf:type owl:Ontology ;
+    rdfs:label "gUFOevents example 6: corporate restructuring"@en ;
+    owl:imports <http://w3id.org/nemo/gufoevents> .
+
+#################################################################
+#    The domain
+#################################################################
+
+:LegalEntity rdf:type owl:Class ;
+             rdfs:subClassOf gufo:FunctionalComplex ;
+             rdf:type gufo:Category ;
+             rdfs:label "LegalEntity"@en .
+
+# Two *kinds*, not two phases. This is the modelling decision that drives the
+# whole example: a partnership and a corporation carry different principles of
+# identity, so nothing can be first one and then the other. Turning a
+# partnership into a corporation therefore terminates one endurant and creates
+# another -- a transmutation.
+
+:Partnership rdf:type owl:Class ;
+             rdfs:subClassOf :LegalEntity ;
+             rdf:type gufo:Kind ;
+             owl:disjointWith :Corporation ;
+             rdfs:label "Partnership"@en .
+
+:Corporation rdf:type owl:Class ;
+             rdfs:subClassOf :LegalEntity ;
+             rdf:type gufo:Kind ;
+             rdfs:label "Corporation"@en .
+
+#################################################################
+#    Domain event types
+#################################################################
+
+:CorporateMerger rdf:type owl:Class ;
+                 rdfs:subClassOf gufoevents:Merging ;
+                 rdfs:label "CorporateMerger"@en .
+
+:Demerger rdf:type owl:Class ;
+          rdfs:subClassOf gufoevents:Splitting ;
+          rdfs:label "Demerger"@en .
+
+:Incorporation rdf:type owl:Class ;
+               rdfs:subClassOf gufoevents:Transmutation ;
+               rdfs:label "Incorporation"@en .
+
+:RestructuringProject rdf:type owl:Class ;
+                      rdfs:subClassOf gufo:Event ;
+                      rdfs:label "RestructuringProject"@en .
+
+#################################################################
+#    1. Merging: Acme and Beta become AcmeBeta
+#################################################################
+#
+# Two terminations and one creation, all at the same instant. Note that
+# gufoevents:Transformation is declared with a *subclass* axiom, not an
+# equivalence: asserting the three parts does not make the reasoner conclude
+# that :acmeBetaMerger is a transformation. We assert the type ourselves.
+
+:acme rdf:type :Corporation ; rdfs:label "Acme"@en .
+:beta rdf:type :Corporation ; rdfs:label "Beta"@en .
+:acmeBeta rdf:type :Corporation ; rdfs:label "AcmeBeta"@en .
+
+:acmeBetaMerger rdf:type :CorporateMerger ;
+                gufo:hasBeginPointInXSDDate "2025-03-01"^^xsd:date ;
+                gufo:hasEndPointInXSDDate "2025-03-01"^^xsd:date .
+
+:acmeTermination rdf:type gufoevents:EndurantTermination ;
+                 gufo:isEventProperPartOf :acmeBetaMerger ;
+                 gufoevents:terminated :acme .
+
+:betaTermination rdf:type gufoevents:EndurantTermination ;
+                 gufo:isEventProperPartOf :acmeBetaMerger ;
+                 gufoevents:terminated :beta .
+
+:acmeBetaCreation rdf:type gufoevents:EndurantCreation ;
+                  gufo:isEventProperPartOf :acmeBetaMerger ;
+                  gufoevents:created :acmeBeta .
+
+:acme gufo:wasTerminatedIn :acmeBetaMerger .
+:beta gufo:wasTerminatedIn :acmeBetaMerger .
+:acmeBeta gufo:wasCreatedIn :acmeBetaMerger .
+
+#################################################################
+#    2. Splitting: Gamma becomes Delta and Epsilon
+#################################################################
+
+:gamma rdf:type :Corporation ; rdfs:label "Gamma"@en .
+:delta rdf:type :Corporation ; rdfs:label "Delta"@en .
+:epsilon rdf:type :Corporation ; rdfs:label "Epsilon"@en .
+
+:gammaDemerger rdf:type :Demerger ;
+               gufo:hasBeginPointInXSDDate "2025-09-15"^^xsd:date ;
+               gufo:hasEndPointInXSDDate "2025-09-15"^^xsd:date .
+
+:gammaTermination rdf:type gufoevents:EndurantTermination ;
+                  gufo:isEventProperPartOf :gammaDemerger ;
+                  gufoevents:terminated :gamma .
+
+:deltaCreation rdf:type gufoevents:EndurantCreation ;
+               gufo:isEventProperPartOf :gammaDemerger ;
+               gufoevents:created :delta .
+
+:epsilonCreation rdf:type gufoevents:EndurantCreation ;
+                 gufo:isEventProperPartOf :gammaDemerger ;
+                 gufoevents:created :epsilon .
+
+#################################################################
+#    3. Transmutation: a partnership becomes a corporation
+#################################################################
+#
+# One termination, one creation. The contrast to draw here is with example 2:
+# John moving from Child to Adult is a reclassification, because Child and
+# Adult are phases of one kind and John survives. Zeta moving from Partnership
+# to Corporation is a transmutation, because these are two kinds and the
+# partnership does not survive.
+
+:zetaPartnership rdf:type :Partnership ; rdfs:label "Zeta (partnership)"@en .
+:zetaCorporation rdf:type :Corporation ; rdfs:label "Zeta (corporation)"@en .
+
+:zetaRestructuring rdf:type :RestructuringProject ;
+                   gufo:hasBeginPointInXSDDate "2026-01-05"^^xsd:date ;
+                   gufo:hasEndPointInXSDDate "2026-04-30"^^xsd:date .
+
+:zetaIncorporation rdf:type :Incorporation ;
+                   gufo:isEventProperPartOf :zetaRestructuring ;
+                   gufo:hasBeginPointInXSDDate "2026-04-30"^^xsd:date ;
+                   gufo:hasEndPointInXSDDate "2026-04-30"^^xsd:date .
+
+:zetaPartnershipTermination rdf:type gufoevents:EndurantTermination ;
+                            gufo:isEventProperPartOf :zetaIncorporation ;
+                            gufoevents:terminated :zetaPartnership .
+
+:zetaCorporationCreation rdf:type gufoevents:EndurantCreation ;
+                         gufo:isEventProperPartOf :zetaIncorporation ;
+                         gufoevents:created :zetaCorporation .
+
+# The two are genuinely different individuals. Saying so explicitly matters:
+# without it, nothing in OWL rules out their being the same thing, which would
+# make the transmutation vacuous.
+
+:zetaPartnership owl:differentFrom :zetaCorporation .
+
+# Historical continuity between them is a domain matter, and needs a domain
+# property. gUFOevents relates the *events*, not the endurants: there is no
+# "successor of" between the terminated and the created endurant.
+
+:continuesLegalPersonalityOf rdf:type owl:ObjectProperty ;
+                             rdfs:domain :LegalEntity ;
+                             rdfs:range :LegalEntity ;
+                             rdfs:label "continuesLegalPersonalityOf"@en .
+
+:zetaCorporation :continuesLegalPersonalityOf :zetaPartnership .
+:acmeBeta :continuesLegalPersonalityOf :acme , :beta .
+:delta :continuesLegalPersonalityOf :gamma .
+:epsilon :continuesLegalPersonalityOf :gamma .

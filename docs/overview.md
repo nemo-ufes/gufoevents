@@ -419,7 +419,7 @@ gUFOevents also introduces gufoevents:hasProperPart, a transitive object propert
 
 ### 6. A Worked Example
 
-The [`example/order.ttl`](https://github.com/nemo-ufes/gufoevents/blob/master/example/order.ttl) file in the source repository contains a small worked example: the life cycle of an order in an order-handling domain.
+The source repository carries a [guided tour in seven worked examples](https://github.com/nemo-ufes/gufoevents/tree/master/examples), from seven domains, in increasing order of difficulty; each is checked with an OWL 2 DL reasoner. The first of them, [`examples/01-order-fulfilment.ttl`](https://github.com/nemo-ufes/gufoevents/blob/master/examples/01-order-fulfilment.ttl), is the life cycle of an order in an order-handling domain, and is summarized here.
 
 The domain ontology declares an Order kind with two phases:
 

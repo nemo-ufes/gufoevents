@@ -58,7 +58,8 @@ Authors:
 | [`docs/`](docs) | Generated documentation (usage guide and reference), published at <https://w3id.org/nemo/doc/gufoevents>. |
 | [`docs/overview.md`](docs/overview.md) | Source of the usage guide section of the documentation. |
 | [`docs/build.py`](docs/build.py) | Script that regenerates `docs/index.html` from the ontology and the usage guide. |
-| [`example/order.ttl`](example/order.ttl) | A small worked example: the life cycle of an order, represented with gUFOevents. |
+| [`examples/`](examples) | A guided tour in seven worked examples from seven domains, in increasing order of difficulty. See [`examples/README.md`](examples/README.md). |
+| [`examples/validate.py`](examples/validate.py) | Checks every example with an OWL 2 DL reasoner, and checks that the constraints gUFOevents states are actually enforced. |
 
 ## Usage
 

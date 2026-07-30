@@ -1,0 +1,181 @@
+# Example 4 of 7 — Museum conservation (cultural heritage)
+#
+# Level: intermediate.
+# Introduces: gufoevents:ConstituentRemoval, gufoevents:ConstituentIntroduction,
+#             gufoevents:changedReifiedValueTo with an enumerated quality value,
+#             gufo:manifestedIn.
+#
+# Constitution is not parthood. The marble does not sit inside the statue as a
+# component; it *is* what the statue is made of, at a time. Replacing it is a
+# gufoevents:ConstitutionChange, and, like a parthood change, the constituted
+# endurant survives it.
+
+@prefix : <https://w3id.org/nemo/gufoevents/examples/museum#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gufo: <http://purl.org/nemo/gufo#> .
+@prefix gufoevents: <http://w3id.org/nemo/gufoevents#> .
+@base <https://w3id.org/nemo/gufoevents/examples/museum#> .
+
+<https://w3id.org/nemo/gufoevents/examples/museum> rdf:type owl:Ontology ;
+    rdfs:label "gUFOevents example 4: museum conservation"@en ;
+    owl:imports <http://w3id.org/nemo/gufoevents> .
+
+#################################################################
+#    The domain
+#################################################################
+
+:Statue rdf:type owl:Class ;
+        rdfs:subClassOf gufo:FunctionalComplex ;
+        rdf:type gufo:Kind ;
+        rdfs:label "Statue"@en .
+
+# A quantity is a maximally-connected portion of stuff with a fixed
+# constitution: remove some of it and you have a *different* quantity. This is
+# why losing the arms cannot be modelled as the marble changing.
+
+:AmountOfMarble rdf:type owl:Class ;
+                rdfs:subClassOf gufo:Quantity ;
+                rdf:type gufo:Kind ;
+                rdfs:label "AmountOfMarble"@en .
+
+:Conservator rdf:type owl:Class ;
+             rdfs:subClassOf gufo:Object ;
+             rdf:type gufo:Role ;
+             rdfs:label "Conservator"@en .
+
+# A quality whose values come from an enumeration rather than a scale. This is
+# the case gufoevents:changedReifiedValueTo exists for: the new value is an
+# individual, not a literal.
+
+:ConservationCondition rdf:type owl:Class ;
+                       rdfs:subClassOf gufo:Quality ;
+                       rdfs:label "ConservationCondition"@en .
+
+:ConditionGrade rdf:type owl:Class ;
+                rdfs:subClassOf gufo:QualityValue ;
+                owl:equivalentClass [ rdf:type owl:Class ;
+                                      owl:oneOf ( :excellent :good :fair :poor ) ] ;
+                rdfs:label "ConditionGrade"@en .
+
+:excellent rdf:type :ConditionGrade ; rdfs:label "excellent"@en .
+:good      rdf:type :ConditionGrade ; rdfs:label "good"@en .
+:fair      rdf:type :ConditionGrade ; rdfs:label "fair"@en .
+:poor      rdf:type :ConditionGrade ; rdfs:label "poor"@en .
+
+[ rdf:type owl:AllDifferent ;
+  owl:distinctMembers ( :excellent :good :fair :poor ) ] .
+
+# A disposition of the marble: its brittleness. An intrinsic mode, not a
+# quality, because it is not given a value directly. It is *manifested* in the
+# event in which the arms break off.
+
+:Brittleness rdf:type owl:Class ;
+             rdfs:subClassOf gufo:IntrinsicMode ;
+             rdfs:label "Brittleness"@en .
+
+#################################################################
+#    Domain event types
+#################################################################
+
+:ConstitutionReplacement rdf:type owl:Class ;
+                         rdfs:subClassOf gufoevents:ComplexAchievement ;
+                         rdfs:label "ConstitutionReplacement"@en .
+
+:ConditionAssessment rdf:type owl:Class ;
+                     rdfs:subClassOf gufoevents:QualityValueChange ;
+                     rdfs:label "ConditionAssessment"@en .
+
+:Restoration rdf:type owl:Class ;
+             rdfs:subClassOf gufo:Event ;
+             rdfs:label "Restoration"@en .
+
+#################################################################
+#    The Venus of Milo loses its arms
+#################################################################
+
+:venusOfMilo rdf:type :Statue ;
+             rdfs:label "Venus of Milo"@en .
+
+:originalMarble rdf:type :AmountOfMarble ;
+                gufo:constitutes :venusOfMilo ;
+                rdfs:label "original quantity of marble"@en .
+
+:reducedMarble rdf:type :AmountOfMarble ;
+               rdfs:label "reduced quantity of marble"@en .
+
+:originalMarbleBrittleness rdf:type :Brittleness ;
+                           gufo:inheresIn :originalMarble ;
+                           gufo:manifestedIn :armsBreakOff ;
+                           rdfs:label "brittleness of the original marble"@en .
+
+:venusCondition rdf:type :ConservationCondition ;
+                gufo:inheresIn :venusOfMilo ;
+                rdfs:label "conservation condition of the Venus of Milo"@en .
+
+# The constitution swap: one instant, two simultaneous changes. The statue is
+# the same statue throughout -- only what constitutes it differs.
+
+:armsBreakOff rdf:type :ConstitutionReplacement ;
+              gufo:hasBeginPointInXSDDate "1820-04-08"^^xsd:date ;
+              gufo:hasEndPointInXSDDate "1820-04-08"^^xsd:date .
+
+:originalMarbleRemoved rdf:type gufoevents:ConstituentRemoval ;
+                       gufo:isEventProperPartOf :armsBreakOff ;
+                       gufoevents:removedAsConstituent :originalMarble ;
+                       gufoevents:removedAsConstituentFrom :venusOfMilo .
+
+:reducedMarbleIntroduced rdf:type gufoevents:ConstituentIntroduction ;
+                         gufo:isEventProperPartOf :armsBreakOff ;
+                         gufoevents:introducedAsConstituent :reducedMarble ;
+                         gufoevents:introducedAsConstituentOf :venusOfMilo .
+
+# The reduced quantity did not exist before this instant either: it is created
+# here. (A sub-quantity of the original is a different quantity.)
+
+:reducedMarbleCreation rdf:type gufoevents:EndurantCreation ;
+                       gufo:isEventProperPartOf :armsBreakOff ;
+                       gufoevents:created :reducedMarble .
+
+# And the statue's condition worsens, in the same instant.
+
+:conditionDropsToFair rdf:type :ConditionAssessment ;
+                      gufo:isEventProperPartOf :armsBreakOff ;
+                      gufoevents:changedValueOf :venusCondition ;
+                      gufoevents:changedReifiedValueTo :fair .
+
+# The corresponding situation, for those who also want the situation view.
+
+:armsBreakOff gufo:broughtAbout :venusConstitutedByReducedMarble .
+
+:venusConstitutedByReducedMarble rdf:type gufo:TemporaryConstitutionSituation ;
+                                 gufo:concernsConstitutedEndurant :venusOfMilo ;
+                                 gufo:hasBeginPointInXSDDate "1820-04-08"^^xsd:date .
+
+:reducedMarble gufo:standsInQualifiedConstitution :venusConstitutedByReducedMarble .
+
+#################################################################
+#    A later restoration improves the condition
+#################################################################
+
+:helena rdf:type :Conservator ;
+        rdfs:label "Helena"@en .
+
+:venus2024Restoration rdf:type :Restoration ;
+                      gufo:hasBeginPointInXSDDate "2024-09-02"^^xsd:date ;
+                      gufo:hasEndPointInXSDDate "2024-11-29"^^xsd:date .
+
+:helena gufo:participatedIn :venus2024Restoration .
+
+# The restoration is extended in time; the change of condition is the
+# instantaneous achievement in which it culminates.
+
+:conditionRisesToGood rdf:type :ConditionAssessment ;
+                      gufo:isEventProperPartOf :venus2024Restoration ;
+                      gufo:historicallyDependsOn :conditionDropsToFair ;
+                      gufoevents:changedValueOf :venusCondition ;
+                      gufoevents:changedReifiedValueTo :good ;
+                      gufo:hasBeginPointInXSDDate "2024-11-29"^^xsd:date ;
+                      gufo:hasEndPointInXSDDate "2024-11-29"^^xsd:date .

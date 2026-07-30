@@ -1,0 +1,249 @@
+# Example 5 of 7 — Hiring and employment (human resources)
+#
+# Level: intermediate to advanced.
+# Introduces: the creation and termination of *aspects* (relators and extrinsic
+#             modes), and the coordination of a relator's life with the roles
+#             it grounds.
+#
+# The key idea of this example: in UFO an aspect is an endurant, so everything
+# gUFOevents says about endurants applies to relators, modes and qualities. An
+# employment is created and terminated exactly like an order or a bicycle.
+#
+# It also shows *why* a role is a role. John is a student in example 2 and an
+# employee here, but not because of anything intrinsic to him: he is an
+# employee in virtue of the employment relator that mediates him and Acme.
+# The classification into the role and the creation of the relator therefore
+# belong to the same instant, and are grouped in a complex achievement.
+
+@prefix : <https://w3id.org/nemo/gufoevents/examples/employment#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gufo: <http://purl.org/nemo/gufo#> .
+@prefix gufoevents: <http://w3id.org/nemo/gufoevents#> .
+@base <https://w3id.org/nemo/gufoevents/examples/employment#> .
+
+<https://w3id.org/nemo/gufoevents/examples/employment> rdf:type owl:Ontology ;
+    rdfs:label "gUFOevents example 5: hiring and employment"@en ;
+    owl:imports <http://w3id.org/nemo/gufoevents> .
+
+#################################################################
+#    The domain
+#################################################################
+
+:Person rdf:type owl:Class ;
+        rdfs:subClassOf gufo:Object ;
+        rdf:type gufo:Kind ;
+        rdfs:label "Person"@en .
+
+:Organization rdf:type owl:Class ;
+              rdfs:subClassOf gufo:FunctionalComplex ;
+              rdf:type gufo:Kind ;
+              rdfs:label "Organization"@en .
+
+:Employee rdf:type owl:Class ;
+          rdfs:subClassOf :Person ;
+          rdf:type gufo:Role ;
+          rdfs:label "Employee"@en .
+
+:Employer rdf:type owl:Class ;
+          rdfs:subClassOf :Organization ;
+          rdf:type gufo:Role ;
+          rdfs:label "Employer"@en .
+
+# The relator. It is a gufo:Relator, hence an aspect, hence an endurant --
+# which is what makes it a legitimate argument of gufoevents:created and
+# gufoevents:terminated.
+
+:Employment rdf:type owl:Class ;
+            rdfs:subClassOf gufo:Relator ;
+            rdf:type gufo:Kind ;
+            rdfs:label "Employment"@en .
+
+:involvesEmployee rdf:type owl:ObjectProperty ;
+                  rdfs:subPropertyOf gufo:mediates ;
+                  rdfs:domain :Employment ;
+                  rdfs:range :Employee ;
+                  rdfs:label "involvesEmployee"@en .
+
+:involvesEmployer rdf:type owl:ObjectProperty ;
+                  rdfs:subPropertyOf gufo:mediates ;
+                  rdfs:domain :Employment ;
+                  rdfs:range :Employer ;
+                  rdfs:label "involvesEmployer"@en .
+
+# The parts of the relator: the reciprocal rights and duties. These are
+# extrinsic modes, also endurants, also created and terminated.
+
+:DutyToWork rdf:type owl:Class ;
+            rdfs:subClassOf gufo:ExtrinsicMode ;
+            rdfs:label "DutyToWork"@en .
+
+:DutyToPaySalary rdf:type owl:Class ;
+                 rdfs:subClassOf gufo:ExtrinsicMode ;
+                 rdfs:label "DutyToPaySalary"@en .
+
+# A quality of the employment itself -- not of the person and not of the
+# organization. Reifying the relator is what gives us somewhere to put it.
+
+:Salary rdf:type owl:Class ;
+        rdfs:subClassOf gufo:Quality ;
+        rdfs:label "Salary"@en .
+
+#################################################################
+#    Domain event types
+#################################################################
+
+:Hiring rdf:type owl:Class ;
+        rdfs:subClassOf gufoevents:ComplexAchievement ;
+        rdfs:label "Hiring"@en .
+
+:Dismissal rdf:type owl:Class ;
+           rdfs:subClassOf gufoevents:ComplexAchievement ;
+           rdfs:label "Dismissal"@en .
+
+:SalaryRaise rdf:type owl:Class ;
+             rdfs:subClassOf gufoevents:QualityValueChange ;
+             rdfs:label "SalaryRaise"@en .
+
+:changedSalaryInEurosTo rdf:type owl:DatatypeProperty ;
+                        rdfs:subPropertyOf gufoevents:changedValueTo ;
+                        rdfs:domain :SalaryRaise ;
+                        rdfs:range xsd:decimal ;
+                        rdfs:label "changedSalaryInEurosTo"@en .
+
+:RecruitmentProcess rdf:type owl:Class ;
+                    rdfs:subClassOf gufo:Event ;
+                    rdfs:label "RecruitmentProcess"@en .
+
+#################################################################
+#    John is hired by Acme
+#################################################################
+
+:john rdf:type :Person ;
+      rdfs:label "John"@en .
+
+:acme rdf:type :Organization ;
+      rdfs:label "Acme"@en .
+
+:johnAcmeEmployment rdf:type :Employment ;
+                    :involvesEmployee :john ;
+                    :involvesEmployer :acme ;
+                    gufo:wasCreatedIn :johnsHiring ;
+                    gufo:wasTerminatedIn :johnsDismissal ;
+                    rdfs:label "John's employment at Acme"@en .
+
+:johnsDutyToWork rdf:type :DutyToWork ;
+                 gufo:inheresIn :john ;
+                 gufo:externallyDependsOn :acme ;
+                 gufo:isAspectProperPartOf :johnAcmeEmployment ;
+                 rdfs:label "John's duty to work"@en .
+
+:acmesDutyToPay rdf:type :DutyToPaySalary ;
+                gufo:inheresIn :acme ;
+                gufo:externallyDependsOn :john ;
+                gufo:isAspectProperPartOf :johnAcmeEmployment ;
+                rdfs:label "Acme's duty to pay John's salary"@en .
+
+:johnsSalary rdf:type :Salary ;
+             gufo:inheresIn :johnAcmeEmployment ;
+             rdfs:label "John's salary at Acme"@en .
+
+# The recruitment process is extended in time; the hiring is the instant in
+# which it culminates.
+
+:acmeRecruitment2002 rdf:type :RecruitmentProcess ;
+                     gufo:hasBeginPointInXSDDate "2002-01-07"^^xsd:date ;
+                     gufo:hasEndPointInXSDDate "2002-03-01"^^xsd:date .
+
+:john gufo:participatedIn :acmeRecruitment2002 .
+
+# Six things happen at the instant of hiring. Each is a separate simple
+# achievement, because gufoevents:changed and gufoevents:created are
+# functional -- one event, one endurant.
+
+:johnsHiring rdf:type :Hiring ;
+             gufo:isEventProperPartOf :acmeRecruitment2002 ;
+             gufo:hasBeginPointInXSDDate "2002-03-01"^^xsd:date ;
+             gufo:hasEndPointInXSDDate "2002-03-01"^^xsd:date .
+
+:employmentCreation rdf:type gufoevents:EndurantCreation ;
+                    gufo:isEventProperPartOf :johnsHiring ;
+                    gufoevents:created :johnAcmeEmployment .
+
+:dutyToWorkCreation rdf:type gufoevents:EndurantCreation ;
+                    gufo:isEventProperPartOf :johnsHiring ;
+                    gufoevents:created :johnsDutyToWork .
+
+:dutyToPayCreation rdf:type gufoevents:EndurantCreation ;
+                   gufo:isEventProperPartOf :johnsHiring ;
+                   gufoevents:created :acmesDutyToPay .
+
+:salaryCreation rdf:type gufoevents:EndurantCreation ;
+                gufo:isEventProperPartOf :johnsHiring ;
+                gufoevents:created :johnsSalary .
+
+# ... and, at that same instant, John becomes an employee and Acme an
+# employer. The roles are grounded in the relator, so they are acquired
+# exactly when it is created.
+
+:johnBecomesEmployee rdf:type gufoevents:Classification ;
+                     gufo:isEventProperPartOf :johnsHiring ;
+                     gufoevents:classified :john ;
+                     gufoevents:classifiedAsInstanceOf :Employee .
+
+:acmeBecomesEmployer rdf:type gufoevents:Classification ;
+                     gufo:isEventProperPartOf :johnsHiring ;
+                     gufoevents:classified :acme ;
+                     gufoevents:classifiedAsInstanceOf :Employer .
+
+#################################################################
+#    A raise
+#################################################################
+
+:johnsInitialSalary rdf:type :SalaryRaise ;
+                    gufoevents:changedValueOf :johnsSalary ;
+                    :changedSalaryInEurosTo "2400.00"^^xsd:decimal ;
+                    gufo:hasBeginPointInXSDDate "2002-03-01"^^xsd:date ;
+                    gufo:hasEndPointInXSDDate "2002-03-01"^^xsd:date .
+
+:johns2008Raise rdf:type :SalaryRaise ;
+                gufo:historicallyDependsOn :johnsInitialSalary ;
+                gufoevents:changedValueOf :johnsSalary ;
+                :changedSalaryInEurosTo "3100.00"^^xsd:decimal ;
+                gufo:hasBeginPointInXSDDate "2008-07-01"^^xsd:date ;
+                gufo:hasEndPointInXSDDate "2008-07-01"^^xsd:date .
+
+#################################################################
+#    Dismissal: the relator and everything grounded in it end together
+#################################################################
+
+:johnsDismissal rdf:type :Dismissal ;
+                gufo:historicallyDependsOn :johnsHiring ;
+                gufo:hasBeginPointInXSDDate "2014-11-30"^^xsd:date ;
+                gufo:hasEndPointInXSDDate "2014-11-30"^^xsd:date .
+
+:employmentTermination rdf:type gufoevents:EndurantTermination ;
+                       gufo:isEventProperPartOf :johnsDismissal ;
+                       gufoevents:terminated :johnAcmeEmployment .
+
+:dutyToWorkTermination rdf:type gufoevents:EndurantTermination ;
+                       gufo:isEventProperPartOf :johnsDismissal ;
+                       gufoevents:terminated :johnsDutyToWork .
+
+:dutyToPayTermination rdf:type gufoevents:EndurantTermination ;
+                      gufo:isEventProperPartOf :johnsDismissal ;
+                      gufoevents:terminated :acmesDutyToPay .
+
+:salaryTermination rdf:type gufoevents:EndurantTermination ;
+                   gufo:isEventProperPartOf :johnsDismissal ;
+                   gufoevents:terminated :johnsSalary .
+
+# John stops being an employee. Note that this is a declassification and not a
+# termination: John himself survives, only the role is shed.
+
+:johnCeasesToBeEmployee rdf:type gufoevents:Declassification ;
+                        gufo:isEventProperPartOf :johnsDismissal ;
+                        gufoevents:declassified :john ;
+                        gufoevents:declassifiedAsInstanceOf :Employee .

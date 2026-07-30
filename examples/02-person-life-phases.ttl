@@ -1,0 +1,247 @@
+# Example 2 of 7 — A person's life (civil registry)
+#
+# Level: introduction.
+# Introduces: gufoevents:EndurantTermination, gufoevents:QualityValueChange,
+#             chains of reclassifications, gufo:participatedIn.
+#
+# Where example 1 showed a two-phase life cycle, this one shows a longer
+# history: a person is born, passes through three life phases, takes on and
+# gives up a role, changes weight, and dies. Everything that ever happened to
+# John is an event here.
+
+@prefix : <https://w3id.org/nemo/gufoevents/examples/person#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gufo: <http://purl.org/nemo/gufo#> .
+@prefix gufoevents: <http://w3id.org/nemo/gufoevents#> .
+@base <https://w3id.org/nemo/gufoevents/examples/person#> .
+
+<https://w3id.org/nemo/gufoevents/examples/person> rdf:type owl:Ontology ;
+    rdfs:label "gUFOevents example 2: a person's life"@en ;
+    owl:imports <http://w3id.org/nemo/gufoevents> .
+
+#################################################################
+#    The domain
+#################################################################
+
+:Person rdf:type owl:Class ;
+        rdfs:subClassOf gufo:Object ;
+        rdf:type gufo:Kind ;
+        rdfs:label "Person"@en .
+
+# Three life phases, partitioning Person. Phases apply in virtue of intrinsic
+# aspects of their instances (here, age).
+
+:Child rdf:type owl:Class ;
+       rdfs:subClassOf :Person ;
+       rdf:type gufo:Phase ;
+       rdfs:label "Child"@en .
+
+:Adolescent rdf:type owl:Class ;
+            rdfs:subClassOf :Person ;
+            rdf:type gufo:Phase ;
+            rdfs:label "Adolescent"@en .
+
+:Adult rdf:type owl:Class ;
+       rdfs:subClassOf :Person ;
+       rdf:type gufo:Phase ;
+       rdfs:label "Adult"@en .
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :Child :Adolescent :Adult ) ] .
+
+# A role, by contrast, applies in virtue of *extrinsic* aspects -- a relational
+# context. As far as gUFOevents is concerned it behaves exactly like a phase:
+# it is a non-rigid type, so an endurant can be classified into it and out of
+# it. Example 5 shows the relator that grounds a role.
+
+:Student rdf:type owl:Class ;
+         rdfs:subClassOf :Person ;
+         rdf:type gufo:Role ;
+         rdfs:label "Student"@en .
+
+:Registrar rdf:type owl:Class ;
+           rdfs:subClassOf :Person ;
+           rdf:type gufo:Role ;
+           rdfs:label "Registrar"@en .
+
+# A reified quality. Mass is measurable, so it is a gufo:Quality rather than a
+# gufo:IntrinsicMode; reifying it is what lets us track its changes.
+
+:Mass rdf:type owl:Class ;
+      rdfs:subClassOf gufo:Quality ;
+      rdfs:label "Mass"@en .
+
+#################################################################
+#    Domain event types
+#################################################################
+
+:Birth rdf:type owl:Class ;
+       rdfs:subClassOf gufoevents:ComplexAchievement ;
+       rdfs:label "Birth"@en .
+
+:PersonCreation rdf:type owl:Class ;
+                rdfs:subClassOf gufoevents:EndurantCreation ;
+                rdfs:label "PersonCreation"@en .
+
+:MassCreation rdf:type owl:Class ;
+              rdfs:subClassOf gufoevents:EndurantCreation ;
+              rdfs:label "MassCreation"@en .
+
+:Death rdf:type owl:Class ;
+       rdfs:subClassOf gufoevents:EndurantTermination ;
+       rdfs:label "Death"@en .
+
+:ComingOfAge rdf:type owl:Class ;
+             rdfs:subClassOf gufoevents:Reclassification ;
+             rdfs:label "ComingOfAge"@en .
+
+:Weighing rdf:type owl:Class ;
+          rdfs:subClassOf gufoevents:QualityValueChange ;
+          rdfs:label "Weighing"@en .
+
+# A sub-property of the data property, giving the value a domain-specific unit
+# and datatype. gufoevents:changedValueTo itself declares no range.
+
+:changedMassInKilogramsTo rdf:type owl:DatatypeProperty ;
+                          rdfs:subPropertyOf gufoevents:changedValueTo ;
+                          rdfs:domain :Weighing ;
+                          rdfs:range xsd:double ;
+                          rdfs:label "changedMassInKilogramsTo"@en .
+
+#################################################################
+#    John
+#################################################################
+
+:john rdf:type :Person ;
+      rdfs:label "John"@en ;
+      gufo:wasCreatedIn :johnsBirth ;
+      gufo:wasTerminatedIn :johnsDeath .
+
+:johnsMass rdf:type :Mass ;
+           gufo:inheresIn :john ;
+           rdfs:label "John's mass"@en .
+
+:maria rdf:type :Registrar ;
+       rdfs:label "Maria"@en .
+
+# --- birth: a complex achievement -------------------------------------------
+#
+# Three things happen at once: John comes into existence, his mass comes into
+# existence (an aspect is an endurant too, so it has its own creation), and he
+# is classified as a child.
+
+:johnsBirth rdf:type :Birth ;
+            gufo:hasBeginPointInXSDDate "1977-10-01"^^xsd:date ;
+            gufo:hasEndPointInXSDDate "1977-10-01"^^xsd:date .
+
+:maria gufo:participatedIn :johnsBirthRegistration .
+
+:johnsCreation rdf:type :PersonCreation ;
+               gufo:isEventProperPartOf :johnsBirth ;
+               gufoevents:created :john .
+
+:johnsMassCreation rdf:type :MassCreation ;
+                   gufo:isEventProperPartOf :johnsBirth ;
+                   gufoevents:created :johnsMass .
+
+:johnBecomesAChild rdf:type gufoevents:Classification ;
+                   gufo:isEventProperPartOf :johnsBirth ;
+                   gufoevents:classified :john ;
+                   gufoevents:classifiedAsInstanceOf :Child .
+
+# The registration is a separate event, later than the birth and historically
+# dependent on it. It is an achievement in its own right, but not part of the
+# birth: its parts would have to be simultaneous with it.
+
+:johnsBirthRegistration rdf:type gufoevents:SimpleAchievement ;
+                        gufo:historicallyDependsOn :johnsBirth ;
+                        gufo:hasBeginPointInXSDDate "1977-10-05"^^xsd:date ;
+                        gufo:hasEndPointInXSDDate "1977-10-05"^^xsd:date .
+
+# --- two reclassifications --------------------------------------------------
+
+:johnBecomesAdolescent rdf:type :ComingOfAge ;
+                       gufo:hasBeginPointInXSDDate "1989-10-01"^^xsd:date ;
+                       gufo:hasEndPointInXSDDate "1989-10-01"^^xsd:date .
+
+:johnCeasesToBeAChild rdf:type gufoevents:Declassification ;
+                      gufo:isEventProperPartOf :johnBecomesAdolescent ;
+                      gufoevents:declassified :john ;
+                      gufoevents:declassifiedAsInstanceOf :Child .
+
+:johnClassifiedAdolescent rdf:type gufoevents:Classification ;
+                          gufo:isEventProperPartOf :johnBecomesAdolescent ;
+                          gufoevents:classified :john ;
+                          gufoevents:classifiedAsInstanceOf :Adolescent .
+
+:johnBecomesAdult rdf:type :ComingOfAge ;
+                  gufo:historicallyDependsOn :johnBecomesAdolescent ;
+                  gufo:hasBeginPointInXSDDate "1995-10-01"^^xsd:date ;
+                  gufo:hasEndPointInXSDDate "1995-10-01"^^xsd:date .
+
+:johnCeasesToBeAdolescent rdf:type gufoevents:Declassification ;
+                          gufo:isEventProperPartOf :johnBecomesAdult ;
+                          gufoevents:declassified :john ;
+                          gufoevents:declassifiedAsInstanceOf :Adolescent .
+
+:johnClassifiedAdult rdf:type gufoevents:Classification ;
+                     gufo:isEventProperPartOf :johnBecomesAdult ;
+                     gufoevents:classified :john ;
+                     gufoevents:classifiedAsInstanceOf :Adult .
+
+# --- a role taken on and given up -------------------------------------------
+#
+# Enrolment and graduation are single classifications/declassifications, not
+# reclassifications: nothing replaces the Student phase when it is left.
+
+:johnEnrols rdf:type gufoevents:Classification ;
+            gufoevents:classified :john ;
+            gufoevents:classifiedAsInstanceOf :Student ;
+            gufo:hasBeginPointInXSDDate "1996-03-01"^^xsd:date ;
+            gufo:hasEndPointInXSDDate "1996-03-01"^^xsd:date .
+
+:johnGraduates rdf:type gufoevents:Declassification ;
+               gufo:historicallyDependsOn :johnEnrols ;
+               gufoevents:declassified :john ;
+               gufoevents:declassifiedAsInstanceOf :Student ;
+               gufo:hasBeginPointInXSDDate "2001-12-14"^^xsd:date ;
+               gufo:hasEndPointInXSDDate "2001-12-14"^^xsd:date .
+
+# --- quality value changes --------------------------------------------------
+#
+# Note what changes: the *quality* (John's mass), not John. The endurant
+# affected is reached from the quality with gufo:inheresIn.
+
+:johnWeighed80 rdf:type :Weighing ;
+               gufoevents:changedValueOf :johnsMass ;
+               :changedMassInKilogramsTo "80.0"^^xsd:double ;
+               gufo:hasBeginPointInXSDDate "2015-01-01"^^xsd:date ;
+               gufo:hasEndPointInXSDDate "2015-01-01"^^xsd:date .
+
+:johnWeighed70 rdf:type :Weighing ;
+               gufo:historicallyDependsOn :johnWeighed80 ;
+               gufoevents:changedValueOf :johnsMass ;
+               :changedMassInKilogramsTo "70.0"^^xsd:double ;
+               gufo:hasBeginPointInXSDDate "2018-01-01"^^xsd:date ;
+               gufo:hasEndPointInXSDDate "2018-01-01"^^xsd:date .
+
+# --- death ------------------------------------------------------------------
+#
+# John's mass cannot outlive him, so it is terminated too. Since two endurants
+# are terminated at the same instant, we need two terminations; they are
+# grouped under a complex achievement.
+
+:johnsDeathEvent rdf:type gufoevents:ComplexAchievement ;
+                 gufo:hasBeginPointInXSDDate "2044-06-30"^^xsd:date ;
+                 gufo:hasEndPointInXSDDate "2044-06-30"^^xsd:date .
+
+:johnsDeath rdf:type :Death ;
+            gufo:isEventProperPartOf :johnsDeathEvent ;
+            gufoevents:terminated :john .
+
+:johnsMassTermination rdf:type gufoevents:EndurantTermination ;
+                      gufo:isEventProperPartOf :johnsDeathEvent ;
+                      gufoevents:terminated :johnsMass .

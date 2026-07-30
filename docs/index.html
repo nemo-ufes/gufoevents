@@ -498,7 +498,7 @@ EAfDe6H3Dy6Ll456WEJsRZS630MwCAOI20ei5OBpxse5zcBZw8eS4uPpfIuDiCainIg9umBCU0GZzgLZ
 <p>gUFOevents also introduces gufoevents:hasProperPart, a transitive object property declared as the inverse of gufo:isProperPartOf. It is offered for convenience, since gUFO declares parthood in the direction from part to whole only.</p>
 <p><a name="example"></a></p>
 <h3>6. A Worked Example</h3>
-<p>The <a href="https://github.com/nemo-ufes/gufoevents/blob/master/example/order.ttl"><code>example/order.ttl</code></a> file in the source repository contains a small worked example: the life cycle of an order in an order-handling domain.</p>
+<p>The source repository carries a <a href="https://github.com/nemo-ufes/gufoevents/tree/master/examples">guided tour in seven worked examples</a>, from seven domains, in increasing order of difficulty; each is checked with an OWL 2 DL reasoner. The first of them, <a href="https://github.com/nemo-ufes/gufoevents/blob/master/examples/01-order-fulfilment.ttl"><code>examples/01-order-fulfilment.ttl</code></a>, is the life cycle of an order in an order-handling domain, and is summarized here.</p>
 <p>The domain ontology declares an Order kind with two phases:</p>
 <pre><code>:Order rdf:type owl:Class ;
        rdfs:subClassOf gufo:Object ;
@@ -649,8 +649,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>In domain of</th>
                 <td>
-                    <a href="#classifiedAsInstanceOf">classifiedAsInstanceOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                     <a href="#classified">classified</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#classifiedAsInstanceOf">classifiedAsInstanceOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                 </td>
             </tr>
         </table>
@@ -714,8 +714,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>In domain of</th>
                 <td>
-                    <a href="#introducedAsConstituentOf">introducedAsConstituentOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                     <a href="#introducedAsConstituent">introducedAsConstituent</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#introducedAsConstituentOf">introducedAsConstituentOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                 </td>
             </tr>
         </table>
@@ -778,8 +778,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Sub-classes</th>
                 <td>
-                    <a href="#ConstituentRemoval">ConstituentRemoval</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#ConstituentIntroduction">ConstituentIntroduction</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#ConstituentRemoval">ConstituentRemoval</a><sup class="sup-c" title="class">c</sup><br/>
                 </td>
             </tr>
         </table>
@@ -811,8 +811,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>In domain of</th>
                 <td>
-                    <a href="#declassifiedAsInstanceOf">declassifiedAsInstanceOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                     <a href="#declassified">declassified</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#declassifiedAsInstanceOf">declassifiedAsInstanceOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                 </td>
             </tr>
         </table>
@@ -844,11 +844,11 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Sub-classes</th>
                 <td>
-                    <a href="#ParthoodChange">ParthoodChange</a><sup class="sup-c" title="class">c</sup><br/>
-                    <a href="#QualityValueChange">QualityValueChange</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#ConstitutionChange">ConstitutionChange</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#Declassification">Declassification</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#Classification">Classification</a><sup class="sup-c" title="class">c</sup><br/>
-                    <a href="#ConstitutionChange">ConstitutionChange</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#ParthoodChange">ParthoodChange</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#QualityValueChange">QualityValueChange</a><sup class="sup-c" title="class">c</sup><br/>
                 </td>
             </tr>
             <tr>
@@ -1043,8 +1043,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>In domain of</th>
                 <td>
-                    <a href="#separatedAsPartFrom">separatedAsPartFrom</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                     <a href="#separatedAsPart">separatedAsPart</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#separatedAsPartFrom">separatedAsPartFrom</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                 </td>
             </tr>
         </table>
@@ -1075,8 +1075,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Sub-classes</th>
                 <td>
-                    <a href="#PartSeparation">PartSeparation</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#PartIncorporation">PartIncorporation</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#PartSeparation">PartSeparation</a><sup class="sup-c" title="class">c</sup><br/>
                 </td>
             </tr>
         </table>
@@ -1110,8 +1110,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
                 <th>In domain of</th>
                 <td>
                     <a href="#changedValueTo">changedValueTo</a><sup class="sup-fp" title="functional property">fp</sup><br/>
-                    <a href="#changedValueOf">changedValueOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                     <a href="#changedReifiedValueTo">changedReifiedValueTo</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#changedValueOf">changedValueOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                 </td>
             </tr>
         </table>
@@ -1137,8 +1137,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Super-classes</th>
                 <td>
-                    (<a href="n03693cf94d6e43c5a952866d38ce1c6bb13">n03693cf94d6e43c5a952866d38ce1c6bb13</a><sup class="sup-c" title="class">c</sup> and <a href="n03693cf94d6e43c5a952866d38ce1c6bb15">n03693cf94d6e43c5a952866d38ce1c6bb15</a><sup class="sup-c" title="class">c</sup>)<br/>
                     <a href="#ComplexAchievement">ComplexAchievement</a><sup class="sup-c" title="class">c</sup><br/>
+                    (<a href="ndb570bf42e0b4d23bbceba2d27fbb413b13">ndb570bf42e0b4d23bbceba2d27fbb413b13</a><sup class="sup-c" title="class">c</sup> and <a href="ndb570bf42e0b4d23bbceba2d27fbb413b15">ndb570bf42e0b4d23bbceba2d27fbb413b15</a><sup class="sup-c" title="class">c</sup>)<br/>
                 </td>
             </tr>
         </table>
@@ -1169,9 +1169,9 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Sub-classes</th>
                 <td>
+                    <a href="#EndurantChange">EndurantChange</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#EndurantCreation">EndurantCreation</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#EndurantTermination">EndurantTermination</a><sup class="sup-c" title="class">c</sup><br/>
-                    <a href="#EndurantChange">EndurantChange</a><sup class="sup-c" title="class">c</sup><br/>
                 </td>
             </tr>
         </table>
@@ -1223,16 +1223,16 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Super-classes</th>
                 <td>
-                    (<a href="n03693cf94d6e43c5a952866d38ce1c6bb26">n03693cf94d6e43c5a952866d38ce1c6bb26</a><sup class="sup-c" title="class">c</sup> and <a href="n03693cf94d6e43c5a952866d38ce1c6bb28">n03693cf94d6e43c5a952866d38ce1c6bb28</a><sup class="sup-c" title="class">c</sup>)<br/>
+                    (<a href="ndb570bf42e0b4d23bbceba2d27fbb413b26">ndb570bf42e0b4d23bbceba2d27fbb413b26</a><sup class="sup-c" title="class">c</sup> and <a href="ndb570bf42e0b4d23bbceba2d27fbb413b28">ndb570bf42e0b4d23bbceba2d27fbb413b28</a><sup class="sup-c" title="class">c</sup>)<br/>
                     <a href="#ComplexAchievement">ComplexAchievement</a><sup class="sup-c" title="class">c</sup><br/>
                 </td>
             </tr>
             <tr>
                 <th>Sub-classes</th>
                 <td>
+                    <a href="#Transmutation">Transmutation</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#Splitting">Splitting</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#Merging">Merging</a><sup class="sup-c" title="class">c</sup><br/>
-                    <a href="#Transmutation">Transmutation</a><sup class="sup-c" title="class">c</sup><br/>
                 </td>
             </tr>
         </table>

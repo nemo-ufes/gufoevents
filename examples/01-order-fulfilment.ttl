@@ -1,0 +1,188 @@
+# Example 1 of 7 — Order fulfilment (e-commerce)
+#
+# Level: introduction.
+# Introduces: gufoevents:EndurantCreation, gufoevents:Classification,
+#             gufoevents:Declassification, gufoevents:ComplexAchievement,
+#             gufoevents:Reclassification.
+#
+# The question this example answers is "what happened to order 123, and when?".
+# The answer is read off the events that mention the order, and not off any
+# situation.
+
+@prefix : <https://w3id.org/nemo/gufoevents/examples/order#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gufo: <http://purl.org/nemo/gufo#> .
+@prefix gufoevents: <http://w3id.org/nemo/gufoevents#> .
+@base <https://w3id.org/nemo/gufoevents/examples/order#> .
+
+<https://w3id.org/nemo/gufoevents/examples/order> rdf:type owl:Ontology ;
+    rdfs:label "gUFOevents example 1: order fulfilment"@en ;
+    owl:imports <http://w3id.org/nemo/gufoevents> .
+
+#################################################################
+#    The domain: an order, and the two phases of its life cycle
+#################################################################
+
+# Order is a kind: it applies necessarily to its instances and supplies them
+# with a principle of identity. This is the usual gUFO pattern -- the class is
+# a subclass of gufo:Object and an instance of gufo:Kind (OWL 2 punning).
+
+:Order rdf:type owl:Class ;
+       rdfs:subClassOf gufo:Object ;
+       rdf:type gufo:Kind ;
+       rdfs:label "Order"@en .
+
+# Pending and Fulfilled are phases: they apply contingently, and an order moves
+# between them over its life. Only non-rigid types (phases, roles and their
+# mixin counterparts) may be used with the classification events below.
+
+:PendingOrder rdf:type owl:Class ;
+              rdfs:subClassOf :Order ;
+              rdf:type gufo:Phase ;
+              owl:disjointWith :FulfilledOrder ;
+              rdfs:label "PendingOrder"@en .
+
+:FulfilledOrder rdf:type owl:Class ;
+                rdfs:subClassOf :Order ;
+                rdf:type gufo:Phase ;
+                rdfs:label "FulfilledOrder"@en .
+
+:Customer rdf:type owl:Class ;
+          rdfs:subClassOf gufo:Object ;
+          rdf:type gufo:Role ;
+          rdfs:label "Customer"@en .
+
+#################################################################
+#    The event types
+#################################################################
+
+# Specializing the achievements of gUFOevents (usage scenario 1). Note that
+# nothing forces us to specialize -- we could instantiate gUFOevents classes
+# directly -- but domain event types make the model self-documenting and give
+# us somewhere to hang domain constraints.
+
+:OrderCreation rdf:type owl:Class ;
+               rdfs:subClassOf gufoevents:EndurantCreation ;
+               rdfs:label "OrderCreation"@en .
+
+:OrderPendingClassification rdf:type owl:Class ;
+                            rdfs:subClassOf gufoevents:Classification ;
+                            rdfs:label "OrderPendingClassification"@en .
+
+:OrderPendingDeclassification rdf:type owl:Class ;
+                              rdfs:subClassOf gufoevents:Declassification ;
+                              rdfs:label "OrderPendingDeclassification"@en .
+
+:OrderFulfilledClassification rdf:type owl:Class ;
+                              rdfs:subClassOf gufoevents:Classification ;
+                              rdfs:label "OrderFulfilledClassification"@en .
+
+# Accepting an order is a complex achievement: two things happen at the same
+# instant -- the order comes into existence, and it becomes pending.
+
+:OrderAcceptance rdf:type owl:Class ;
+                 rdfs:subClassOf gufoevents:ComplexAchievement ;
+                 rdfs:label "OrderAcceptance"@en .
+
+# Delivering it is a reclassification: it ceases to be pending and becomes
+# fulfilled, again at a single instant.
+
+:OrderDelivery rdf:type owl:Class ;
+               rdfs:subClassOf gufoevents:Reclassification ;
+               rdfs:label "OrderDelivery"@en .
+
+# The fulfilment process is *not* an achievement: it is extended in time. It
+# stays a plain gufo:Event (an accomplishment, in the terminology of the usage
+# guide), and the achievements above are among its parts.
+
+:OrderFulfilment rdf:type owl:Class ;
+                 rdfs:subClassOf gufo:Event ;
+                 rdfs:label "OrderFulfilment"@en .
+
+#################################################################
+#    Order 123: accepted, then delivered
+#################################################################
+
+:order123 rdf:type :Order ;
+          rdfs:label "order 123"@en ;
+          # gUFOevents does not entail this from :created -- see the README.
+          gufo:wasCreatedIn :order123Acceptance .
+
+:alice rdf:type :Customer ;
+       rdfs:label "Alice"@en .
+
+:order123Fulfilment rdf:type :OrderFulfilment ;
+                    gufo:hasBeginPointInXSDDateTimeStamp "2025-05-12T09:14:00Z"^^xsd:dateTimeStamp ;
+                    gufo:hasEndPointInXSDDateTimeStamp "2025-05-15T11:02:00Z"^^xsd:dateTimeStamp .
+
+:alice gufo:participatedIn :order123Fulfilment .
+
+# --- the acceptance (a complex achievement) ---------------------------------
+
+:order123Acceptance rdf:type :OrderAcceptance ;
+                    gufo:isEventProperPartOf :order123Fulfilment ;
+                    gufo:hasBeginPointInXSDDateTimeStamp "2025-05-12T09:14:00Z"^^xsd:dateTimeStamp ;
+                    gufo:hasEndPointInXSDDateTimeStamp "2025-05-12T09:14:00Z"^^xsd:dateTimeStamp .
+
+:order123Creation rdf:type :OrderCreation ;
+                  gufo:isEventProperPartOf :order123Acceptance ;
+                  gufoevents:created :order123 ;
+                  gufo:hasBeginPointInXSDDateTimeStamp "2025-05-12T09:14:00Z"^^xsd:dateTimeStamp ;
+                  gufo:hasEndPointInXSDDateTimeStamp "2025-05-12T09:14:00Z"^^xsd:dateTimeStamp .
+
+:order123InitialClassification rdf:type :OrderPendingClassification ;
+                               gufo:isEventProperPartOf :order123Acceptance ;
+                               gufoevents:classified :order123 ;
+                               gufoevents:classifiedAsInstanceOf :PendingOrder ;
+                               gufo:hasBeginPointInXSDDateTimeStamp "2025-05-12T09:14:00Z"^^xsd:dateTimeStamp ;
+                               gufo:hasEndPointInXSDDateTimeStamp "2025-05-12T09:14:00Z"^^xsd:dateTimeStamp .
+
+# --- the delivery (a reclassification) --------------------------------------
+
+:order123Delivery rdf:type :OrderDelivery ;
+                  gufo:isEventProperPartOf :order123Fulfilment ;
+                  gufo:historicallyDependsOn :order123Acceptance ;
+                  gufo:hasBeginPointInXSDDateTimeStamp "2025-05-15T11:02:00Z"^^xsd:dateTimeStamp ;
+                  gufo:hasEndPointInXSDDateTimeStamp "2025-05-15T11:02:00Z"^^xsd:dateTimeStamp .
+
+:order123PendingDeclassification rdf:type :OrderPendingDeclassification ;
+                                 gufo:isEventProperPartOf :order123Delivery ;
+                                 gufoevents:declassified :order123 ;
+                                 gufoevents:declassifiedAsInstanceOf :PendingOrder ;
+                                 gufo:hasBeginPointInXSDDateTimeStamp "2025-05-15T11:02:00Z"^^xsd:dateTimeStamp ;
+                                 gufo:hasEndPointInXSDDateTimeStamp "2025-05-15T11:02:00Z"^^xsd:dateTimeStamp .
+
+:order123FulfilledClassification rdf:type :OrderFulfilledClassification ;
+                                 gufo:isEventProperPartOf :order123Delivery ;
+                                 gufoevents:classified :order123 ;
+                                 gufoevents:classifiedAsInstanceOf :FulfilledOrder ;
+                                 gufo:hasBeginPointInXSDDateTimeStamp "2025-05-15T11:02:00Z"^^xsd:dateTimeStamp ;
+                                 gufo:hasEndPointInXSDDateTimeStamp "2025-05-15T11:02:00Z"^^xsd:dateTimeStamp .
+
+#################################################################
+#    Order 456: accepted, still pending
+#################################################################
+
+# The absence of a delivery event is the whole representation of "still
+# pending". Note that under the open world assumption this is not the same as
+# asserting that the order has *not* been delivered.
+
+:order456 rdf:type :Order ;
+          rdfs:label "order 456"@en ;
+          gufo:wasCreatedIn :order456Acceptance .
+
+:order456Acceptance rdf:type :OrderAcceptance ;
+                    gufo:hasBeginPointInXSDDateTimeStamp "2025-05-14T16:40:00Z"^^xsd:dateTimeStamp ;
+                    gufo:hasEndPointInXSDDateTimeStamp "2025-05-14T16:40:00Z"^^xsd:dateTimeStamp .
+
+:order456Creation rdf:type :OrderCreation ;
+                  gufo:isEventProperPartOf :order456Acceptance ;
+                  gufoevents:created :order456 .
+
+:order456InitialClassification rdf:type :OrderPendingClassification ;
+                               gufo:isEventProperPartOf :order456Acceptance ;
+                               gufoevents:classified :order456 ;
+                               gufoevents:classifiedAsInstanceOf :PendingOrder .

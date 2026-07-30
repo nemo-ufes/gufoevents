@@ -1,0 +1,349 @@
+# Example 7 of 7 — A clinical episode (healthcare)
+#
+# Level: advanced; this is the capstone.
+# Brings together: all three simple achievements, five of the seven endurant
+#             changes, complex achievements, the distinction between
+#             accomplishments and achievements, historical dependence,
+#             gufo:broughtAbout and gufo:contributedToTrigger, reified quality
+#             values, dispositions and their manifestation.
+#
+# The narrative: Ana is admitted to hospital with a severe headache, is
+# diagnosed and treated, improves, and is discharged. The episode is a single
+# accomplishment extended over four days; within it sit a dozen instantaneous
+# achievements, and the whole course of Ana's condition can be reconstructed
+# from them.
+#
+# The one thing to watch here is the discipline the ontology imposes: every
+# gufoevents:changed sub-property is functional, so "several things changed at
+# once" is always represented as several simple achievements grouped under a
+# complex one -- never as one event with several objects.
+
+@prefix : <https://w3id.org/nemo/gufoevents/examples/clinical#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gufo: <http://purl.org/nemo/gufo#> .
+@prefix gufoevents: <http://w3id.org/nemo/gufoevents#> .
+@base <https://w3id.org/nemo/gufoevents/examples/clinical#> .
+
+<https://w3id.org/nemo/gufoevents/examples/clinical> rdf:type owl:Ontology ;
+    rdfs:label "gUFOevents example 7: a clinical episode"@en ;
+    owl:imports <http://w3id.org/nemo/gufoevents> .
+
+#################################################################
+#    The domain
+#################################################################
+
+:Person rdf:type owl:Class ;
+        rdfs:subClassOf gufo:Object ;
+        rdf:type gufo:Kind ;
+        rdfs:label "Person"@en .
+
+:Patient rdf:type owl:Class ;
+         rdfs:subClassOf :Person ;
+         rdf:type gufo:Role ;
+         rdfs:label "Patient"@en .
+
+:Physician rdf:type owl:Class ;
+           rdfs:subClassOf :Person ;
+           rdf:type gufo:Role ;
+           rdfs:label "Physician"@en .
+
+# Two phases of a patient's stay, mutually exclusive.
+
+:Inpatient rdf:type owl:Class ;
+           rdfs:subClassOf :Patient ;
+           rdf:type gufo:Phase ;
+           owl:disjointWith :Outpatient ;
+           rdfs:label "Inpatient"@en .
+
+:Outpatient rdf:type owl:Class ;
+            rdfs:subClassOf :Patient ;
+            rdf:type gufo:Phase ;
+            rdfs:label "Outpatient"@en .
+
+# A symptom is an intrinsic mode: it inheres in the patient and is not itself
+# given a value. Its *intensity* is a quality of the symptom -- an aspect of an
+# aspect, which is why reifying the symptom was worth the trouble.
+
+:Headache rdf:type owl:Class ;
+          rdfs:subClassOf gufo:IntrinsicMode ;
+          rdf:type gufo:Kind ;
+          rdfs:label "Headache"@en .
+
+:PainIntensity rdf:type owl:Class ;
+               rdfs:subClassOf gufo:Quality ;
+               rdfs:label "PainIntensity"@en .
+
+# Values on a verbal rating scale: an enumeration, hence reified.
+
+:PainGrade rdf:type owl:Class ;
+           rdfs:subClassOf gufo:QualityValue ;
+           owl:equivalentClass [ rdf:type owl:Class ;
+                                 owl:oneOf ( :none :mild :moderate :severe ) ] ;
+           rdfs:label "PainGrade"@en .
+
+:none     rdf:type :PainGrade ; rdfs:label "no pain"@en .
+:mild     rdf:type :PainGrade ; rdfs:label "mild pain"@en .
+:moderate rdf:type :PainGrade ; rdfs:label "moderate pain"@en .
+:severe   rdf:type :PainGrade ; rdfs:label "severe pain"@en .
+
+[ rdf:type owl:AllDifferent ;
+  owl:distinctMembers ( :none :mild :moderate :severe ) ] .
+
+# A disposition: a drug allergy. It exists whether or not it ever shows
+# itself; it is *manifested* in the adverse reaction below. Dispositions are
+# the reason gUFO reifies intrinsic modes at all.
+
+:DrugAllergy rdf:type owl:Class ;
+             rdfs:subClassOf gufo:IntrinsicMode ;
+             rdfs:label "DrugAllergy"@en .
+
+# The relator that grounds the Patient role, exactly as in example 5.
+
+:CareRelationship rdf:type owl:Class ;
+                  rdfs:subClassOf gufo:Relator ;
+                  rdf:type gufo:Kind ;
+                  rdfs:label "CareRelationship"@en .
+
+:involvesPatient rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf gufo:mediates ;
+                 rdfs:domain :CareRelationship ;
+                 rdfs:range :Patient ;
+                 rdfs:label "involvesPatient"@en .
+
+:involvesPhysician rdf:type owl:ObjectProperty ;
+                   rdfs:subPropertyOf gufo:mediates ;
+                   rdfs:domain :CareRelationship ;
+                   rdfs:range :Physician ;
+                   rdfs:label "involvesPhysician"@en .
+
+#################################################################
+#    Domain event types
+#################################################################
+
+# The episode and the treatment are extended in time: accomplishments, and so
+# plain gufo:Event. Everything below them is instantaneous.
+
+:ClinicalEpisode rdf:type owl:Class ;
+                 rdfs:subClassOf gufo:Event ;
+                 rdfs:label "ClinicalEpisode"@en .
+
+:TreatmentCourse rdf:type owl:Class ;
+                 rdfs:subClassOf gufo:Event ;
+                 rdfs:label "TreatmentCourse"@en .
+
+:Admission rdf:type owl:Class ;
+           rdfs:subClassOf gufoevents:ComplexAchievement ;
+           rdfs:label "Admission"@en .
+
+:Discharge rdf:type owl:Class ;
+           rdfs:subClassOf gufoevents:ComplexAchievement ;
+           rdfs:label "Discharge"@en .
+
+:SymptomOnset rdf:type owl:Class ;
+              rdfs:subClassOf gufoevents:EndurantCreation ;
+              rdfs:label "SymptomOnset"@en .
+
+:SymptomResolution rdf:type owl:Class ;
+                   rdfs:subClassOf gufoevents:EndurantTermination ;
+                   rdfs:label "SymptomResolution"@en .
+
+:PainAssessment rdf:type owl:Class ;
+                rdfs:subClassOf gufoevents:QualityValueChange ;
+                rdfs:label "PainAssessment"@en .
+
+:AdverseReaction rdf:type owl:Class ;
+                 rdfs:subClassOf gufoevents:SimpleAchievement ;
+                 rdfs:label "AdverseReaction"@en .
+
+#################################################################
+#    The people
+#################################################################
+
+:ana rdf:type :Person ; rdfs:label "Ana"@en .
+:bruno rdf:type :Physician ; rdfs:label "Dr Bruno"@en .
+
+:anasAllergy rdf:type :DrugAllergy ;
+             gufo:inheresIn :ana ;
+             rdfs:label "Ana's allergy to the analgesic"@en .
+
+:anasHeadache rdf:type :Headache ;
+              gufo:inheresIn :ana ;
+              rdfs:label "Ana's headache"@en .
+
+:anasPainIntensity rdf:type :PainIntensity ;
+                   gufo:inheresIn :anasHeadache ;
+                   rdfs:label "intensity of Ana's headache"@en .
+
+:anasCare rdf:type :CareRelationship ;
+          :involvesPatient :ana ;
+          :involvesPhysician :bruno ;
+          rdfs:label "Ana's care relationship with Dr Bruno"@en .
+
+#################################################################
+#    The episode
+#################################################################
+
+:anasEpisode rdf:type :ClinicalEpisode ;
+             gufo:hasBeginPointInXSDDateTimeStamp "2026-02-03T22:10:00Z"^^xsd:dateTimeStamp ;
+             gufo:hasEndPointInXSDDateTimeStamp "2026-02-07T10:00:00Z"^^xsd:dateTimeStamp .
+
+:ana gufo:participatedIn :anasEpisode .
+:bruno gufo:participatedIn :anasEpisode .
+
+# --- before admission: the headache begins ----------------------------------
+
+:headacheOnset rdf:type :SymptomOnset ;
+               gufoevents:created :anasHeadache ;
+               gufo:hasBeginPointInXSDDateTimeStamp "2026-02-03T20:00:00Z"^^xsd:dateTimeStamp ;
+               gufo:hasEndPointInXSDDateTimeStamp "2026-02-03T20:00:00Z"^^xsd:dateTimeStamp .
+
+:anasHeadache gufo:wasCreatedIn :headacheOnset .
+
+# The intensity comes into existence with the headache it inheres in, and is
+# given its first value at the same instant. Two more simple achievements.
+
+:onsetBundle rdf:type gufoevents:ComplexAchievement ;
+             gufo:hasBeginPointInXSDDateTimeStamp "2026-02-03T20:00:00Z"^^xsd:dateTimeStamp ;
+             gufo:hasEndPointInXSDDateTimeStamp "2026-02-03T20:00:00Z"^^xsd:dateTimeStamp .
+
+:headacheOnset gufo:isEventProperPartOf :onsetBundle .
+
+:intensityCreation rdf:type gufoevents:EndurantCreation ;
+                   gufo:isEventProperPartOf :onsetBundle ;
+                   gufoevents:created :anasPainIntensity .
+
+:initialPainSevere rdf:type :PainAssessment ;
+                   gufo:isEventProperPartOf :onsetBundle ;
+                   gufoevents:changedValueOf :anasPainIntensity ;
+                   gufoevents:changedReifiedValueTo :severe .
+
+# --- admission --------------------------------------------------------------
+#
+# Four things at one instant: the care relationship is created, Ana takes on
+# the Patient role, she takes on the Inpatient phase, and the episode's clock
+# starts. The severe pain is what triggered it.
+
+:anasAdmission rdf:type :Admission ;
+               gufo:isEventProperPartOf :anasEpisode ;
+               gufo:historicallyDependsOn :onsetBundle ;
+               gufo:hasBeginPointInXSDDateTimeStamp "2026-02-03T22:10:00Z"^^xsd:dateTimeStamp ;
+               gufo:hasEndPointInXSDDateTimeStamp "2026-02-03T22:10:00Z"^^xsd:dateTimeStamp .
+
+:careCreation rdf:type gufoevents:EndurantCreation ;
+              gufo:isEventProperPartOf :anasAdmission ;
+              gufoevents:created :anasCare .
+
+:anaBecomesPatient rdf:type gufoevents:Classification ;
+                   gufo:isEventProperPartOf :anasAdmission ;
+                   gufoevents:classified :ana ;
+                   gufoevents:classifiedAsInstanceOf :Patient .
+
+:anaBecomesInpatient rdf:type gufoevents:Classification ;
+                     gufo:isEventProperPartOf :anasAdmission ;
+                     gufoevents:classified :ana ;
+                     gufoevents:classifiedAsInstanceOf :Inpatient .
+
+# The situation that contributed to triggering the admission. This is the one
+# gUFO property that runs from situation to event rather than the reverse.
+
+:anaInSeverePainOn3Feb rdf:type gufo:QualityValueAttributionSituation ;
+                       gufo:concernsQualityType :PainIntensity ;
+                       gufo:concernsReifiedQualityValue :severe ;
+                       gufo:contributedToTrigger :anasAdmission ;
+                       gufo:hasBeginPointInXSDDateTimeStamp "2026-02-03T20:00:00Z"^^xsd:dateTimeStamp .
+
+:anasHeadache gufo:standsInQualifiedAttribution :anaInSeverePainOn3Feb .
+
+:initialPainSevere gufo:broughtAbout :anaInSeverePainOn3Feb .
+
+# --- treatment: an accomplishment with achievements inside it ---------------
+
+:anasTreatment rdf:type :TreatmentCourse ;
+               gufo:isEventProperPartOf :anasEpisode ;
+               gufo:historicallyDependsOn :anasAdmission ;
+               gufo:hasBeginPointInXSDDateTimeStamp "2026-02-04T08:00:00Z"^^xsd:dateTimeStamp ;
+               gufo:hasEndPointInXSDDateTimeStamp "2026-02-06T20:00:00Z"^^xsd:dateTimeStamp .
+
+# The allergy manifests itself. gufo:manifestedIn is how a disposition and the
+# event that reveals it are connected; the reaction is an achievement in its
+# own right, and it is not an :EndurantChange -- nothing about Ana became
+# different, something about her showed itself.
+
+:anasAdverseReaction rdf:type :AdverseReaction ;
+                     gufo:isEventProperPartOf :anasTreatment ;
+                     gufo:hasBeginPointInXSDDateTimeStamp "2026-02-04T09:30:00Z"^^xsd:dateTimeStamp ;
+                     gufo:hasEndPointInXSDDateTimeStamp "2026-02-04T09:30:00Z"^^xsd:dateTimeStamp .
+
+:anasAllergy gufo:manifestedIn :anasAdverseReaction .
+
+# The pain improves in two steps. Each is a separate achievement, and each
+# historically depends on the previous one.
+
+:painDropsToModerate rdf:type :PainAssessment ;
+                     gufo:isEventProperPartOf :anasTreatment ;
+                     gufo:historicallyDependsOn :initialPainSevere ;
+                     gufoevents:changedValueOf :anasPainIntensity ;
+                     gufoevents:changedReifiedValueTo :moderate ;
+                     gufo:hasBeginPointInXSDDateTimeStamp "2026-02-05T07:00:00Z"^^xsd:dateTimeStamp ;
+                     gufo:hasEndPointInXSDDateTimeStamp "2026-02-05T07:00:00Z"^^xsd:dateTimeStamp .
+
+:painDropsToMild rdf:type :PainAssessment ;
+                 gufo:isEventProperPartOf :anasTreatment ;
+                 gufo:historicallyDependsOn :painDropsToModerate ;
+                 gufoevents:changedValueOf :anasPainIntensity ;
+                 gufoevents:changedReifiedValueTo :mild ;
+                 gufo:hasBeginPointInXSDDateTimeStamp "2026-02-06T07:00:00Z"^^xsd:dateTimeStamp ;
+                 gufo:hasEndPointInXSDDateTimeStamp "2026-02-06T07:00:00Z"^^xsd:dateTimeStamp .
+
+# --- resolution: the symptom ceases to exist --------------------------------
+#
+# This is a termination, not a change to :none. The headache is gone; there is
+# no longer anything for a pain grade to be a value of. Its intensity goes
+# with it.
+
+:symptomResolutionBundle rdf:type gufoevents:ComplexAchievement ;
+                         gufo:isEventProperPartOf :anasTreatment ;
+                         gufo:historicallyDependsOn :painDropsToMild ;
+                         gufo:hasBeginPointInXSDDateTimeStamp "2026-02-06T19:00:00Z"^^xsd:dateTimeStamp ;
+                         gufo:hasEndPointInXSDDateTimeStamp "2026-02-06T19:00:00Z"^^xsd:dateTimeStamp .
+
+:headacheResolution rdf:type :SymptomResolution ;
+                    gufo:isEventProperPartOf :symptomResolutionBundle ;
+                    gufoevents:terminated :anasHeadache .
+
+:intensityTermination rdf:type gufoevents:EndurantTermination ;
+                      gufo:isEventProperPartOf :symptomResolutionBundle ;
+                      gufoevents:terminated :anasPainIntensity .
+
+:anasHeadache gufo:wasTerminatedIn :headacheResolution .
+
+# --- discharge --------------------------------------------------------------
+#
+# A reclassification (Inpatient -> Outpatient) *plus* things that are not part
+# of the reclassification. Since gufoevents:Reclassification only requires
+# that a classification and a declassification be among the parts, the extra
+# parts are admissible; but note that the ontology does not check that the
+# reclassification's two parts concern the same endurant.
+
+:anasDischarge rdf:type :Discharge , gufoevents:Reclassification ;
+               gufo:isEventProperPartOf :anasEpisode ;
+               gufo:historicallyDependsOn :symptomResolutionBundle ;
+               gufo:hasBeginPointInXSDDateTimeStamp "2026-02-07T10:00:00Z"^^xsd:dateTimeStamp ;
+               gufo:hasEndPointInXSDDateTimeStamp "2026-02-07T10:00:00Z"^^xsd:dateTimeStamp .
+
+:anaCeasesToBeInpatient rdf:type gufoevents:Declassification ;
+                        gufo:isEventProperPartOf :anasDischarge ;
+                        gufoevents:declassified :ana ;
+                        gufoevents:declassifiedAsInstanceOf :Inpatient .
+
+:anaBecomesOutpatient rdf:type gufoevents:Classification ;
+                      gufo:isEventProperPartOf :anasDischarge ;
+                      gufoevents:classified :ana ;
+                      gufoevents:classifiedAsInstanceOf :Outpatient .
+
+# The care relationship outlives the stay: Dr Bruno keeps following Ana as an
+# outpatient. So there is no termination here -- the absence of one is the
+# assertion that it continues.
