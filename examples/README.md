@@ -72,6 +72,7 @@ These are checked by `validate.py`, and a reasoner will flag them in your own da
 | `EndurantChange`, `EndurantCreation`, `EndurantTermination` are pairwise disjoint | an endurant that is created is not thereby changed |
 | Every `changed`/`created`/`terminated` sub-property is functional | one event concerns exactly one endurant |
 | `changedValueOf` requires a `gufo:Quality` | what changes is the quality, not its bearer |
+| `Merging`, `Splitting` and `Transmutation` are pairwise disjoint | their cardinalities are mutually exclusive |
 | An achievement with a part is inferred to be a `ComplexAchievement` | `ComplexAchievement` is a defined class |
 | `created` entails `gufo:wasCreatedIn`, and `terminated` entails `gufo:wasTerminatedIn` | each is a sub-property of the inverse of its gUFO counterpart |
 
@@ -100,10 +101,15 @@ much as the price of staying in OWL 2 DL, but you should know where the guard ra
    do.)
 4. **`Reclassification` does not check that its two parts concern the same endurant**,
    nor that the two types differ.
-5. **`Merging`, `Splitting` and `Transmutation` are not distinguished by anything.** The
-   cardinalities that separate them (many→one, one→many, one→one) are documented but not
-   axiomatized, and the three classes are not disjoint, so one event can be asserted to
-   be both a merging and a splitting.
+5. **The cardinalities separating `Merging`, `Splitting` and `Transmutation` are not
+   axiomatized** (many→one, one→many, one→one). They cannot be: stating them needs
+   qualified cardinality restrictions on the inverse of `gufo:isEventProperPartOf`,
+   which is transitive and therefore non-simple, and OWL 2 DL forbids non-simple
+   properties in cardinality restrictions. The three classes *are* declared mutually
+   exclusive, so asserting two of them of one event is caught; but nothing checks that
+   your merging in fact terminates two or more endurants. If you need that enforced, use
+   SHACL, or introduce a non-transitive "direct part" sub-property of your own and put
+   the restrictions on it.
 6. **A complex achievement may have parts that are not achievements** — including events
    extended in time. The comment says all parts are achievements; the axioms do not.
 7. **Nothing forbids an endurant being incorporated as a part of itself**, or being

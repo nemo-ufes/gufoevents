@@ -498,7 +498,7 @@ Instantaneous events are the atomic steps out of which the history of endurants 
 
 For example, the merging of two organizations into a new one, or the merging of two quantities of liquid into a single quantity.
 
-Note that the cardinalities mentioned here are not axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance."""@en ;
+The cardinalities mentioned here are not axiomatized: they would require qualified cardinality restrictions on the inverse of gufo:isEventProperPartOf, which is transitive and hence non-simple, and OWL 2 DL forbids non-simple properties in cardinality restrictions. What is axiomatized is that :Merging, :Splitting and :Transmutation are mutually exclusive."""@en ;
          rdfs:label "Merging"@en .
 
 
@@ -600,7 +600,7 @@ Simple achievements are the atomic changes recognized in gUFOevents: the creatio
 
 For example, the split of an organization into two new organizations, or the division of a quantity of liquid into several quantities.
 
-Note that the cardinalities mentioned here are not axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance."""@en ;
+As with :Merging, these cardinalities are not axiomatized, since gufo:isEventProperPartOf is non-simple and cannot bear cardinality restrictions in OWL 2 DL. What is axiomatized is that :Merging, :Splitting and :Transmutation are mutually exclusive."""@en ;
            rdfs:label "Splitting"@en .
 
 
@@ -631,11 +631,11 @@ See the specializations :Merging, :Splitting and :Transmutation."""@en ;
 ###  http://w3id.org/nemo/gufoevents#Transmutation
 :Transmutation rdf:type owl:Class ;
                rdfs:subClassOf :Transformation ;
-               rdfs:comment """A :ComplexAchievement that consists of one endurant terminations and one creation.
+               rdfs:comment """A :ComplexAchievement that consists of one endurant termination and one creation.
 
 For example, the transmutation of a caterpillar into a butterfly, if the two are taken to be instances of different kinds and hence distinct endurants.
 
-Note that the cardinalities mentioned here are not axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance."""@en ;
+As with :Merging, these cardinalities are not axiomatized, since gufo:isEventProperPartOf is non-simple and cannot bear cardinality restrictions in OWL 2 DL. What is axiomatized is that :Merging, :Splitting and :Transmutation are mutually exclusive."""@en ;
                rdfs:label "Transmutation"@en .
 
 
@@ -657,6 +657,28 @@ Note that the cardinalities mentioned here are not axiomatized in this implement
   owl:members ( :EndurantChange
                 :EndurantCreation
                 :EndurantTermination
+              )
+] .
+
+
+# The three specializations of :Transformation are distinguished by how many
+# endurants they terminate and create: a :Merging terminates two or more and
+# creates one, a :Splitting terminates one and creates two or more, and a
+# :Transmutation terminates one and creates one. Those cardinalities cannot be
+# axiomatized here. They would have to be stated as qualified cardinality
+# restrictions on the inverse of gufo:isEventProperPartOf, which is transitive
+# and hence non-simple; OWL 2 DL forbids non-simple properties in cardinality
+# restrictions, and using one would take this ontology out of the profile.
+#
+# What can be stated is that the three are mutually exclusive, which is what
+# the cardinalities imply and which catches the common error of asserting two
+# of them of the same event. A :Transformation that is none of the three -- one
+# that terminates several endurants and creates several -- remains admissible.
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :Merging
+                :Splitting
+                :Transmutation
               )
 ] .
 

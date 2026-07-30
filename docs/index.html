@@ -486,7 +486,7 @@ EAfDe6H3Dy6Ll456WEJsRZS630MwCAOI20ei5OBpxse5zcBZw8eS4uPpfIuDiCainIg9umBCU0GZzgLZ
                   gufoevents:created :acmeBeta ;
                   gufo:isEventProperPartOf :acmeBetaMerger .
 </code></pre>
-<p>The cardinalities that distinguish merging, splitting and transmutation are <em>not</em> axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance in the comments of the corresponding classes. Users who need them enforced should add the corresponding cardinality restrictions in their own ontology, or check them outside the reasoner (for example with SHACL).</p>
+<p>The three are declared pairwise disjoint, so no event can be both a merging and a splitting. The cardinalities themselves, however, are <em>not</em> axiomatized, and cannot be within OWL 2 DL: stating them requires qualified cardinality restrictions on the inverse of gufo:isEventProperPartOf, and that property is transitive, hence non-simple, and non-simple properties may not appear in cardinality restrictions. Users who need the cardinalities enforced should check them outside the reasoner (for example with SHACL), or introduce a non-transitive "direct part" sub-property in their own ontology and place the restrictions on that.</p>
 <p><a name="relating"></a></p>
 <h3>5. Relating Events to Endurants, Situations and Time</h3>
 <p>gUFOevents adds no temporal machinery of its own: the temporal properties of gUFO apply unchanged. Since an instantaneous event has coinciding begin and end points, gufo:hasBeginPointInXSDDate, gufo:hasBeginPointInXSDDateTimeStamp and their end-point counterparts should be given the same value (or the corresponding time:Instant may be reified with gufo:hasBeginPoint and gufo:hasEndPoint, see <a href="https://www.w3.org/TR/owl-time/">OWL-Time</a>).</p>
@@ -652,8 +652,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>In domain of</th>
                 <td>
-                    <a href="#classified">classified</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                     <a href="#classifiedAsInstanceOf">classifiedAsInstanceOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#classified">classified</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                 </td>
             </tr>
         </table>
@@ -685,8 +685,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Sub-classes</th>
                 <td>
-                    <a href="#Reclassification">Reclassification</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#Transformation">Transformation</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#Reclassification">Reclassification</a><sup class="sup-c" title="class">c</sup><br/>
                 </td>
             </tr>
         </table>
@@ -847,11 +847,11 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Sub-classes</th>
                 <td>
+                    <a href="#QualityValueChange">QualityValueChange</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#Declassification">Declassification</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#ConstitutionChange">ConstitutionChange</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#ParthoodChange">ParthoodChange</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#Classification">Classification</a><sup class="sup-c" title="class">c</sup><br/>
-                    <a href="#Declassification">Declassification</a><sup class="sup-c" title="class">c</sup><br/>
-                    <a href="#QualityValueChange">QualityValueChange</a><sup class="sup-c" title="class">c</sup><br/>
-                    <a href="#ConstitutionChange">ConstitutionChange</a><sup class="sup-c" title="class">c</sup><br/>
                 </td>
             </tr>
             <tr>
@@ -975,7 +975,7 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
                 <td>
                     <p>A :Transformation in which two or more endurants are terminated and a single endurant is created.</p>
 <p>For example, the merging of two organizations into a new one, or the merging of two quantities of liquid into a single quantity.</p>
-<p>Note that the cardinalities mentioned here are not axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance.</p>
+<p>The cardinalities mentioned here are not axiomatized: they would require qualified cardinality restrictions on the inverse of gufo:isEventProperPartOf, which is transitive and hence non-simple, and OWL 2 DL forbids non-simple properties in cardinality restrictions. What is axiomatized is that :Merging, :Splitting and :Transmutation are mutually exclusive.</p>
                 </td>
             </tr>
             <tr>
@@ -1112,9 +1112,9 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>In domain of</th>
                 <td>
-                    <a href="#changedReifiedValueTo">changedReifiedValueTo</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                     <a href="#changedValueTo">changedValueTo</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                     <a href="#changedValueOf">changedValueOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#changedReifiedValueTo">changedReifiedValueTo</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                 </td>
             </tr>
         </table>
@@ -1140,8 +1140,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Super-classes</th>
                 <td>
+                    (<a href="nb59d7bbe38b74213b4bb5a04a906212cb15">nb59d7bbe38b74213b4bb5a04a906212cb15</a><sup class="sup-c" title="class">c</sup> and <a href="nb59d7bbe38b74213b4bb5a04a906212cb17">nb59d7bbe38b74213b4bb5a04a906212cb17</a><sup class="sup-c" title="class">c</sup>)<br/>
                     <a href="#ComplexAchievement">ComplexAchievement</a><sup class="sup-c" title="class">c</sup><br/>
-                    (<a href="n08910d9a9be449efa46157c6ef0b7118b15">n08910d9a9be449efa46157c6ef0b7118b15</a><sup class="sup-c" title="class">c</sup> and <a href="n08910d9a9be449efa46157c6ef0b7118b17">n08910d9a9be449efa46157c6ef0b7118b17</a><sup class="sup-c" title="class">c</sup>)<br/>
                 </td>
             </tr>
         </table>
@@ -1172,9 +1172,9 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Sub-classes</th>
                 <td>
+                    <a href="#EndurantTermination">EndurantTermination</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#EndurantCreation">EndurantCreation</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#EndurantChange">EndurantChange</a><sup class="sup-c" title="class">c</sup><br/>
-                    <a href="#EndurantTermination">EndurantTermination</a><sup class="sup-c" title="class">c</sup><br/>
                 </td>
             </tr>
         </table>
@@ -1194,7 +1194,7 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
                 <td>
                     <p>A :Transformation in which a single endurant is terminated and two or more endurants are created.</p>
 <p>For example, the split of an organization into two new organizations, or the division of a quantity of liquid into several quantities.</p>
-<p>Note that the cardinalities mentioned here are not axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance.</p>
+<p>As with :Merging, these cardinalities are not axiomatized, since gufo:isEventProperPartOf is non-simple and cannot bear cardinality restrictions in OWL 2 DL. What is axiomatized is that :Merging, :Splitting and :Transmutation are mutually exclusive.</p>
                 </td>
             </tr>
             <tr>
@@ -1226,16 +1226,16 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Super-classes</th>
                 <td>
+                    (<a href="nb59d7bbe38b74213b4bb5a04a906212cb28">nb59d7bbe38b74213b4bb5a04a906212cb28</a><sup class="sup-c" title="class">c</sup> and <a href="nb59d7bbe38b74213b4bb5a04a906212cb30">nb59d7bbe38b74213b4bb5a04a906212cb30</a><sup class="sup-c" title="class">c</sup>)<br/>
                     <a href="#ComplexAchievement">ComplexAchievement</a><sup class="sup-c" title="class">c</sup><br/>
-                    (<a href="n08910d9a9be449efa46157c6ef0b7118b28">n08910d9a9be449efa46157c6ef0b7118b28</a><sup class="sup-c" title="class">c</sup> and <a href="n08910d9a9be449efa46157c6ef0b7118b30">n08910d9a9be449efa46157c6ef0b7118b30</a><sup class="sup-c" title="class">c</sup>)<br/>
                 </td>
             </tr>
             <tr>
                 <th>Sub-classes</th>
                 <td>
-                    <a href="#Merging">Merging</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#Transmutation">Transmutation</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#Splitting">Splitting</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#Merging">Merging</a><sup class="sup-c" title="class">c</sup><br/>
                 </td>
             </tr>
         </table>
@@ -1253,9 +1253,9 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Description</th>
                 <td>
-                    <p>A :ComplexAchievement that consists of one endurant terminations and one creation.</p>
+                    <p>A :ComplexAchievement that consists of one endurant termination and one creation.</p>
 <p>For example, the transmutation of a caterpillar into a butterfly, if the two are taken to be instances of different kinds and hence distinct endurants.</p>
-<p>Note that the cardinalities mentioned here are not axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance.</p>
+<p>As with :Merging, these cardinalities are not axiomatized, since gufo:isEventProperPartOf is non-simple and cannot bear cardinality restrictions in OWL 2 DL. What is axiomatized is that :Merging, :Splitting and :Transmutation are mutually exclusive.</p>
                 </td>
             </tr>
             <tr>

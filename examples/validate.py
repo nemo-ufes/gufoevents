@@ -121,6 +121,20 @@ MUST_BE_INCONSISTENT = [
         :q rdf:type gufo:Quality .
         """,
     ),
+    (
+        "one event that is both a Merging and a Splitting",
+        "the three specializations of Transformation are mutually exclusive",
+        """
+        :e rdf:type ge:Merging , ge:Splitting .
+        """,
+    ),
+    (
+        "one event that is both a Splitting and a Transmutation",
+        "same: a splitting creates two or more, a transmutation exactly one",
+        """
+        :e rdf:type ge:Splitting , ge:Transmutation .
+        """,
+    ),
 ]
 
 

@@ -401,7 +401,7 @@ For example, the merging of two companies into a new one:
                       gufoevents:created :acmeBeta ;
                       gufo:isEventProperPartOf :acmeBetaMerger .
 
-The cardinalities that distinguish merging, splitting and transmutation are *not* axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance in the comments of the corresponding classes. Users who need them enforced should add the corresponding cardinality restrictions in their own ontology, or check them outside the reasoner (for example with SHACL).
+The three are declared pairwise disjoint, so no event can be both a merging and a splitting. The cardinalities themselves, however, are *not* axiomatized, and cannot be within OWL 2 DL: stating them requires qualified cardinality restrictions on the inverse of gufo:isEventProperPartOf, and that property is transitive, hence non-simple, and non-simple properties may not appear in cardinality restrictions. Users who need the cardinalities enforced should check them outside the reasoner (for example with SHACL), or introduce a non-transitive "direct part" sub-property in their own ontology and place the restrictions on that.
 
 <a name="relating"></a>
 
