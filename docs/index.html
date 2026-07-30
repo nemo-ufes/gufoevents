@@ -1,0 +1,2145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>gUFOevents: An Extension of the Lightweight Implementation of the Unified Foundational Ontology (UFO) for Events</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAC40lEQVRYhe2UT0hUQRzHp6Iss1B3VZKIDbbdfW9mnoi4f3zzjkJQeOgS0SEIb1EWBGGlLLu460zQPQM1unUIIjA6rfpm6ZAhHjoIRVQUFUlEbG+euTsdXG1d3VL3bVD4g+9h+L35fT/8fvN7ADgY9aHY5fpIvK82HO9ysu66wxWOzbkjcekKx0a2ALYA/n2AGi3a6ArFezcidziecQygNhhrcUficjP6PwBqtGijKxy/thnVBePHywYoDsFhl53GV8SEcsTx4usCMLUewTVpc23BNvEzm6Neyf1+KcG2vwqwUjgrOJq2JmHftwmkVBRGTvncFodnbI7vChO/FRznCmHsNM7aHM9Yk7Df5iqsLMw9sMNOK2g+jS4IEz0UJv4iuJZb2RltWnB4UZqH6ioGAgAAGe5vtiZhtzDx7OoRadLmeM7m6IRjhnLMW2Vx1bA5GhAmnhIcz6/xNj4Ujsky8UspwfayjDPjsF2Y6L7N8Vzx/BfP+KPg6LbgSqd8DnfJW2CnbaLhfH5ephpqygJYvQU4Z3P82TLRsDDhUTnmrSq+Y3N0Mg+Xldy/zwEAnLMWZ3pHpNExmfLs/t0dOdVcbT0JeKxUwFP2VljjqiE47Jp53LTXNxhsUZjerTByXWX6VZWRs/4bIQ2ACv+UAomgDzLCISNZxAxZKMhIDjLy1JfsaK+I+eGBUBNk5E2x8RogX/PdcDZUqieWTSh5D6nOVKqfhoycUmlHFFIyu5RXqf7AcQDISCpv/tqbMBqK883RtmpISRoxQyJKPgGn3wNk5NEigDFa6hslqV/Kj+FdBQD0bshIDlKSLlVcoWQo36UhR80BAMB73lulMn0EMpJTqD6qJiOt3mho/8GbkT2BZNgDB/V+RI0fkOrT3kRIVQbaDizJm2hdNbINBxwk5xAj3yEjuV9rZ1iIkgxixkLBA83mz8uCjLwoGwAx0vOnFSy5mtR4VTaAQvVORMnwZgSpzkrV/QmdE2tKe46+MQAAAABJRU5ErkJggg==">
+    <link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABhklEQVQ4jbWPzStEURjG3yQLirlGKUnKFO45Z+SjmXvnnmthQcpCoVhYmD/AwmJiI3OvZuZc2U3UlKU0/gAslMw9JgvhHxAr2fko7r0jHSsl+TgbTz2Lt5731/MASEiJW9ONml2QyX6rsGalmnT74v8BDf12hxJfpV8d1uwNKUBYszabdFv84L8B9X0rESVmmUup2fme0cVhJWaZHw4NWL1Sew
+EAfDe6H3Dy6Ll456WEJsRZS630MwCAOI20ei5OBpxse5zcBZw8eS4uPpfIuDiCainIg9umBCU0GZzgLZ9Hn31OgoATL+CkLDGB5H1OKj4nFd/FBxUXJ0UZNb4edw/6nLyJXaj5FeCVyPLNIVmYK8TG1IwWb16L1gEACAFV90ftoT8bdOX0EeyY99gxBXZMgRz6qGb1KantAACI0UvE6F5XJqEjpsdURouI0Vt5gGOUkUNnPu7ObGIIMfNaGqDmjDRi9FZldF1lRgYzeqUyeoiY4ag5Iy3RgOYRM8+/M2bG8efsO4hGrpmJseyMAAAAAElFTkSuQmCC">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    
+    <link rel="stylesheet" type="text/css" href="style.css">
+    
+    <script type="application/ld+json">
+      [
+  {
+    "@id": "http://w3id.org/nemo/gufoevents",
+    "@type": [
+      "https://schema.org/DefinedTermSet"
+    ],
+    "https://schema.org/description": [
+      {
+        "@value": "<p>The objective of gUFOevents is to extend gUFO [1] with a more expressive account of events, drawing on the ontology of events of UFO-B [2-4].</p>\n<p>gUFO includes only minimalistic support for events: enough to establish the participation of objects in events, the historical dependence between events, and the situations events bring about. gUFOevents builds on that basis in order to address a recurrent modeling need, namely the representation of <em>change in endurants</em> as events, answering questions such as \"what happened to this object, and when?\".</p>\n<p>Intended users are those implementing UFO-based lightweight ontologies that reuse gUFO and need to track the history of endurants explicitly, as a course of events, and not only through the situations of gUFO.</p>\n<p>The core of the extension is a taxonomy of instantaneous events (gufoevents:InstantaneousEvent) and, among these, of achievements (gufoevents:Achievement), which are the instantaneous events that are telic (resultative). An achievement is either simple (gufoevents:SimpleAchievement, having no proper parts) or complex (gufoevents:ComplexAchievement, whose parts are themselves achievements with the same begin and end points).</p>\n<p>Simple achievements are specialized into the creation of an endurant (gufoevents:EndurantCreation), the termination of an endurant (gufoevents:EndurantTermination) and the change of an endurant (gufoevents:EndurantChange). The latter covers the ways in which an endurant may change while retaining its identity: it may come to instantiate or cease to instantiate a non-rigid type (gufoevents:Classification, gufoevents:Declassification), one of its qualities may acquire a new value (gufoevents:QualityValueChange), it may be incorporated into or separated from a whole (gufoevents:PartIncorporation, gufoevents:PartSeparation), and it may be introduced as or removed as a constituent of another endurant (gufoevents:ConstituentIntroduction, gufoevents:ConstituentRemoval).</p>\n<p>Complex achievements bundle simple achievements that occur simultaneously, including the reclassification of an endurant (gufoevents:Reclassification, a declassification together with a classification of the same endurant) and the transformation of endurants (gufoevents:Transformation, one or more terminations together with one or more creations, specialized into gufoevents:Merging, gufoevents:Splitting and gufoevents:Transmutation).</p>\n<p>Each subclass of gufoevents:EndurantChange comes with a pair of object properties: one identifying the endurant that changed (a sub-property of gufoevents:changed) and one identifying the entity with respect to which it changed (a sub-property of gufoevents:changedEndurantRelativeTo). This uniform pattern allows a change, and the two ends it concerns, to be recorded with a single event individual.</p>\n<p>gUFOevents is lightweight in the same sense as gUFO: little expressive means is employed in an effort to retain computational properties for the resulting OWL 2 DL ontology, and a number of pragmatic implementation choices are discussed in comments annotated to the various elements of this implementation.</p>\n<p>For background information on gUFO and on the reference ontology of events on which this extension is based, see:</p>\n<ol>\n<li>J. P. A. Almeida, G. Guizzardi, T. P. Sales, R. A. Falbo, \"gUFO: A Lightweight Implementation of the Unified Foundational Ontology (UFO)\", 2019. <a href=\"http://purl.org/nemo/doc/gufo\">http://purl.org/nemo/doc/gufo</a></li>\n<li>G. Guizzardi, G. Wagner, R. A. Falbo, R. S. S. Guizzardi, J. P. A. Almeida, \"Towards Ontological Foundations for the Conceptual Modeling of Events,\" in Proc. 32nd International Conference on Conceptual Modeling (ER 2013), LNCS, vol. 8217, 2013, p. 327–341. <a href=\"https://doi.org/10.1007/978-3-642-41924-9_27\">https://doi.org/10.1007/978-3-642-41924-9_27</a></li>\n<li>J. P. A. Almeida, R. A. Falbo, G. Guizzardi, \"Events as Entities in Ontology-Driven Conceptual Modeling,\" in Proc. 38th International Conference on Conceptual Modeling (ER 2019), LNCS, vol. 11788, 2019, p. 469–483. <a href=\"https://doi.org/10.1007/978-3-030-33223-5_39\">https://doi.org/10.1007/978-3-030-33223-5_39</a></li>\n<li>G. Guizzardi, G. Wagner, J. P. A. Almeida, R. S. S. Guizzardi, \"Towards ontological foundations for conceptual modeling: The unified foundational ontology (UFO) story,\" Applied Ontology, vol. 10, p. 259–271, 2015. <a href=\"http://dx.doi.org/10.3233/ao-150157\">http://dx.doi.org/10.3233/ao-150157</a></li>\n<li>J. P. A. Almeida, G. Guizzardi, T. P. Sales, C. M. Fonseca, \"gUFO: A Gentle Foundational Ontology for Semantic Web Knowledge Graphs,\" arXiv:2603.20948, 2026. <a href=\"https://arxiv.org/abs/2603.20948\">https://arxiv.org/abs/2603.20948</a></li>\n</ol>\n<p>The classification of events into achievements and accomplishments follows a long tradition in the philosophy of action and in linguistics, see Ryle (1949), Vendler (1957) and Casati and Varzi (2015); the same distinction is present in DOLCE.</p>\n<p>Cite this work as:</p>\n<p>J. P. A. Almeida, G. Guizzardi, \"gUFOevents: An Extension of the Lightweight Implementation of the Unified Foundational Ontology (UFO) for Events\", 2025, https://w3id.org/nemo/doc/gufoevents</p>\n<p>This work is distributed under Creative Commons Attribution License CC BY 4.0 <a href=\"https://creativecommons.org/licenses/by/4.0/legalcode\">https://creativecommons.org/licenses/by/4.0/legalcode</a>.</p>\n<p>For the source repository, see: <a href=\"https://github.com/nemo-ufes/gufoevents\">https://github.com/nemo-ufes/gufoevents</a></p>"
+      }
+    ],
+    "https://schema.org/license": [
+      {
+        "@id": "https://creativecommons.org/licenses/by/4.0/legalcode"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "gUFOevents: An Extension of the Lightweight Implementation of the Unified Foundational Ontology (UFO) for Events"
+      }
+    ]
+  }
+]
+    </script>
+</head>
+<body>
+  <div id="pylode">made by <a href="http://github.com/rdflib/pyLODE">
+    <span style="color:#329545;">p</span><span style="color:#f9cb33;">y</span>LODE</a>
+    <span style="font-size:smaller;">2.13.2</span>
+  </div>
+<img src="ufo-logo.png" title="Unified Foundational Ontology Logo" width="25%" height="25%"/>
+  <h1>gUFOevents: An Extension of the Lightweight Implementation of the Unified Foundational Ontology (UFO) for Events</h1>
+<section id="metadata">
+    <h2 style="display:none;">Metadata</h2>
+    <dl>
+        <dt>URI</dt>
+        <dd><code>http://w3id.org/nemo/gufoevents</code></dd>
+        <dt><a class="proplink" href="https://www.dublincore.org/specifications/dublin-core/dcmi-terms/#http://purl.org/dc/terms/creator">Creator</a>(s)</dt>
+        <dd>
+            Almeida, João Paulo A.<br/>
+            Guizzardi, Giancarlo<br/>
+        </dd>
+        <dt><a class="proplink" href="https://www.dublincore.org/specifications/dublin-core/dcmi-terms/#http://purl.org/dc/terms/created">Created</a></dt>
+        <dd>2025-06-18</dd>
+        <dt><a class="proplink" href="https://www.dublincore.org/specifications/dublin-core/dcmi-terms/#http://purl.org/dc/terms/modified">Modified</a></dt>
+        <dd>2026-07-30</dd>
+        <dt>Version Information</dt>
+        <dd>1.0.0</dd>
+        <dt>Version URI</dt>
+        <dd><a href="http://w3id.org/nemo/gufoevents/1.0.0">http://w3id.org/nemo/gufoevents/1.0.0</a></dd>
+        <dt>Imports</dt>
+        <dd>
+            <a href="http://purl.org/nemo/gufo#/1.0.0">gufo:/1.0.0</a><br/>
+        </dd>
+        <dt>License</dt>
+        <dd><a href="https://creativecommons.org/licenses/by/4.0/legalcode">https://creativecommons.org/licenses/by/4.0/legalcode</a></dd>
+        <dt>Ontology RDF</dt>
+        <dd><a href="gufoevents.ttl">RDF (turtle)</a></dd>
+    </dl>
+    <h2>Description</h2>
+    <div id="description">
+        <p>The objective of gUFOevents is to extend gUFO [1] with a more expressive account of events, drawing on the ontology of events of UFO-B [2-4].</p>
+<p>gUFO includes only minimalistic support for events: enough to establish the participation of objects in events, the historical dependence between events, and the situations events bring about. gUFOevents builds on that basis in order to address a recurrent modeling need, namely the representation of <em>change in endurants</em> as events, answering questions such as "what happened to this object, and when?".</p>
+<p>Intended users are those implementing UFO-based lightweight ontologies that reuse gUFO and need to track the history of endurants explicitly, as a course of events, and not only through the situations of gUFO.</p>
+<p>The core of the extension is a taxonomy of instantaneous events (gufoevents:InstantaneousEvent) and, among these, of achievements (gufoevents:Achievement), which are the instantaneous events that are telic (resultative). An achievement is either simple (gufoevents:SimpleAchievement, having no proper parts) or complex (gufoevents:ComplexAchievement, whose parts are themselves achievements with the same begin and end points).</p>
+<p>Simple achievements are specialized into the creation of an endurant (gufoevents:EndurantCreation), the termination of an endurant (gufoevents:EndurantTermination) and the change of an endurant (gufoevents:EndurantChange). The latter covers the ways in which an endurant may change while retaining its identity: it may come to instantiate or cease to instantiate a non-rigid type (gufoevents:Classification, gufoevents:Declassification), one of its qualities may acquire a new value (gufoevents:QualityValueChange), it may be incorporated into or separated from a whole (gufoevents:PartIncorporation, gufoevents:PartSeparation), and it may be introduced as or removed as a constituent of another endurant (gufoevents:ConstituentIntroduction, gufoevents:ConstituentRemoval).</p>
+<p>Complex achievements bundle simple achievements that occur simultaneously, including the reclassification of an endurant (gufoevents:Reclassification, a declassification together with a classification of the same endurant) and the transformation of endurants (gufoevents:Transformation, one or more terminations together with one or more creations, specialized into gufoevents:Merging, gufoevents:Splitting and gufoevents:Transmutation).</p>
+<p>Each subclass of gufoevents:EndurantChange comes with a pair of object properties: one identifying the endurant that changed (a sub-property of gufoevents:changed) and one identifying the entity with respect to which it changed (a sub-property of gufoevents:changedEndurantRelativeTo). This uniform pattern allows a change, and the two ends it concerns, to be recorded with a single event individual.</p>
+<p>gUFOevents is lightweight in the same sense as gUFO: little expressive means is employed in an effort to retain computational properties for the resulting OWL 2 DL ontology, and a number of pragmatic implementation choices are discussed in comments annotated to the various elements of this implementation.</p>
+<p>For background information on gUFO and on the reference ontology of events on which this extension is based, see:</p>
+<ol>
+<li>J. P. A. Almeida, G. Guizzardi, T. P. Sales, R. A. Falbo, "gUFO: A Lightweight Implementation of the Unified Foundational Ontology (UFO)", 2019. <a href="http://purl.org/nemo/doc/gufo">http://purl.org/nemo/doc/gufo</a></li>
+<li>G. Guizzardi, G. Wagner, R. A. Falbo, R. S. S. Guizzardi, J. P. A. Almeida, "Towards Ontological Foundations for the Conceptual Modeling of Events," in Proc. 32nd International Conference on Conceptual Modeling (ER 2013), LNCS, vol. 8217, 2013, p. 327–341. <a href="https://doi.org/10.1007/978-3-642-41924-9_27">https://doi.org/10.1007/978-3-642-41924-9_27</a></li>
+<li>J. P. A. Almeida, R. A. Falbo, G. Guizzardi, "Events as Entities in Ontology-Driven Conceptual Modeling," in Proc. 38th International Conference on Conceptual Modeling (ER 2019), LNCS, vol. 11788, 2019, p. 469–483. <a href="https://doi.org/10.1007/978-3-030-33223-5_39">https://doi.org/10.1007/978-3-030-33223-5_39</a></li>
+<li>G. Guizzardi, G. Wagner, J. P. A. Almeida, R. S. S. Guizzardi, "Towards ontological foundations for conceptual modeling: The unified foundational ontology (UFO) story," Applied Ontology, vol. 10, p. 259–271, 2015. <a href="http://dx.doi.org/10.3233/ao-150157">http://dx.doi.org/10.3233/ao-150157</a></li>
+<li>J. P. A. Almeida, G. Guizzardi, T. P. Sales, C. M. Fonseca, "gUFO: A Gentle Foundational Ontology for Semantic Web Knowledge Graphs," arXiv:2603.20948, 2026. <a href="https://arxiv.org/abs/2603.20948">https://arxiv.org/abs/2603.20948</a></li>
+</ol>
+<p>The classification of events into achievements and accomplishments follows a long tradition in the philosophy of action and in linguistics, see Ryle (1949), Vendler (1957) and Casati and Varzi (2015); the same distinction is present in DOLCE.</p>
+<p>Cite this work as:</p>
+<p>J. P. A. Almeida, G. Guizzardi, "gUFOevents: An Extension of the Lightweight Implementation of the Unified Foundational Ontology (UFO) for Events", 2025, https://w3id.org/nemo/doc/gufoevents</p>
+<p>This work is distributed under Creative Commons Attribution License CC BY 4.0 <a href="https://creativecommons.org/licenses/by/4.0/legalcode">https://creativecommons.org/licenses/by/4.0/legalcode</a>.</p>
+<p>For the source repository, see: <a href="https://github.com/nemo-ufes/gufoevents">https://github.com/nemo-ufes/gufoevents</a></p>
+    </div>
+</section>
+<section id="overview">
+<h2>Usage Guide <a name="usageguide"></a></h2>
+<h3>Table of Contents</h3>
+<ul>
+<li>1. <a href="#scenarios">Usage Scenarios</a></li>
+<li>2. <a href="#achievements">Instantaneous Events and Achievements</a><ul>
+<li>2.1. <a href="#simplecomplex">Simple and Complex Achievements</a></li>
+<li>2.2. <a href="#accomplishments">Achievements and Accomplishments</a></li>
+</ul>
+</li>
+<li>3. <a href="#simpleachievements">Simple Achievements</a><ul>
+<li>3.1. <a href="#creation">Endurant Creation</a></li>
+<li>3.2. <a href="#termination">Endurant Termination</a></li>
+<li>3.3. <a href="#change">Endurant Change</a></li>
+<li>3.4. <a href="#classification">Classification and Declassification</a></li>
+<li>3.5. <a href="#qualityvaluechange">Quality Value Change</a></li>
+<li>3.6. <a href="#parthoodchange">Parthood Change</a></li>
+<li>3.7. <a href="#constitutionchange">Constitution Change</a></li>
+</ul>
+</li>
+<li>4. <a href="#complexachievements">Complex Achievements</a><ul>
+<li>4.1. <a href="#reclassification">Reclassification</a></li>
+<li>4.2. <a href="#transformation">Transformation, Merging, Splitting and Transmutation</a></li>
+</ul>
+</li>
+<li>5. <a href="#relating">Relating Events to Endurants, Situations and Time</a></li>
+<li>6. <a href="#example">A Worked Example</a></li>
+</ul>
+<p>See also <a href="#toc">reference table of contents</a>.</p>
+<p><a name="scenarios"></a></p>
+<h3>1. Usage Scenarios</h3>
+<p>gUFOevents is an extension of <a href="http://purl.org/nemo/doc/gufo">gUFO</a>, and is intended for reuse in the definition of UFO-based lightweight ontologies that already reuse gUFO. As in gUFO, the term "user" is reserved to identify the designers of these ontologies. <a href="https://www.w3.org/TR/turtle/">Turtle</a> is used as a syntax for RDF serialization for illustrative purposes.</p>
+<p>gUFO offers two complementary ways of talking about how things change in time:</p>
+<ol>
+<li>through <strong>situations</strong> — instances of gufo:Situation and its subclasses record that some configuration <em>obtained</em> during an interval (John weighed 80 kg in 2015; Paul had John's heart from November 2018);</li>
+<li>through <strong>events</strong> — instances of gufo:Event record that something <em>happened</em> (the transplant, the wedding, the earthquake).</li>
+</ol>
+<p>gUFO develops the first alternative in detail and keeps the second minimal, offering only what is required to establish the participation of objects in events, the historical dependence between events, and the situations that events bring about or that trigger them. gUFOevents develops the second alternative: it provides a taxonomy of the <em>instantaneous</em> events at which endurants come into existence, cease to exist, and change while retaining their identity.</p>
+<p>The two are not alternatives to be chosen between once and for all. A quality value change, for instance, is an event that brings about a situation in which the quality has its new value; users may assert both, and relate them with gufo:broughtAbout.</p>
+<p>The following usage scenarios are envisioned and discussed in this document where appropriate:</p>
+<ol>
+<li>A gUFOevents-based ontology <em>specializes</em> gUFOevents classes
+   For example, <code>:OrderCreation rdfs:subClassOf gufoevents:EndurantCreation</code>.</li>
+<li>A gUFOevents-based ontology <em>instantiates</em> gUFOevents classes directly
+   For example, <code>:order123Creation rdf:type gufoevents:EndurantCreation</code>.</li>
+<li>A gUFOevents-based ontology <em>specializes</em> the object properties of gUFOevents in order to constrain the domain and range of a change
+   For example, <code>:createdOrder rdfs:subPropertyOf gufoevents:created</code>.</li>
+</ol>
+<p>Users will often employ scenarios 1 and 3 in combination, as shown in the following fragment:</p>
+<pre><code>@prefix : &lt;http://purl.org/nemo/example#&gt; .
+@prefix gufo: &lt;http://purl.org/nemo/gufo#&gt; .
+@prefix gufoevents: &lt;http://w3id.org/nemo/gufoevents#&gt; .
+
+:OrderCreation rdf:type owl:Class ;
+               rdfs:subClassOf gufoevents:EndurantCreation .
+
+:createdOrder rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf gufoevents:created ;
+              rdfs:domain :OrderCreation ;
+              rdfs:range :Order .
+</code></pre>
+<p><a name="achievements"></a></p>
+<h3>2. Instantaneous Events and Achievements</h3>
+<p>A gufoevents:InstantaneousEvent is a gufo:Event whose begin point and end point coincide. Events that are extended in time remain plain instances of gufo:Event.</p>
+<blockquote>
+<ul>
+<li>Event <em>(gUFO)</em><ul>
+<li>InstantaneousEvent<ul>
+<li>Achievement<ul>
+<li>SimpleAchievement</li>
+<li>ComplexAchievement</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p>A gufoevents:Achievement is an instantaneous event that is <em>telic</em> (or resultative): it is the culmination of something, the point at which a result is attained. The Brazilian goal in the 1970 World Cup Final is an achievement; the match itself is not.</p>
+<pre><code>:Goal rdf:type owl:Class ;
+      rdfs:subClassOf gufoevents:Achievement .
+
+:carlosAlbertoGoal rdf:type :Goal ;
+                   gufo:hasBeginPointInXSDDateTimeStamp "1970-06-21T18:26:00Z"^^xsd:dateTimeStamp ;
+                   gufo:hasEndPointInXSDDateTimeStamp "1970-06-21T18:26:00Z"^^xsd:dateTimeStamp ;
+                   gufo:isEventProperPartOf :worldCup1970Final .
+</code></pre>
+<p>Note that, since an achievement is instantaneous, its begin and end points coincide. gUFOevents does not axiomatize this coincidence in OWL — doing so would require expressive means that are outside OWL 2 DL — so it is the user's responsibility to respect it when asserting temporal properties.</p>
+<p><a name="simplecomplex"></a></p>
+<h4>2.1. Simple and Complex Achievements</h4>
+<p>An achievement is either simple or complex, and gufoevents:Achievement is declared to be the disjoint union of the two:</p>
+<pre><code>gufoevents:Achievement owl:disjointUnionOf ( gufoevents:ComplexAchievement
+                                             gufoevents:SimpleAchievement ) .
+</code></pre>
+<p>A gufoevents:ComplexAchievement is <em>defined</em> as an achievement that has at least one proper part, and a gufoevents:SimpleAchievement as one that has none. Both are defined classes (they are given owl:equivalentClass axioms in terms of gufo:isEventProperPartOf), which means that a reasoner will classify an achievement as simple or complex on the basis of the parts declared for it. Users normally do not need to assert either.</p>
+<p>All parts of a complex achievement occur simultaneously — they have the same begin and end points — and are the culmination of the same accomplishment(s). A complex achievement is thus not a sequence of steps, but a bundle of things that happened at once.</p>
+<p><a name="accomplishments"></a></p>
+<h4>2.2. Achievements and Accomplishments</h4>
+<p>The distinction between achievements and accomplishments follows a long tradition in the philosophy of action and in linguistics (Ryle, 1949; <a href="https://www.jstor.org/stable/2182371">Vendler, 1957</a>; <a href="https://plato.stanford.edu/archives/win2015/entries/events/">Casati and Varzi, 2015</a>), and is present in DOLCE. An <em>accomplishment</em> is a telic event extended in time; an <em>achievement</em> is its culmination.</p>
+<ul>
+<li>G. Ryle (1949), <em>The Concept of Mind</em>, pp. 44, 118.</li>
+<li>Z. Vendler (1957), "Verbs and Times", <em>The Philosophical Review</em>, vol. 66, no. 2, pp. 143–160.</li>
+<li>R. Casati, A. Varzi (2015), "Events", in E. N. Zalta (ed.), <em>The Stanford Encyclopedia of Philosophy</em>.</li>
+</ul>
+<p>gUFOevents reifies achievements only. Accomplishments remain instances of gufo:Event, and the relation between an accomplishment and its culmination is expressed with the event mereology of gUFO:</p>
+<pre><code>:OrderFulfilment rdf:type owl:Class ;
+                 rdfs:subClassOf gufo:Event .
+
+:OrderDelivery rdf:type owl:Class ;
+               rdfs:subClassOf gufoevents:ComplexAchievement .
+
+:order123Delivery gufo:isEventProperPartOf :order123Fulfilment .
+</code></pre>
+<p><a name="simpleachievements"></a></p>
+<h3>3. Simple Achievements</h3>
+<p>Simple achievements are the atomic steps out of which the history of an endurant is composed. gUFOevents recognizes three, declared pairwise disjoint:</p>
+<blockquote>
+<ul>
+<li>SimpleAchievement<ul>
+<li>EndurantCreation</li>
+<li>EndurantTermination</li>
+<li>EndurantChange</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p>The three are disjoint because they concern the endurant in different ways: in a creation the endurant begins to exist, in a termination it ceases to exist, and in a change it persists while something about it becomes different.</p>
+<p><a name="creation"></a></p>
+<h4>3.1. Endurant Creation</h4>
+<p>A gufoevents:EndurantCreation is a simple achievement in which one endurant was created. The created endurant is identified with the functional object property gufoevents:created:</p>
+<pre><code>:order123Creation rdf:type gufoevents:EndurantCreation ;
+                  gufoevents:created :order123 ;
+                  gufo:hasBeginPointInXSDDate "2025-05-12"^^xsd:date ;
+                  gufo:hasEndPointInXSDDate "2025-05-12"^^xsd:date .
+</code></pre>
+<p>The end point of the creation coincides with the begin point of the created endurant. Further, the created endurant gufo:wasCreatedIn the creation — or in any complex event that contains the creation as a part:</p>
+<pre><code>:order123 gufo:wasCreatedIn :order123Creation .
+</code></pre>
+<p>Since gufoevents:created is functional, each creation concerns exactly one endurant. When several endurants come into existence at the same time, assert several creations, and group them, if useful, in a gufoevents:ComplexAchievement.</p>
+<p><a name="termination"></a></p>
+<h4>3.2. Endurant Termination</h4>
+<p>A gufoevents:EndurantTermination is the mirror image of a creation: a simple achievement in which one endurant was terminated, identified with the functional object property gufoevents:terminated.</p>
+<pre><code>:Challengers10thLaunchExplosion rdf:type gufoevents:EndurantTermination ;
+                                gufoevents:terminated :challenger ;
+                                gufo:hasBeginPointInXSDDate "1986-01-28"^^xsd:date ;
+                                gufo:hasEndPointInXSDDate "1986-01-28"^^xsd:date ;
+                                gufo:isEventProperPartOf :challengers10thLaunch .
+</code></pre>
+<p>The begin and end points of the termination coincide with the end point of the terminated endurant, and the terminated endurant gufo:wasTerminatedIn the termination.</p>
+<p>Note that endurants in gUFO include aspects as well as objects. The termination of a relator, for example, is the event at which a marriage or an employment ends:</p>
+<pre><code>:johnMarysDivorce rdf:type gufoevents:EndurantTermination ;
+                  gufoevents:terminated :johnMarysMarriage .
+</code></pre>
+<p><a name="change"></a></p>
+<h4>3.3. Endurant Change</h4>
+<p>A gufoevents:EndurantChange is a simple achievement in which one endurant underwent change while retaining its identity. It is the most developed part of gUFOevents, with a subclass for each of the ways in which an endurant may change:</p>
+<blockquote>
+<ul>
+<li>EndurantChange<ul>
+<li>Classification</li>
+<li>Declassification</li>
+<li>QualityValueChange</li>
+<li>ParthoodChange<ul>
+<li>PartIncorporation</li>
+<li>PartSeparation</li>
+</ul>
+</li>
+<li>ConstitutionChange<ul>
+<li>ConstituentIntroduction</li>
+<li>ConstituentRemoval</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p>Classification, Declassification, QualityValueChange, ParthoodChange and ConstitutionChange are declared pairwise disjoint: a single event individual represents a single kind of change.</p>
+<p>Every endurant change follows the same two-property pattern. One property, a sub-property of the functional gufoevents:changed, identifies the endurant that changed; another, a sub-property of gufoevents:changedEndurantRelativeTo, identifies the entity with respect to which it changed:</p>
+<table>
+<thead>
+<tr>
+<th>Change</th>
+<th>endurant that changed</th>
+<th>entity it changed relative to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classification</td>
+<td><code>classified</code></td>
+<td><code>classifiedAsInstanceOf</code></td>
+</tr>
+<tr>
+<td>Declassification</td>
+<td><code>declassified</code></td>
+<td><code>declassifiedAsInstanceOf</code></td>
+</tr>
+<tr>
+<td>QualityValueChange</td>
+<td><code>changedValueOf</code></td>
+<td><code>changedReifiedValueTo</code> (or <code>changedValueTo</code>)</td>
+</tr>
+<tr>
+<td>PartIncorporation</td>
+<td><code>incorporatedAsPart</code></td>
+<td><code>incorporatedAsPartInto</code></td>
+</tr>
+<tr>
+<td>PartSeparation</td>
+<td><code>separatedAsPart</code></td>
+<td><code>separatedAsPartFrom</code></td>
+</tr>
+<tr>
+<td>ConstituentIntroduction</td>
+<td><code>introducedAsConstituent</code></td>
+<td><code>introducedAsConstituentOf</code></td>
+</tr>
+<tr>
+<td>ConstituentRemoval</td>
+<td><code>removedAsConstituent</code></td>
+<td><code>removedAsConstituentFrom</code></td>
+</tr>
+</tbody>
+</table>
+<p>Because gufoevents:changed is functional, each endurant change concerns exactly one endurant. When more than one endurant changes at the same time, there are simultaneous endurant changes, which may be grouped in a complex achievement.</p>
+<p><a name="classification"></a></p>
+<h4>3.4. Classification and Declassification</h4>
+<p>A gufoevents:Classification is an endurant change in which an endurant came to instantiate a non-rigid type; a gufoevents:Declassification is one in which it ceased to instantiate a non-rigid type.</p>
+<p>Only non-rigid types are admitted (the range of gufoevents:classifiedAsInstanceOf and gufoevents:declassifiedAsInstanceOf is gufo:NonRigidType): a rigid type such as a gufo:Kind applies to its instances necessarily, so an endurant cannot come to instantiate one at some point in its history and it never ceases to do so.</p>
+<p>Consider a person's life phases, declared as in gUFO:</p>
+<pre><code>:Person rdf:type owl:Class ;
+        rdfs:subClassOf gufo:Object ;
+        rdf:type gufo:Kind .
+
+:Child rdf:type owl:Class ;
+       rdfs:subClassOf :Person ;
+       rdf:type gufo:Phase .
+
+:Adult rdf:type owl:Class ;
+       rdfs:subClassOf :Person ;
+       rdf:type gufo:Phase .
+</code></pre>
+<p>John's coming of age is then represented as a declassification from Child together with a classification as Adult:</p>
+<pre><code>:johnCeasesToBeAChild rdf:type gufoevents:Declassification ;
+                      gufoevents:declassified :john ;
+                      gufoevents:declassifiedAsInstanceOf :Child ;
+                      gufo:hasBeginPointInXSDDate "1995-10-01"^^xsd:date ;
+                      gufo:hasEndPointInXSDDate "1995-10-01"^^xsd:date .
+
+:johnBecomesAnAdult rdf:type gufoevents:Classification ;
+                    gufoevents:classified :john ;
+                    gufoevents:classifiedAsInstanceOf :Adult ;
+                    gufo:hasBeginPointInXSDDate "1995-10-01"^^xsd:date ;
+                    gufo:hasEndPointInXSDDate "1995-10-01"^^xsd:date .
+</code></pre>
+<p>Since the two changes are simultaneous and concern the same endurant, they are naturally grouped in a <a href="#reclassification">reclassification</a>.</p>
+<p>Note that the type occupies the position of an object in gufoevents:classifiedAsInstanceOf. This uses OWL 2 punning, exactly as gufo:concernsNonRigidType does in gUFO; a class such as <code>:Adult</code> is thus both a class (with instances) and an individual (with a type).</p>
+<p>The relation to gUFO's situations is direct: a classification brings about a situation in which the endurant is an instance of the type, and a declassification brings about a situation in which it no longer is. Users who wish to record both may relate them with gufo:broughtAbout:</p>
+<pre><code>:johnBecomesAnAdult gufo:broughtAbout :johnIsAdultFrom1995 .
+
+:johnIsAdultFrom1995 rdf:type gufo:TemporaryInstantiationSituation ;
+                     gufo:concernsNonRigidType :Adult ;
+                     gufo:hasBeginPointInXSDDate "1995-10-01"^^xsd:date .
+
+:john gufo:standsInQualifiedInstantiation :johnIsAdultFrom1995 .
+</code></pre>
+<p><a name="qualityvaluechange"></a></p>
+<h4>3.5. Quality Value Change</h4>
+<p>A gufoevents:QualityValueChange is an endurant change in which one quality acquires a new value. Note that what changes is the <em>quality</em> (John's weight), not the endurant in which the quality inheres (John); the endurant can be reached from the quality with gufo:inheresIn.</p>
+<p>The changed quality is identified with gufoevents:changedValueOf, and the new value either with the data property gufoevents:changedValueTo (a literal) or with the object property gufoevents:changedReifiedValueTo (an instance of gufo:QualityValue). The pair mirrors gufo:hasQualityValue / gufo:hasReifiedQualityValue.</p>
+<pre><code>:Mass rdf:type owl:Class ;
+      rdfs:subClassOf gufo:Quality .
+
+:john rdf:type :Person .
+
+:johnsMass rdf:type :Mass ;
+           gufo:inheresIn :john .
+
+:johnLoses10Kg rdf:type gufoevents:QualityValueChange ;
+               gufoevents:changedValueOf :johnsMass ;
+               gufoevents:changedValueTo "70.0"^^xsd:double ;
+               gufo:hasBeginPointInXSDDate "2018-01-01"^^xsd:date ;
+               gufo:hasEndPointInXSDDate "2018-01-01"^^xsd:date .
+</code></pre>
+<p>No range is declared for gufoevents:changedValueTo, since the datatype depends on the quality at hand. Users are expected to declare sub-properties with the appropriate domain and range:</p>
+<pre><code>:changedMassInKilogramsTo rdf:type owl:DatatypeProperty ;
+                          rdfs:subPropertyOf gufoevents:changedValueTo ;
+                          rdfs:domain :MassChange ;
+                          rdfs:range xsd:double .
+</code></pre>
+<p>For enumerated, nominal or multidimensional quality values, reify the value and use gufoevents:changedReifiedValueTo:</p>
+<pre><code>:ColorValueInRGB rdf:type owl:Class ;
+                 rdfs:subClassOf gufo:QualityValue .
+
+:leavesTurnRed rdf:type gufoevents:QualityValueChange ;
+               gufoevents:changedValueOf :theOakLeavesColor ;
+               gufoevents:changedReifiedValueTo [ rdf:type :ColorValueInRGB ;
+                                                  :hasRedValueComponent "178"^^xsd:nonNegativeInteger ;
+                                                  :hasGreenValueComponent "34"^^xsd:nonNegativeInteger ;
+                                                  :hasBlueValueComponent "34"^^xsd:nonNegativeInteger ] .
+</code></pre>
+<p>Change implies that the new value is different from the value the quality had before the event occurred. This is not axiomatized in OWL, and is left as a constraint on the user's data.</p>
+<p><a name="parthoodchange"></a></p>
+<h4>3.6. Parthood Change</h4>
+<p>A gufoevents:ParthoodChange is an endurant change in which an endurant is incorporated into a whole as a part of it (gufoevents:PartIncorporation) or separated from a whole (gufoevents:PartSeparation). The class is the disjoint union of the two.</p>
+<p>Parthood changes are the event counterpart of gUFO's gufo:TemporaryParthoodSituation. Consider the heart transplant discussed in the gUFO usage guide, now represented as events:</p>
+<pre><code>:johnsHeartRemoval rdf:type gufoevents:PartSeparation ;
+                   gufoevents:separatedAsPart :johnsHeart ;
+                   gufoevents:separatedAsPartFrom :john ;
+                   gufo:hasBeginPointInXSDDate "2018-11-01"^^xsd:date ;
+                   gufo:hasEndPointInXSDDate "2018-11-01"^^xsd:date .
+
+:johnsHeartImplantationInPaul rdf:type gufoevents:PartIncorporation ;
+                              gufoevents:incorporatedAsPart :johnsHeart ;
+                              gufoevents:incorporatedAsPartInto :paul ;
+                              gufo:hasBeginPointInXSDDate "2018-11-01"^^xsd:date ;
+                              gufo:hasEndPointInXSDDate "2018-11-01"^^xsd:date .
+
+:johnToPaulHeartTransplant rdf:type gufo:Event .
+
+:johnsHeartRemoval gufo:isEventProperPartOf :johnToPaulHeartTransplant .
+:johnsHeartImplantationInPaul gufo:isEventProperPartOf :johnToPaulHeartTransplant .
+</code></pre>
+<p>A part incorporation may coincide with the creation of the part or of the whole, and a part separation may coincide with the termination of the part or of the whole. In the latter case the change is trivialized: nothing is gained by asserting that a part was separated from a whole that ceased to exist at that very instant.</p>
+<p>Parthood changes apply to the varying membership of a gufo:VariableCollection as well as to the replaceable components of a functional complex.</p>
+<p><a name="constitutionchange"></a></p>
+<h4>3.7. Constitution Change</h4>
+<p>A gufoevents:ConstitutionChange is an endurant change in which an endurant was introduced as a constituent of another (gufoevents:ConstituentIntroduction) or removed from constitution (gufoevents:ConstituentRemoval). The class is the disjoint union of the two.</p>
+<p>Constitution changes are the event counterpart of gUFO's gufo:TemporaryConstitutionSituation. Consider the Venus of Milo, which lost its arms and came to be constituted by a smaller quantity of marble:</p>
+<pre><code>:venusLosesItsArms rdf:type gufoevents:ConstituentRemoval ;
+                   gufoevents:removedAsConstituent :originalQuantityOfMarble ;
+                   gufoevents:removedAsConstituentFrom :venusOfMilo ;
+                   gufo:hasBeginPointInXSDDate "1820-01-01"^^xsd:date ;
+                   gufo:hasEndPointInXSDDate "1820-01-01"^^xsd:date .
+
+:venusConstitutedByReducedMarble rdf:type gufoevents:ConstituentIntroduction ;
+                                 gufoevents:introducedAsConstituent :reducedQuantityOfMarble ;
+                                 gufoevents:introducedAsConstituentOf :venusOfMilo ;
+                                 gufo:hasBeginPointInXSDDate "1820-01-01"^^xsd:date ;
+                                 gufo:hasEndPointInXSDDate "1820-01-01"^^xsd:date .
+</code></pre>
+<p><a name="complexachievements"></a></p>
+<h3>4. Complex Achievements</h3>
+<p>A gufoevents:ComplexAchievement groups simple achievements that occur at the same instant. Its parts are declared with gufo:isEventProperPartOf, and the achievement is then <em>inferred</em> to be complex — the class is defined, not primitive.</p>
+<p>gUFOevents provides two specializations for recurrent bundles: reclassification and transformation.</p>
+<p><a name="reclassification"></a></p>
+<h4>4.1. Reclassification</h4>
+<p>A gufoevents:Reclassification is a complex achievement that consists of a declassification and a classification of the same endurant with different types. It is the typical representation of an endurant moving from one phase of a phase partition to another.</p>
+<p>Returning to John's coming of age:</p>
+<pre><code>:johnComesOfAge rdf:type gufoevents:Reclassification ;
+                gufo:hasBeginPointInXSDDate "1995-10-01"^^xsd:date ;
+                gufo:hasEndPointInXSDDate "1995-10-01"^^xsd:date .
+
+:johnCeasesToBeAChild gufo:isEventProperPartOf :johnComesOfAge .
+:johnBecomesAnAdult gufo:isEventProperPartOf :johnComesOfAge .
+</code></pre>
+<p>gufoevents:Reclassification is declared as a subclass of the complex achievements that have at least one gufoevents:Classification part and at least one gufoevents:Declassification part. Note that the requirement that both parts concern the <em>same</em> endurant is not axiomatized in this implementation; it is a constraint on the user's data.</p>
+<p><a name="transformation"></a></p>
+<h4>4.2. Transformation, Merging, Splitting and Transmutation</h4>
+<p>A gufoevents:Transformation is a complex achievement that consists of one or more endurant terminations together with one or more endurant creations. Transformations are used when an endurant cannot survive a change and is instead replaced by another — contrast this with gufoevents:EndurantChange, in which the endurant retains its identity throughout.</p>
+<p>Three specializations are provided:</p>
+<blockquote>
+<ul>
+<li>Transformation<ul>
+<li>Merging — two or more endurants are terminated and a single endurant is created</li>
+<li>Splitting — a single endurant is terminated and two or more endurants are created</li>
+<li>Transmutation — one endurant is terminated and one endurant is created</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p>For example, the merging of two companies into a new one:</p>
+<pre><code>:acmeBetaMerger rdf:type gufoevents:Merging ;
+                gufo:hasBeginPointInXSDDate "2025-03-01"^^xsd:date ;
+                gufo:hasEndPointInXSDDate "2025-03-01"^^xsd:date .
+
+:acmeTermination rdf:type gufoevents:EndurantTermination ;
+                 gufoevents:terminated :acme ;
+                 gufo:isEventProperPartOf :acmeBetaMerger .
+
+:betaTermination rdf:type gufoevents:EndurantTermination ;
+                 gufoevents:terminated :beta ;
+                 gufo:isEventProperPartOf :acmeBetaMerger .
+
+:acmeBetaCreation rdf:type gufoevents:EndurantCreation ;
+                  gufoevents:created :acmeBeta ;
+                  gufo:isEventProperPartOf :acmeBetaMerger .
+</code></pre>
+<p>The cardinalities that distinguish merging, splitting and transmutation are <em>not</em> axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance in the comments of the corresponding classes. Users who need them enforced should add the corresponding cardinality restrictions in their own ontology, or check them outside the reasoner (for example with SHACL).</p>
+<p><a name="relating"></a></p>
+<h3>5. Relating Events to Endurants, Situations and Time</h3>
+<p>gUFOevents adds no temporal machinery of its own: the temporal properties of gUFO apply unchanged. Since an instantaneous event has coinciding begin and end points, gufo:hasBeginPointInXSDDate, gufo:hasBeginPointInXSDDateTimeStamp and their end-point counterparts should be given the same value (or the corresponding time:Instant may be reified with gufo:hasBeginPoint and gufo:hasEndPoint, see <a href="https://www.w3.org/TR/owl-time/">OWL-Time</a>).</p>
+<p>Likewise, the relations of gUFO between events and endurants apply:</p>
+<ul>
+<li>gufo:participatedIn relates the endurants that participate in an achievement (for example, the surgeon who participated in the transplant);</li>
+<li>gufo:wasCreatedIn and gufo:wasTerminatedIn relate an endurant to the events in which it came into or went out of existence, and can be asserted alongside gufoevents:created and gufoevents:terminated;</li>
+<li>gufo:historicallyDependsOn relates an achievement to the events it depends on;</li>
+<li>gufo:isEventProperPartOf relates an achievement to a larger event — either to a complex achievement occurring at the same instant, or to an accomplishment extended in time that it culminates;</li>
+<li>gufo:broughtAbout and gufo:contributedToTrigger relate achievements to the situations they bring about and to the situations that contributed to triggering them.</li>
+</ul>
+<p>gUFOevents also introduces gufoevents:hasProperPart, a transitive object property declared as the inverse of gufo:isProperPartOf. It is offered for convenience, since gUFO declares parthood in the direction from part to whole only.</p>
+<p><a name="example"></a></p>
+<h3>6. A Worked Example</h3>
+<p>The <a href="https://github.com/nemo-ufes/gufoevents/blob/master/example/order.ttl"><code>example/order.ttl</code></a> file in the source repository contains a small worked example: the life cycle of an order in an order-handling domain.</p>
+<p>The domain ontology declares an Order kind with two phases:</p>
+<pre><code>:Order rdf:type owl:Class ;
+       rdfs:subClassOf gufo:Object ;
+       rdf:type gufo:Kind .
+
+:PendingOrder rdf:type owl:Class ;
+              rdfs:subClassOf :Order ;
+              rdf:type gufo:Phase .
+
+:FulfilledOrder rdf:type owl:Class ;
+                rdfs:subClassOf :Order ;
+                rdf:type gufo:Phase ;
+                owl:disjointWith :PendingOrder .
+</code></pre>
+<p>It then specializes the achievements of gUFOevents (usage scenario 1):</p>
+<pre><code>:OrderCreation rdfs:subClassOf gufoevents:EndurantCreation .
+:OrderPendingClassification rdfs:subClassOf gufoevents:Classification .
+:OrderPendingDeclassification rdfs:subClassOf gufoevents:Declassification .
+:OrderFulfilledClassification rdfs:subClassOf gufoevents:Classification .
+:OrderAcceptance rdfs:subClassOf gufoevents:ComplexAchievement .
+:OrderDelivery rdfs:subClassOf gufoevents:ComplexAchievement .
+</code></pre>
+<p>Accepting an order is a complex achievement: at one instant the order is created <em>and</em> classified as pending.</p>
+<pre><code>:order123Acceptance rdf:type :OrderAcceptance .
+
+:order123Creation rdf:type :OrderCreation ;
+                  gufo:isEventProperPartOf :order123Acceptance ;
+                  gufoevents:created :order123 .
+
+:order123InitialClassification rdf:type :OrderPendingClassification ;
+                               gufo:isEventProperPartOf :order123Acceptance ;
+                               gufoevents:classified :order123 ;
+                               gufoevents:classifiedAsInstanceOf :PendingOrder .
+</code></pre>
+<p>Delivering it is another complex achievement, this time a reclassification: the order ceases to be pending and becomes fulfilled.</p>
+<pre><code>:order123Delivery rdf:type :OrderDelivery .
+
+:order123PendingDeclassification rdf:type :OrderPendingDeclassification ;
+                                 gufo:isEventProperPartOf :order123Delivery ;
+                                 gufoevents:declassified :order123 ;
+                                 gufoevents:declassifiedAsInstanceOf :PendingOrder .
+
+:order123FulfilledClassification rdf:type :OrderFulfilledClassification ;
+                                 gufo:isEventProperPartOf :order123Delivery ;
+                                 gufoevents:classified :order123 ;
+                                 gufoevents:classifiedAsInstanceOf :FulfilledOrder .
+</code></pre>
+<p>The history of <code>:order123</code> can then be read off the events that mention it, without having to consult any situation: it was created and became pending at its acceptance, and it ceased to be pending and became fulfilled at its delivery. A second order, <code>:order456</code>, has been accepted but not yet delivered, and so has no delivery event.</p>
+</section>
+<section id="toc">
+    <h2>Table of Contents</h2>
+    <ol>
+        <li><a href="#classes">Classes</a></li>
+        <li><a href="#objectproperties">Object Properties</a></li>
+        <li><a href="#functionalproperties">Functional Properties</a></li>
+        <li><a href="#annotationproperties">Annotation Properties</a></li>
+        <li><a href="#namespaces">Namespaces</a></li>
+        <li><a href="#legend">Legend</a></li>
+    </ol>
+</section>
+
+  <section id="classes">
+    <h2>Classes <span style="float:right; font-size:smaller;"><a href="">&uparrow;</a></span></h2>
+    <ul class="hlist">
+      <li><a href="#Achievement">Achievement</a></li>
+      <li><a href="#Classification">Classification</a></li>
+      <li><a href="#ComplexAchievement">ComplexAchievement</a></li>
+      <li><a href="#ConstituentIntroduction">ConstituentIntroduction</a></li>
+      <li><a href="#ConstituentRemoval">ConstituentRemoval</a></li>
+      <li><a href="#ConstitutionChange">ConstitutionChange</a></li>
+      <li><a href="#Declassification">Declassification</a></li>
+      <li><a href="#EndurantChange">EndurantChange</a></li>
+      <li><a href="#EndurantCreation">EndurantCreation</a></li>
+      <li><a href="#EndurantTermination">EndurantTermination</a></li>
+      <li><a href="#InstantaneousEvent">InstantaneousEvent</a></li>
+      <li><a href="#Merging">Merging</a></li>
+      <li><a href="#PartIncorporation">PartIncorporation</a></li>
+      <li><a href="#PartSeparation">PartSeparation</a></li>
+      <li><a href="#ParthoodChange">ParthoodChange</a></li>
+      <li><a href="#QualityValueChange">QualityValueChange</a></li>
+      <li><a href="#Reclassification">Reclassification</a></li>
+      <li><a href="#SimpleAchievement">SimpleAchievement</a></li>
+      <li><a href="#Splitting">Splitting</a></li>
+      <li><a href="#Transformation">Transformation</a></li>
+      <li><a href="#Transmutation">Transmutation</a></li>
+    </ul>
+    <div class="entity class" id="Achievement">
+        <h3>
+          Achievement<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#Achievement" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#Achievement</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>An :InstantaneousEvent that is telic/resultative.</p>
+<p>An achievement is the culmination of an accomplishment (which is a telic gufo:Event that is extended in time.)</p>
+<p>An achievement may be simple (having no proper parts) or complex. In complex achievements, all parts are achievements and have the same begin and end points.</p>
+<p>Corresponds to "Achievement" in DOLCE.  See Casati, R., &amp; Varzi, A. (2015), following Vendler, Z. (1957) and G. Ryle (1949).</p>
+<p>Casati, R., &amp; Varzi, A. (2015). Events. In E. N. Zalta (Ed.), The Stanford encyclopedia of philosophy. Metaphysics Research Lab, Stanford University.
+G. Ryle (1949), The Concept of Mind, pp. 44, 118.
+Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#InstantaneousEvent">InstantaneousEvent</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>Sub-classes</th>
+                <td>
+                    <a href="#SimpleAchievement">SimpleAchievement</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#ComplexAchievement">ComplexAchievement</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="Classification">
+        <h3>
+          Classification<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#Classification" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#Classification</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>An :EndurantChange in which one endurant was classified as an instance of a specific non-rigid type.</p>
+<p>A :Classification brings about a situation in which the classified endurant is an instance of the specific type.</p>
+<p>Use :classified to identify the endurant and :classifiedAsInstanceOf to identify the type. A classification is disjoint from a :Declassification: when an endurant leaves one phase and enters another, two distinct events occur, which may be grouped in a :Reclassification.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#EndurantChange">EndurantChange</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>In domain of</th>
+                <td>
+                    <a href="#classifiedAsInstanceOf">classifiedAsInstanceOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#classified">classified</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="ComplexAchievement">
+        <h3>
+          ComplexAchievement<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#ComplexAchievement" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#ComplexAchievement</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>An :Achievement that has proper parts.</p>
+<p>All parts of a complex achievement occur simultaneously (have the same begin and end points), and are the culmination of the same accomplishment(s).</p>
+<p>A complex achievement is defined as an achievement that has at least one gufo:isEventProperPartOf-related part; it is thus inferred, and need not be asserted, whenever the parts are declared.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#Achievement">Achievement</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>Sub-classes</th>
+                <td>
+                    <a href="#Reclassification">Reclassification</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#Transformation">Transformation</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="ConstituentIntroduction">
+        <h3>
+          ConstituentIntroduction<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#ConstituentIntroduction" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#ConstituentIntroduction</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>A :ConstitutionChange in which the constituent was introduced into a constitution.</p>
+<p>Use :introducedAsConstituent to identify the constituent and :introducedAsConstituentOf to identify the constituted endurant.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#ConstitutionChange">ConstitutionChange</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>In domain of</th>
+                <td>
+                    <a href="#introducedAsConstituentOf">introducedAsConstituentOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#introducedAsConstituent">introducedAsConstituent</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="ConstituentRemoval">
+        <h3>
+          ConstituentRemoval<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#ConstituentRemoval" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#ConstituentRemoval</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>A :ConstitutionChange in which the constituent was removed from constitution.</p>
+<p>Use :removedAsConstituent to identify the constituent and :removedAsConstituentFrom to identify the constituted endurant.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#ConstitutionChange">ConstitutionChange</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>In domain of</th>
+                <td>
+                    <a href="#removedAsConstituentFrom">removedAsConstituentFrom</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#removedAsConstituent">removedAsConstituent</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="ConstitutionChange">
+        <h3>
+          ConstitutionChange<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#ConstitutionChange" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#ConstitutionChange</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>An :EndurantChange in which an endurant was introduced as a constituent of another or removed from constitution.</p>
+<p>Constitution changes correspond in gUFO to the transitions between instances of gufo:TemporaryConstitutionSituation: for example, the quantity of marble that constitutes a statue may be replaced over time.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#EndurantChange">EndurantChange</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>Sub-classes</th>
+                <td>
+                    <a href="#ConstituentRemoval">ConstituentRemoval</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#ConstituentIntroduction">ConstituentIntroduction</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="Declassification">
+        <h3>
+          Declassification<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#Declassification" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#Declassification</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>A gufoevents:EndurantChange in which one endurant ceased to instantiate a specific non-rigid type.</p>
+<p>A :Classification brings about a situation in which the classified endurant is no longer instance of the specific type.</p>
+<p>Use :declassified to identify the endurant and :declassifiedAsInstanceOf to identify the type it no longer instantiates.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#EndurantChange">EndurantChange</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>In domain of</th>
+                <td>
+                    <a href="#declassifiedAsInstanceOf">declassifiedAsInstanceOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#declassified">declassified</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="EndurantChange">
+        <h3>
+          EndurantChange<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#EndurantChange" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#EndurantChange</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>A :SimpleAchievement in which one endurant underwent change.</p>
+<p>Subclasses of :EndurantChange include classification and declassification of an endurant to/from non-rigid types, change in the value of a quality of an endurant, incorporation or separation into/from a whole and incorporation or incorporation as a constituent of a constituted endurant.</p>
+<p>Each endurant change concerns one endurant in particular. When more than one endurant changes at the same time, there are simultaneous endurant changes. Complex achievements with multiple endurant changes may also be used.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#SimpleAchievement">SimpleAchievement</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>Sub-classes</th>
+                <td>
+                    <a href="#ParthoodChange">ParthoodChange</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#QualityValueChange">QualityValueChange</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#Declassification">Declassification</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#Classification">Classification</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#ConstitutionChange">ConstitutionChange</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>In domain of</th>
+                <td>
+                    <a href="#changedEndurantRelativeTo">changedEndurantRelativeTo</a><sup class="sup-op" title="object property">op</sup><br/>
+                    <a href="#changed">changed</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="EndurantCreation">
+        <h3>
+          EndurantCreation<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#EndurantCreation" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#EndurantCreation</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>A :SimpleAchievement in which one endurant was created.</p>
+<p>See :created for the property that identifies the created endurant.</p>
+<p>The end point of the endurant creation coincides with the begin point of the created endurant.</p>
+<p>Further, we can infer that the endurant gufo:wasCreatedIn the endurant creation (or any other complex event that contains the endurant creation as part).</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#SimpleAchievement">SimpleAchievement</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>In domain of</th>
+                <td>
+                    <a href="#created1">created</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="EndurantTermination">
+        <h3>
+          EndurantTermination<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#EndurantTermination" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#EndurantTermination</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>A :SimpleAchievement in which one endurant was terminated.</p>
+<p>See :terminated for the property that identifies the terminated endurant.</p>
+<p>The begin and end points of the endurant termination coincides with the end point of the terminated endurant.</p>
+<p>Further, we can infer that the endurant gufo:wasTerminatedIn the endurant termination (or any other complex event that contains the endurant termination as part).</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#SimpleAchievement">SimpleAchievement</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>In domain of</th>
+                <td>
+                    <a href="#terminated">terminated</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="InstantaneousEvent">
+        <h3>
+          InstantaneousEvent<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#InstantaneousEvent" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#InstantaneousEvent</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>A gufo:Event that is instantaneous, i.e., its begin and end point coincide.</p>
+<p>Instantaneous events are the atomic steps out of which the history of endurants is composed in gUFOevents. Events that are extended in time (in particular, the accomplishments that culminate in achievements) remain instances of gufo:Event.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Event">gufo:Event</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>Sub-classes</th>
+                <td>
+                    <a href="#Achievement">Achievement</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="Merging">
+        <h3>
+          Merging<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#Merging" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#Merging</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>A :Transformation in which two or more endurants are terminated and a single endurant is created.</p>
+<p>For example, the merging of two organizations into a new one, or the merging of two quantities of liquid into a single quantity.</p>
+<p>Note that the cardinalities mentioned here are not axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#Transformation">Transformation</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="PartIncorporation">
+        <h3>
+          PartIncorporation<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#PartIncorporation" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#PartIncorporation</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>An :ParthoodChange in which an endurant was incorporated into a whole as a part of it.</p>
+<p>May coincide with the creation of the part and with the creation of the whole.</p>
+<p>Use :incorporatedAsPart to identify the part and :incorporatedAsPartInto to identify the whole.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#ParthoodChange">ParthoodChange</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>In domain of</th>
+                <td>
+                    <a href="#incorporatedAsPart">incorporatedAsPart</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#incorporatedAsPartInto">incorporatedAsPartInto</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="PartSeparation">
+        <h3>
+          PartSeparation<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#PartSeparation" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#PartSeparation</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>An :ParthoodChange in which an endurant was separated from a whole.</p>
+<p>May coincide with the termination of the part or with the termination of the whole. (Note: if the part or the whole are terminated, then this change is trivialized.)</p>
+<p>Use :separatedAsPart to identify the part and :separatedAsPartFrom to identify the whole.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#ParthoodChange">ParthoodChange</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>In domain of</th>
+                <td>
+                    <a href="#separatedAsPartFrom">separatedAsPartFrom</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#separatedAsPart">separatedAsPart</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="ParthoodChange">
+        <h3>
+          ParthoodChange<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#ParthoodChange" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#ParthoodChange</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>An :EndurantChange in which an endurant is incorporated into a whole as a part of it or separated from a whole.</p>
+<p>Parthood changes correspond in gUFO to the transitions between instances of gufo:TemporaryParthoodSituation: for example, the replaceable parts of a functional complex, or the varying membership of a gufo:VariableCollection.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#EndurantChange">EndurantChange</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>Sub-classes</th>
+                <td>
+                    <a href="#PartSeparation">PartSeparation</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#PartIncorporation">PartIncorporation</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="QualityValueChange">
+        <h3>
+          QualityValueChange<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#QualityValueChange" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#QualityValueChange</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>An :EndurantChange in which one quality has a new value.</p>
+<p>A :QualityValueChange brings about a situation in which the quality has a new value.</p>
+<p>(Change implies the value is different from what it was before the event occurred.)</p>
+<p>Use :changedValueOf to identify the quality, and either :changedValueTo (for a literal value) or :changedReifiedValueTo (for a reified gufo:QualityValue) to identify the new value.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#EndurantChange">EndurantChange</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>In domain of</th>
+                <td>
+                    <a href="#changedValueTo">changedValueTo</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#changedValueOf">changedValueOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#changedReifiedValueTo">changedReifiedValueTo</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="Reclassification">
+        <h3>
+          Reclassification<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#Reclassification" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#Reclassification</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>A :ComplexAchievement that consists of a :Declassification and a :Classification of the same endurant with different types.</p>
+<p>The typical case is the transition of an endurant from one phase of a phase partition to another (e.g., an order that ceases to be pending and becomes fulfilled). Since classification and declassification are disjoint, the transition is represented by two parts occurring simultaneously, grouped by the reclassification.</p>
+<p>Note that the requirement that both parts concern the same endurant is not axiomatized in this implementation.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    (<a href="n03693cf94d6e43c5a952866d38ce1c6bb13">n03693cf94d6e43c5a952866d38ce1c6bb13</a><sup class="sup-c" title="class">c</sup> and <a href="n03693cf94d6e43c5a952866d38ce1c6bb15">n03693cf94d6e43c5a952866d38ce1c6bb15</a><sup class="sup-c" title="class">c</sup>)<br/>
+                    <a href="#ComplexAchievement">ComplexAchievement</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="SimpleAchievement">
+        <h3>
+          SimpleAchievement<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#SimpleAchievement" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#SimpleAchievement</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>An :Achievement that has no proper parts.</p>
+<p>Simple achievements are the atomic changes recognized in gUFOevents: the creation of an endurant (:EndurantCreation), its termination (:EndurantTermination) and its change (:EndurantChange), which are pairwise disjoint.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#Achievement">Achievement</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>Sub-classes</th>
+                <td>
+                    <a href="#EndurantCreation">EndurantCreation</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#EndurantTermination">EndurantTermination</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#EndurantChange">EndurantChange</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="Splitting">
+        <h3>
+          Splitting<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#Splitting" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#Splitting</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>A :Transformation in which a single endurant is terminated and two or more endurants are created.</p>
+<p>For example, the split of an organization into two new organizations, or the division of a quantity of liquid into several quantities.</p>
+<p>Note that the cardinalities mentioned here are not axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#Transformation">Transformation</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="Transformation">
+        <h3>
+          Transformation<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#Transformation" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#Transformation</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>A :ComplexAchievement that consists of one or more endurant terminations and one or more creations.</p>
+<p>Transformations are used when an endurant cannot survive a change and is instead replaced by another. Contrast this with :EndurantChange, in which the endurant retains its identity throughout.</p>
+<p>See the specializations :Merging, :Splitting and :Transmutation.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    (<a href="n03693cf94d6e43c5a952866d38ce1c6bb26">n03693cf94d6e43c5a952866d38ce1c6bb26</a><sup class="sup-c" title="class">c</sup> and <a href="n03693cf94d6e43c5a952866d38ce1c6bb28">n03693cf94d6e43c5a952866d38ce1c6bb28</a><sup class="sup-c" title="class">c</sup>)<br/>
+                    <a href="#ComplexAchievement">ComplexAchievement</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+            <tr>
+                <th>Sub-classes</th>
+                <td>
+                    <a href="#Splitting">Splitting</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#Merging">Merging</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#Transmutation">Transmutation</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity class" id="Transmutation">
+        <h3>
+          Transmutation<sup title="class" class="sup-c">c</sup>
+          <span style="float:right; margin-right:10px; font-size:smaller;"><a href="#Transmutation" title="fragment link to here">#</a> <a href="#classes" title="Classes Index">Classes</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#Transmutation</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>A :ComplexAchievement that consists of one endurant terminations and one creation.</p>
+<p>For example, the transmutation of a caterpillar into a butterfly, if the two are taken to be instances of different kinds and hence distinct endurants.</p>
+<p>Note that the cardinalities mentioned here are not axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-classes</th>
+                <td>
+                    <a href="#Transformation">Transformation</a><sup class="sup-c" title="class">c</sup><br/>
+                </td>
+            </tr>
+        </table>
+    </div>
+</section>
+<section id="objectproperties">
+    <h2>Object Properties <span style="float:right; font-size:smaller;"><a href="">&uparrow;</a></span></h2>
+    <ul class="hlist">
+        <li><a href="#changedEndurantRelativeTo">changedEndurantRelativeTo</a></li>
+        <li><a href="#hasProperPart">hasProperPart</a></li>
+    </ul>
+    <div class="entity property" id="changedEndurantRelativeTo">
+        <h3>changedEndurantRelativeTo<sup title="object property" class="sup-op">op</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#changedEndurantRelativeTo" title="fragment link to here">#</a>&nbsp;<a href="#objectproperties" title="Object Properties Index">OPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#changedEndurantRelativeTo</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the entity with respect to which an endurant changed in an :EndurantChange.</p>
+<p>While :changed identifies the endurant that underwent change, this property identifies the second end of the change: the non-rigid type instantiated or no longer instantiated (:classifiedAsInstanceOf, :declassifiedAsInstanceOf), the reified quality value acquired (:changedReifiedValueTo), the whole into which a part was incorporated or from which it was separated (:incorporatedAsPartInto, :separatedAsPartFrom), or the constituted endurant concerned by a constitution change (:introducedAsConstituentOf, :removedAsConstituentFrom).</p>
+<p>No range is declared for this property, since the range varies with the kind of change; each sub-property declares its own range. For quality value changes in which the new value is given by a literal, the data property :changedValueTo plays the corresponding role.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="http://www.w3.org/2002/07/owl#topObjectProperty">owl:topObjectProperty</a>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#EndurantChange">EndurantChange</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="hasProperPart">
+        <h3>hasProperPart<sup title="object property" class="sup-op">op</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#hasProperPart" title="fragment link to here">#</a>&nbsp;<a href="#objectproperties" title="Object Properties Index">OPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#hasProperPart</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies a part of the entity; the inverse of gufo:isProperPartOf.</p>
+<p>This property is introduced here for convenience, as gUFO declares parthood in the direction from part to whole only. It is declared transitive, mirroring gufo:isProperPartOf.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+</section>
+
+<section id="functionalproperties">
+    <h2>Functional Properties <span style="float:right; font-size:smaller;"><a href="">&uparrow;</a></span></h2>
+    <ul class="hlist">
+        <li><a href="#changed">changed</a></li>
+        <li><a href="#changedReifiedValueTo">changedReifiedValueTo</a></li>
+        <li><a href="#changedValueOf">changedValueOf</a></li>
+        <li><a href="#changedValueTo">changedValueTo</a></li>
+        <li><a href="#classified">classified</a></li>
+        <li><a href="#classifiedAsInstanceOf">classifiedAsInstanceOf</a></li>
+        <li><a href="#created1">created</a></li>
+        <li><a href="#declassified">declassified</a></li>
+        <li><a href="#declassifiedAsInstanceOf">declassifiedAsInstanceOf</a></li>
+        <li><a href="#incorporatedAsPart">incorporatedAsPart</a></li>
+        <li><a href="#incorporatedAsPartInto">incorporatedAsPartInto</a></li>
+        <li><a href="#introducedAsConstituent">introducedAsConstituent</a></li>
+        <li><a href="#introducedAsConstituentOf">introducedAsConstituentOf</a></li>
+        <li><a href="#removedAsConstituent">removedAsConstituent</a></li>
+        <li><a href="#removedAsConstituentFrom">removedAsConstituentFrom</a></li>
+        <li><a href="#separatedAsPart">separatedAsPart</a></li>
+        <li><a href="#separatedAsPartFrom">separatedAsPartFrom</a></li>
+        <li><a href="#terminated">terminated</a></li>
+    </ul>
+    <div class="entity property" id="changed">
+        <h3>changed<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#changed" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#changed</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the gufo:Endurant which was changed in an :EndurantChange.</p>
+<p>Each :EndurantChange concerns exactly one endurant, and hence this property is functional. Its sub-properties identify the endurant that changed in each specific kind of change (:classified, :declassified, :changedValueOf, :incorporatedAsPart, :separatedAsPart, :introducedAsConstituent, :removedAsConstituent).</p>
+<p>Whenever more than one endurant changes at the same time, more than one :EndurantChange should be asserted; a :ComplexAchievement may be used to group them.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="http://www.w3.org/2002/07/owl#topObjectProperty">owl:topObjectProperty</a>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#EndurantChange">EndurantChange</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Endurant">gufo:Endurant</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="changedReifiedValueTo">
+        <h3>changedReifiedValueTo<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#changedReifiedValueTo" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#changedReifiedValueTo</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the gufo:QualityValue (i.e., the reified quality value) for the quality changed in a gufoevents:QualityValueChange.</p>
+<p>Use this property when the new value of the quality is reified as an instance of gufo:QualityValue, as is the case for enumerated, nominal and multidimensional quality values (see gufo:hasReifiedQualityValue). Use the data property :changedValueTo when the new value is given by a literal.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="#changedEndurantRelativeTo">changedEndurantRelativeTo</a><sup class="sup-op" title="object property">op</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#QualityValueChange">QualityValueChange</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#QualityValue">gufo:QualityValue</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="changedValueOf">
+        <h3>changedValueOf<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#changedValueOf" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#changedValueOf</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the gufo:Quality that was changed in a gufoevents:QualityValueChange.</p>
+<p>Note that what changes is the quality (e.g., John's weight), and not the endurant in which the quality inheres (John). The endurant affected by the change can be reached from the quality with gufo:inheresIn.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="#changed">changed</a><sup class="sup-fp" title="functional property">fp</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#QualityValueChange">QualityValueChange</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Quality">gufo:Quality</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="changedValueTo">
+        <h3>changedValueTo<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#changedValueTo" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#changedValueTo</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies, as a literal, the new value acquired by the quality changed in a :QualityValueChange.</p>
+<p>This data property plays for literal values the role that :changedReifiedValueTo plays for reified quality values, mirroring the pair gufo:hasQualityValue / gufo:hasReifiedQualityValue. No range is declared, since the datatype depends on the quality at hand; users are expected to declare sub-properties with the appropriate domain and range (for example, a "changedWeightInKilogramsTo" with range xsd:double).</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#QualityValueChange">QualityValueChange</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="classified">
+        <h3>classified<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#classified" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#classified</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the gufo:Endurant that was classified in a gufoevents:Classification.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="#changed">changed</a><sup class="sup-fp" title="functional property">fp</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#Classification">Classification</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Endurant">gufo:Endurant</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="classifiedAsInstanceOf">
+        <h3>classifiedAsInstanceOf<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#classifiedAsInstanceOf" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#classifiedAsInstanceOf</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the gufo:NonRigidType of which the endurant became an instance in a gufoevents:Classification.</p>
+<p>Only non-rigid types (phases, roles and their mixin counterparts) are admitted here: a rigid type applies to its instances necessarily, and hence an endurant cannot come to instantiate it at some point in its history.</p>
+<p>Since the type occupies the position of an object in this object property, OWL 2 punning is used, as elsewhere in gUFO.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="#changedEndurantRelativeTo">changedEndurantRelativeTo</a><sup class="sup-op" title="object property">op</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#Classification">Classification</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#NonRigidType">gufo:NonRigidType</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="created1">
+        <h3>created<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#created1" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#created</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the gufo:Endurant that is created in a gufoevents:EndurantCreation.</p>
+<p>The end point of the creation coincides with the begin point of the created endurant. Further, the created endurant gufo:wasCreatedIn the creation (or any complex event that has the creation as a part).</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#EndurantCreation">EndurantCreation</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Endurant">gufo:Endurant</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="declassified">
+        <h3>declassified<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#declassified" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#declassified</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the gufo:Endurant that was declassified in a gufoevents:Declassification.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="#changed">changed</a><sup class="sup-fp" title="functional property">fp</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#Declassification">Declassification</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Endurant">gufo:Endurant</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="declassifiedAsInstanceOf">
+        <h3>declassifiedAsInstanceOf<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#declassifiedAsInstanceOf" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#declassifiedAsInstanceOf</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the gufo:NonRigidType that is no longer instantiated by the endurant in a gufoevents:Declassification.</p>
+<p>As with :classifiedAsInstanceOf, only non-rigid types are admitted, and OWL 2 punning is used to place a type in the position of an object.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="#changedEndurantRelativeTo">changedEndurantRelativeTo</a><sup class="sup-op" title="object property">op</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#Declassification">Declassification</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#NonRigidType">gufo:NonRigidType</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="incorporatedAsPart">
+        <h3>incorporatedAsPart<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#incorporatedAsPart" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#incorporatedAsPart</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the gufo:Endurant that became a part of a whole in a :PartIncorporation.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="#changed">changed</a><sup class="sup-fp" title="functional property">fp</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#PartIncorporation">PartIncorporation</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Endurant">gufo:Endurant</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="incorporatedAsPartInto">
+        <h3>incorporatedAsPartInto<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#incorporatedAsPartInto" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#incorporatedAsPartInto</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the whole (a gufo:Endurant) to which the part was incorporated in a :PartIncorporation.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="#changedEndurantRelativeTo">changedEndurantRelativeTo</a><sup class="sup-op" title="object property">op</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#PartIncorporation">PartIncorporation</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Endurant">gufo:Endurant</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="introducedAsConstituent">
+        <h3>introducedAsConstituent<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#introducedAsConstituent" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#introducedAsConstituent</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the gufo:Endurant that became a constituent of another endurant in a :ConstituentIntroduction.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="#changed">changed</a><sup class="sup-fp" title="functional property">fp</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#ConstituentIntroduction">ConstituentIntroduction</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Endurant">gufo:Endurant</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="introducedAsConstituentOf">
+        <h3>introducedAsConstituentOf<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#introducedAsConstituentOf" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#introducedAsConstituentOf</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the constituted gufo:Endurant of which an endurant became a constituent in a :ConstituentIntroduction.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="#changedEndurantRelativeTo">changedEndurantRelativeTo</a><sup class="sup-op" title="object property">op</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#ConstituentIntroduction">ConstituentIntroduction</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Endurant">gufo:Endurant</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="removedAsConstituent">
+        <h3>removedAsConstituent<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#removedAsConstituent" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#removedAsConstituent</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the constituent (a gufo:Endurant) that ceased to constitute another endurant in a :ConstituentRemoval.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="#changed">changed</a><sup class="sup-fp" title="functional property">fp</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#ConstituentRemoval">ConstituentRemoval</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Endurant">gufo:Endurant</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="removedAsConstituentFrom">
+        <h3>removedAsConstituentFrom<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#removedAsConstituentFrom" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#removedAsConstituentFrom</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the gufo:Endurant from which the constituent was disincorporated in a :ConstituentRemoval.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="#changedEndurantRelativeTo">changedEndurantRelativeTo</a><sup class="sup-op" title="object property">op</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#ConstituentRemoval">ConstituentRemoval</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Endurant">gufo:Endurant</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="separatedAsPart">
+        <h3>separatedAsPart<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#separatedAsPart" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#separatedAsPart</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the part (a gufo:Endurant) that was separated from a whole in a :PartSeparation.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="#changed">changed</a><sup class="sup-fp" title="functional property">fp</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#PartSeparation">PartSeparation</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Endurant">gufo:Endurant</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="separatedAsPartFrom">
+        <h3>separatedAsPartFrom<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#separatedAsPartFrom" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#separatedAsPartFrom</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the gufo:Endurant from which the part was separated in a :PartSeparation.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Super-properties</th>
+                <td>
+                    <a href="#changedEndurantRelativeTo">changedEndurantRelativeTo</a><sup class="sup-op" title="object property">op</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#PartSeparation">PartSeparation</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Endurant">gufo:Endurant</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="terminated">
+        <h3>terminated<sup title="functional property" class="sup-fp">fp</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#terminated" title="fragment link to here">#</a>&nbsp;<a href="#functionalproperties" title="Functional Properties Index">FPs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://w3id.org/nemo/gufoevents#terminated</code></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>
+                    <p>Identifies the gufo:Endurant that is terminated in a gufoevents:EndurantTermination.</p>
+<p>The begin and end points of the termination coincide with the end point of the terminated endurant. Further, the terminated endurant gufo:wasTerminatedIn the termination (or any complex event that has the termination as a part).</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Domain(s)</th>
+                <td>
+                    <a href="#EndurantTermination">EndurantTermination</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+            <tr>
+                <th>Range(s)</th>
+                <td>
+                    <a href="http://purl.org/nemo/gufo#Endurant">gufo:Endurant</a><sup class="sup-c" title="class">c</sup>
+                </td>
+            </tr>
+        </table>
+    </div>
+</section>
+
+<section id="annotationproperties">
+    <h2>Annotation Properties <span style="float:right; font-size:smaller;"><a href="">&uparrow;</a></span></h2>
+    <ul class="hlist">
+        <li><a href="#creator">creator</a></li>
+        <li><a href="#title">title</a></li>
+        <li><a href="#bibliographicCitation">bibliographicCitation</a></li>
+        <li><a href="#created">created</a></li>
+        <li><a href="#license">license</a></li>
+        <li><a href="#modified">modified</a></li>
+        <li><a href="#preferredNamespacePrefix">preferredNamespacePrefix</a></li>
+        <li><a href="#preferredNamespaceUri">preferredNamespaceUri</a></li>
+    </ul>
+    <div class="entity property" id="creator">
+        <h3>creator<sup title="annotation property" class="sup-ap">ap</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#creator" title="fragment link to here">#</a>&nbsp;<a href="#annotationproperties" title="Annotation Properties Index">APs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://purl.org/dc/elements/1.1/creator</code></td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="title">
+        <h3>title<sup title="annotation property" class="sup-ap">ap</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#title" title="fragment link to here">#</a>&nbsp;<a href="#annotationproperties" title="Annotation Properties Index">APs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://purl.org/dc/elements/1.1/title</code></td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="bibliographicCitation">
+        <h3>bibliographicCitation<sup title="annotation property" class="sup-ap">ap</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#bibliographicCitation" title="fragment link to here">#</a>&nbsp;<a href="#annotationproperties" title="Annotation Properties Index">APs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://purl.org/dc/terms/bibliographicCitation</code></td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="created">
+        <h3>created<sup title="annotation property" class="sup-ap">ap</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#created" title="fragment link to here">#</a>&nbsp;<a href="#annotationproperties" title="Annotation Properties Index">APs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://purl.org/dc/terms/created</code></td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="license">
+        <h3>license<sup title="annotation property" class="sup-ap">ap</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#license" title="fragment link to here">#</a>&nbsp;<a href="#annotationproperties" title="Annotation Properties Index">APs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://purl.org/dc/terms/license</code></td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="modified">
+        <h3>modified<sup title="annotation property" class="sup-ap">ap</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#modified" title="fragment link to here">#</a>&nbsp;<a href="#annotationproperties" title="Annotation Properties Index">APs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://purl.org/dc/terms/modified</code></td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="preferredNamespacePrefix">
+        <h3>preferredNamespacePrefix<sup title="annotation property" class="sup-ap">ap</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#preferredNamespacePrefix" title="fragment link to here">#</a>&nbsp;<a href="#annotationproperties" title="Annotation Properties Index">APs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://purl.org/vocab/vann/preferredNamespacePrefix</code></td>
+            </tr>
+        </table>
+    </div>
+    <div class="entity property" id="preferredNamespaceUri">
+        <h3>preferredNamespaceUri<sup title="annotation property" class="sup-ap">ap</sup><span style="float:right; margin-right:10px; font-size:smaller;">
+            <a href="#preferredNamespaceUri" title="fragment link to here">#</a>&nbsp;<a href="#annotationproperties" title="Annotation Properties Index">APs</a></span>
+        </h3>
+        <table>
+            <tr>
+                <th>URI</th>
+                <td><code>http://purl.org/vocab/vann/preferredNamespaceUri</code></td>
+            </tr>
+        </table>
+    </div>
+</section>
+
+  
+  <section id="namespaces">
+    <h2>Namespaces <span style="float:right; font-size:smaller;"><a href="">&uparrow;</a></span></h2>
+    <dl>
+        <dt>default (gufoevents)</dt>
+        <dd><code>http://w3id.org/nemo/gufoevents#</code></dd>
+        <dt>brick</dt>
+        <dd><code>https://brickschema.org/schema/Brick#</code></dd>
+        <dt>csvw</dt>
+        <dd><code>http://www.w3.org/ns/csvw#</code></dd>
+        <dt>dc</dt>
+        <dd><code>http://purl.org/dc/elements/1.1/</code></dd>
+        <dt>dcam</dt>
+        <dd><code>http://purl.org/dc/dcam/</code></dd>
+        <dt>dcat</dt>
+        <dd><code>http://www.w3.org/ns/dcat#</code></dd>
+        <dt>dcmitype</dt>
+        <dd><code>http://purl.org/dc/dcmitype/</code></dd>
+        <dt>dct</dt>
+        <dd><code>http://purl.org/dc/terms/</code></dd>
+        <dt>doap</dt>
+        <dd><code>http://usefulinc.com/ns/doap#</code></dd>
+        <dt>foaf</dt>
+        <dd><code>http://xmlns.com/foaf/0.1/</code></dd>
+        <dt>geo</dt>
+        <dd><code>http://www.opengis.net/ont/geosparql#</code></dd>
+        <dt>gufo</dt>
+        <dd><code>http://purl.org/nemo/gufo#</code></dd>
+        <dt>odrl</dt>
+        <dd><code>http://www.w3.org/ns/odrl/2/</code></dd>
+        <dt>org</dt>
+        <dd><code>http://www.w3.org/ns/org#</code></dd>
+        <dt>owl</dt>
+        <dd><code>http://www.w3.org/2002/07/owl#</code></dd>
+        <dt>prof</dt>
+        <dd><code>http://www.w3.org/ns/dx/prof/</code></dd>
+        <dt>prov</dt>
+        <dd><code>http://www.w3.org/ns/prov#</code></dd>
+        <dt>qb</dt>
+        <dd><code>http://purl.org/linked-data/cube#</code></dd>
+        <dt>rdf</dt>
+        <dd><code>http://www.w3.org/1999/02/22-rdf-syntax-ns#</code></dd>
+        <dt>rdfs</dt>
+        <dd><code>http://www.w3.org/2000/01/rdf-schema#</code></dd>
+        <dt>sdo</dt>
+        <dd><code>https://schema.org/</code></dd>
+        <dt>sh</dt>
+        <dd><code>http://www.w3.org/ns/shacl#</code></dd>
+        <dt>skos</dt>
+        <dd><code>http://www.w3.org/2004/02/skos/core#</code></dd>
+        <dt>sosa</dt>
+        <dd><code>http://www.w3.org/ns/sosa/</code></dd>
+        <dt>ssn</dt>
+        <dd><code>http://www.w3.org/ns/ssn/</code></dd>
+        <dt>time</dt>
+        <dd><code>http://www.w3.org/2006/time#</code></dd>
+        <dt>vann</dt>
+        <dd><code>http://purl.org/vocab/vann/</code></dd>
+        <dt>void</dt>
+        <dd><code>http://rdfs.org/ns/void#</code></dd>
+        <dt>wgs</dt>
+        <dd><code>https://www.w3.org/2003/01/geo/wgs84_pos#</code></dd>
+        <dt>xsd</dt>
+        <dd><code>http://www.w3.org/2001/XMLSchema#</code></dd>
+    </dl>
+</section>
+  <section id="legend">
+      <h2>Legend</h2>
+      <table class="entity">
+          <tr><td><sup class="sup-c" title="Classes">c</sup></td><td>Classes</td></tr>
+          <tr><td><sup class="sup-op" title="Object Properties">op</sup></td><td>Object Properties</td></tr>
+          <tr><td><sup class="sup-fp" title="Functional Properties">fp</sup></td><td>Functional Properties</td></tr>
+          <tr><td><sup class="sup-dp" title="Data Properties">dp</sup></td><td>Data Properties</td></tr>
+          <tr><td><sup class="sup-ap" title="Annotation Properties">ap</sup></td><td>Annotation Properties</td></tr>
+          <tr><td><sup class="sup-p" title="Properties">p</sup></td><td>Properties</td></tr>
+          <tr><td><sup class="sup-ni" title="Named Individuals">ni</sup></td><td>Named Individuals</td></tr>
+      </table>
+  </section>
+</body>
+</html>

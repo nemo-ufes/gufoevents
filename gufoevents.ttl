@@ -1,14 +1,106 @@
 @prefix : <http://w3id.org/nemo/gufoevents#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix gufo: <http://purl.org/nemo/gufo#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix gufoevents: <http://w3id.org/nemo/gufoevents#> .
 @base <http://w3id.org/nemo/gufoevents#> .
 
 <http://w3id.org/nemo/gufoevents> rdf:type owl:Ontology ;
-                                   owl:imports <http://purl.org/nemo/gufo#/1.0.0> .
+                                   owl:imports <http://purl.org/nemo/gufo#/1.0.0> ;
+                                   owl:versionIRI <http://w3id.org/nemo/gufoevents/1.0.0> ;
+                                   owl:versionInfo "1.0.0"@en ;
+                                   dc:creator "Almeida, João Paulo A." ,
+                                              "Guizzardi, Giancarlo" ;
+                                   dc:title "gUFOevents: An Extension of the Lightweight Implementation of the Unified Foundational Ontology (UFO) for Events"@en ;
+                                   dct:bibliographicCitation "J. P. A. Almeida, G. Guizzardi, \"gUFOevents: An Extension of the Lightweight Implementation of the Unified Foundational Ontology (UFO) for Events\", 2025, https://w3id.org/nemo/doc/gufoevents"@en ;
+                                   dct:created "2025-06-18"^^xsd:date ;
+                                   dct:modified "2026-07-30"^^xsd:date ;
+                                   dct:license <https://creativecommons.org/licenses/by/4.0/legalcode> ;
+                                   vann:preferredNamespacePrefix "gufoevents"@en ;
+                                   vann:preferredNamespaceUri "http://w3id.org/nemo/gufoevents#"^^xsd:anyURI ;
+                                   rdfs:comment """The objective of gUFOevents is to extend gUFO [1] with a more expressive account of events, drawing on the ontology of events of UFO-B [2-4].
+
+gUFO includes only minimalistic support for events: enough to establish the participation of objects in events, the historical dependence between events, and the situations events bring about. gUFOevents builds on that basis in order to address a recurrent modeling need, namely the representation of *change in endurants* as events, answering questions such as \"what happened to this object, and when?\".
+
+Intended users are those implementing UFO-based lightweight ontologies that reuse gUFO and need to track the history of endurants explicitly, as a course of events, and not only through the situations of gUFO.
+
+The core of the extension is a taxonomy of instantaneous events (gufoevents:InstantaneousEvent) and, among these, of achievements (gufoevents:Achievement), which are the instantaneous events that are telic (resultative). An achievement is either simple (gufoevents:SimpleAchievement, having no proper parts) or complex (gufoevents:ComplexAchievement, whose parts are themselves achievements with the same begin and end points).
+
+Simple achievements are specialized into the creation of an endurant (gufoevents:EndurantCreation), the termination of an endurant (gufoevents:EndurantTermination) and the change of an endurant (gufoevents:EndurantChange). The latter covers the ways in which an endurant may change while retaining its identity: it may come to instantiate or cease to instantiate a non-rigid type (gufoevents:Classification, gufoevents:Declassification), one of its qualities may acquire a new value (gufoevents:QualityValueChange), it may be incorporated into or separated from a whole (gufoevents:PartIncorporation, gufoevents:PartSeparation), and it may be introduced as or removed as a constituent of another endurant (gufoevents:ConstituentIntroduction, gufoevents:ConstituentRemoval).
+
+Complex achievements bundle simple achievements that occur simultaneously, including the reclassification of an endurant (gufoevents:Reclassification, a declassification together with a classification of the same endurant) and the transformation of endurants (gufoevents:Transformation, one or more terminations together with one or more creations, specialized into gufoevents:Merging, gufoevents:Splitting and gufoevents:Transmutation).
+
+Each subclass of gufoevents:EndurantChange comes with a pair of object properties: one identifying the endurant that changed (a sub-property of gufoevents:changed) and one identifying the entity with respect to which it changed (a sub-property of gufoevents:changedEndurantRelativeTo). This uniform pattern allows a change, and the two ends it concerns, to be recorded with a single event individual.
+
+gUFOevents is lightweight in the same sense as gUFO: little expressive means is employed in an effort to retain computational properties for the resulting OWL 2 DL ontology, and a number of pragmatic implementation choices are discussed in comments annotated to the various elements of this implementation.
+
+For background information on gUFO and on the reference ontology of events on which this extension is based, see:
+
+1. J. P. A. Almeida, G. Guizzardi, T. P. Sales, R. A. Falbo, \"gUFO: A Lightweight Implementation of the Unified Foundational Ontology (UFO)\", 2019. <http://purl.org/nemo/doc/gufo>
+2. G. Guizzardi, G. Wagner, R. A. Falbo, R. S. S. Guizzardi, J. P. A. Almeida, \"Towards Ontological Foundations for the Conceptual Modeling of Events,\" in Proc. 32nd International Conference on Conceptual Modeling (ER 2013), LNCS, vol. 8217, 2013, p. 327–341. <https://doi.org/10.1007/978-3-642-41924-9_27>
+3. J. P. A. Almeida, R. A. Falbo, G. Guizzardi, \"Events as Entities in Ontology-Driven Conceptual Modeling,\" in Proc. 38th International Conference on Conceptual Modeling (ER 2019), LNCS, vol. 11788, 2019, p. 469–483. <https://doi.org/10.1007/978-3-030-33223-5_39>
+4. G. Guizzardi, G. Wagner, J. P. A. Almeida, R. S. S. Guizzardi, \"Towards ontological foundations for conceptual modeling: The unified foundational ontology (UFO) story,\" Applied Ontology, vol. 10, p. 259–271, 2015. <http://dx.doi.org/10.3233/ao-150157>
+5. J. P. A. Almeida, G. Guizzardi, T. P. Sales, C. M. Fonseca, \"gUFO: A Gentle Foundational Ontology for Semantic Web Knowledge Graphs,\" arXiv:2603.20948, 2026. <https://arxiv.org/abs/2603.20948>
+
+The classification of events into achievements and accomplishments follows a long tradition in the philosophy of action and in linguistics, see Ryle (1949), Vendler (1957) and Casati and Varzi (2015); the same distinction is present in DOLCE.
+
+Cite this work as:
+
+J. P. A. Almeida, G. Guizzardi, \"gUFOevents: An Extension of the Lightweight Implementation of the Unified Foundational Ontology (UFO) for Events\", 2025, https://w3id.org/nemo/doc/gufoevents
+
+This work is distributed under Creative Commons Attribution License CC BY 4.0 <https://creativecommons.org/licenses/by/4.0/legalcode>.
+
+For the source repository, see: <https://github.com/nemo-ufes/gufoevents>"""@en .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://purl.org/dc/elements/1.1/creator
+dc:creator rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/elements/1.1/title
+dc:title rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/terms/bibliographicCitation
+dct:bibliographicCitation rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/terms/created
+dct:created rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/terms/license
+dct:license rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/terms/modified
+dct:modified rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/vocab/vann/preferredNamespacePrefix
+vann:preferredNamespacePrefix rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/vocab/vann/preferredNamespaceUri
+vann:preferredNamespaceUri rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Datatypes
+#################################################################
+
+###  http://www.w3.org/2001/XMLSchema#date
+xsd:date rdf:type rdfs:Datatype .
+
 
 #################################################################
 #    Object Properties
@@ -24,13 +116,24 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
          rdf:type owl:FunctionalProperty ;
          rdfs:domain :EndurantChange ;
          rdfs:range gufo:Endurant ;
-         rdfs:comment "Identifies the gufo:Endurant which was changed in an :EndurantChange." .
+         rdfs:comment """Identifies the gufo:Endurant which was changed in an :EndurantChange.
+
+Each :EndurantChange concerns exactly one endurant, and hence this property is functional. Its sub-properties identify the endurant that changed in each specific kind of change (:classified, :declassified, :changedValueOf, :incorporatedAsPart, :separatedAsPart, :introducedAsConstituent, :removedAsConstituent).
+
+Whenever more than one endurant changes at the same time, more than one :EndurantChange should be asserted; a :ComplexAchievement may be used to group them."""@en ;
+         rdfs:label "changed"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#changedEndurantRelativeTo
 :changedEndurantRelativeTo rdf:type owl:ObjectProperty ;
                            rdfs:subPropertyOf owl:topObjectProperty ;
-                           rdfs:domain :EndurantChange .
+                           rdfs:domain :EndurantChange ;
+                           rdfs:comment """Identifies the entity with respect to which an endurant changed in an :EndurantChange.
+
+While :changed identifies the endurant that underwent change, this property identifies the second end of the change: the non-rigid type instantiated or no longer instantiated (:classifiedAsInstanceOf, :declassifiedAsInstanceOf), the reified quality value acquired (:changedReifiedValueTo), the whole into which a part was incorporated or from which it was separated (:incorporatedAsPartInto, :separatedAsPartFrom), or the constituted endurant concerned by a constitution change (:introducedAsConstituentOf, :removedAsConstituentFrom).
+
+No range is declared for this property, since the range varies with the kind of change; each sub-property declares its own range. For quality value changes in which the new value is given by a literal, the data property :changedValueTo plays the corresponding role."""@en ;
+                           rdfs:label "changedEndurantRelativeTo"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#changedReifiedValueTo
@@ -39,7 +142,10 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                        rdf:type owl:FunctionalProperty ;
                        rdfs:domain :QualityValueChange ;
                        rdfs:range gufo:QualityValue ;
-                       rdfs:comment "Identifies the gufo:QualityValue (i.e., the reified quality value) for the quality changed in a gufoevents:QualityValueChange." .
+                       rdfs:comment """Identifies the gufo:QualityValue (i.e., the reified quality value) for the quality changed in a gufoevents:QualityValueChange.
+
+Use this property when the new value of the quality is reified as an instance of gufo:QualityValue, as is the case for enumerated, nominal and multidimensional quality values (see gufo:hasReifiedQualityValue). Use the data property :changedValueTo when the new value is given by a literal."""@en ;
+                       rdfs:label "changedReifiedValueTo"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#changedValueOf
@@ -48,7 +154,10 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                 rdf:type owl:FunctionalProperty ;
                 rdfs:domain :QualityValueChange ;
                 rdfs:range gufo:Quality ;
-                rdfs:comment "Identifies the gufo:Quality that was changed in a gufoevents:QualityValueChange." .
+                rdfs:comment """Identifies the gufo:Quality that was changed in a gufoevents:QualityValueChange.
+
+Note that what changes is the quality (e.g., John's weight), and not the endurant in which the quality inheres (John). The endurant affected by the change can be reached from the quality with gufo:inheresIn."""@en ;
+                rdfs:label "changedValueOf"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#classified
@@ -57,7 +166,9 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
             rdf:type owl:FunctionalProperty ;
             rdfs:domain :Classification ;
             rdfs:range gufo:Endurant ;
-            rdfs:comment "Identifies the gufo:Endurant that was classified in a gufoevents:Classification." .
+            rdfs:comment "Identifies the gufo:Endurant that was classified in a gufoevents:Classification."@en ;
+            rdfs:seeAlso :classifiedAsInstanceOf ;
+            rdfs:label "classified"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#classifiedAsInstanceOf
@@ -66,7 +177,13 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                         rdf:type owl:FunctionalProperty ;
                         rdfs:domain :Classification ;
                         rdfs:range gufo:NonRigidType ;
-                        rdfs:comment "Identifies the gufo:NonRigidType of which the endurant became an instance in a gufoevents:Classification." .
+                        rdfs:comment """Identifies the gufo:NonRigidType of which the endurant became an instance in a gufoevents:Classification.
+
+Only non-rigid types (phases, roles and their mixin counterparts) are admitted here: a rigid type applies to its instances necessarily, and hence an endurant cannot come to instantiate it at some point in its history.
+
+Since the type occupies the position of an object in this object property, OWL 2 punning is used, as elsewhere in gUFO."""@en ;
+                        rdfs:seeAlso :classified ;
+                        rdfs:label "classifiedAsInstanceOf"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#created
@@ -74,7 +191,10 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                   owl:FunctionalProperty ;
          rdfs:domain :EndurantCreation ;
          rdfs:range gufo:Endurant ;
-         rdfs:comment "Identifies the gufo:Endurant that is created in a gufoevents:EndurantCreation." .
+         rdfs:comment """Identifies the gufo:Endurant that is created in a gufoevents:EndurantCreation.
+
+The end point of the creation coincides with the begin point of the created endurant. Further, the created endurant gufo:wasCreatedIn the creation (or any complex event that has the creation as a part)."""@en ;
+         rdfs:label "created"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#declassified
@@ -83,8 +203,9 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
               rdf:type owl:FunctionalProperty ;
               rdfs:domain :Declassification ;
               rdfs:range gufo:Endurant ;
-              rdfs:comment "Identifies the gufo:Endurant that was declassified in a gufoevents:Declassification." ;
-              rdfs:seeAlso :declassifiedFrom .
+              rdfs:comment "Identifies the gufo:Endurant that was declassified in a gufoevents:Declassification."@en ;
+              rdfs:seeAlso :declassifiedFrom ;
+              rdfs:label "declassified"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#declassifiedAsInstanceOf
@@ -93,14 +214,20 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                           rdf:type owl:FunctionalProperty ;
                           rdfs:domain :Declassification ;
                           rdfs:range gufo:NonRigidType ;
-                          rdfs:comment "Identifies the gufo:NonRigidType that is no longer instantiated by the endurant in a gufoevents:Declassification." ;
-                          rdfs:seeAlso :declassified .
+                          rdfs:comment """Identifies the gufo:NonRigidType that is no longer instantiated by the endurant in a gufoevents:Declassification.
+
+As with :classifiedAsInstanceOf, only non-rigid types are admitted, and OWL 2 punning is used to place a type in the position of an object."""@en ;
+                          rdfs:seeAlso :declassified ;
+                          rdfs:label "declassifiedAsInstanceOf"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#hasProperPart
 :hasProperPart rdf:type owl:ObjectProperty ,
                         owl:TransitiveProperty ;
-               rdfs:comment "Identifies a part if the entity, the inverse of gufo:isProperPartOf." .
+               rdfs:comment """Identifies a part of the entity; the inverse of gufo:isProperPartOf.
+
+This property is introduced here for convenience, as gUFO declares parthood in the direction from part to whole only. It is declared transitive, mirroring gufo:isProperPartOf."""@en ;
+               rdfs:label "hasProperPart"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#incorporatedAsPart
@@ -109,7 +236,9 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                     rdf:type owl:FunctionalProperty ;
                     rdfs:domain :PartIncorporation ;
                     rdfs:range gufo:Endurant ;
-                    rdfs:comment "Identifies the gufo:Endurant that became a part of a whole in a :PartIncorporation." .
+                    rdfs:comment "Identifies the gufo:Endurant that became a part of a whole in a :PartIncorporation."@en ;
+                    rdfs:seeAlso :incorporatedAsPartInto ;
+                    rdfs:label "incorporatedAsPart"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#incorporatedAsPartInto
@@ -118,7 +247,9 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                         rdf:type owl:FunctionalProperty ;
                         rdfs:domain :PartIncorporation ;
                         rdfs:range gufo:Endurant ;
-                        rdfs:comment "Identifies the whole (a gufo:Endurant) to which the part was incorporated in a :PartIncorporation." .
+                        rdfs:comment "Identifies the whole (a gufo:Endurant) to which the part was incorporated in a :PartIncorporation."@en ;
+                        rdfs:seeAlso :incorporatedAsPart ;
+                        rdfs:label "incorporatedAsPartInto"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#introducedAsConstituent
@@ -127,7 +258,9 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                          rdf:type owl:FunctionalProperty ;
                          rdfs:domain :ConstituentIntroduction ;
                          rdfs:range gufo:Endurant ;
-                         rdfs:comment "Identifies the gufo:Endurant that became a constituent of another endurant in a :ConstituentIntroduction." .
+                         rdfs:comment "Identifies the gufo:Endurant that became a constituent of another endurant in a :ConstituentIntroduction."@en ;
+                         rdfs:seeAlso :introducedAsConstituentOf ;
+                         rdfs:label "introducedAsConstituent"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#introducedAsConstituentOf
@@ -136,7 +269,9 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                            rdf:type owl:FunctionalProperty ;
                            rdfs:domain :ConstituentIntroduction ;
                            rdfs:range gufo:Endurant ;
-                           rdfs:comment "Identifies the constituted gufo:Endurant of which an endurant became a constituent in a :ConstituentIntroduction." .
+                           rdfs:comment "Identifies the constituted gufo:Endurant of which an endurant became a constituent in a :ConstituentIntroduction."@en ;
+                           rdfs:seeAlso :introducedAsConstituent ;
+                           rdfs:label "introducedAsConstituentOf"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#removedAsConstituent
@@ -145,7 +280,9 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                       rdf:type owl:FunctionalProperty ;
                       rdfs:domain :ConstituentRemoval ;
                       rdfs:range gufo:Endurant ;
-                      rdfs:comment "Identifies the constituent (a gufo:Endurant) that ceased to constitute another endurant in a :ConstituentRemoval." .
+                      rdfs:comment "Identifies the constituent (a gufo:Endurant) that ceased to constitute another endurant in a :ConstituentRemoval."@en ;
+                      rdfs:seeAlso :removedAsConstituentFrom ;
+                      rdfs:label "removedAsConstituent"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#removedAsConstituentFrom
@@ -154,7 +291,9 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                           rdf:type owl:FunctionalProperty ;
                           rdfs:domain :ConstituentRemoval ;
                           rdfs:range gufo:Endurant ;
-                          rdfs:comment "Identifies the gufo:Endurant from which the constituent was disincorporated in a :ConstituentRemoval." .
+                          rdfs:comment "Identifies the gufo:Endurant from which the constituent was disincorporated in a :ConstituentRemoval."@en ;
+                          rdfs:seeAlso :removedAsConstituent ;
+                          rdfs:label "removedAsConstituentFrom"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#separatedAsPart
@@ -163,7 +302,9 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                  rdf:type owl:FunctionalProperty ;
                  rdfs:domain :PartSeparation ;
                  rdfs:range gufo:Endurant ;
-                 rdfs:comment "Identifies the part (a gufo:Endurant) that was separated from a whole in a :PartSeparation." .
+                 rdfs:comment "Identifies the part (a gufo:Endurant) that was separated from a whole in a :PartSeparation."@en ;
+                 rdfs:seeAlso :separatedAsPartFrom ;
+                 rdfs:label "separatedAsPart"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#separatedAsPartFrom
@@ -172,7 +313,9 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                      rdf:type owl:FunctionalProperty ;
                      rdfs:domain :PartSeparation ;
                      rdfs:range gufo:Endurant ;
-                     rdfs:comment "Identifies the gufo:Endurant from which the part was separated in a :PartSeparation." .
+                     rdfs:comment "Identifies the gufo:Endurant from which the part was separated in a :PartSeparation."@en ;
+                     rdfs:seeAlso :separatedAsPart ;
+                     rdfs:label "separatedAsPartFrom"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#terminated
@@ -180,7 +323,10 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                      owl:FunctionalProperty ;
             rdfs:domain :EndurantTermination ;
             rdfs:range gufo:Endurant ;
-            rdfs:comment "Identifies the gufo:Endurant that is created in a gufoevents:EndurantTermination." .
+            rdfs:comment """Identifies the gufo:Endurant that is terminated in a gufoevents:EndurantTermination.
+
+The begin and end points of the termination coincide with the end point of the terminated endurant. Further, the terminated endurant gufo:wasTerminatedIn the termination (or any complex event that has the termination as a part)."""@en ;
+            rdfs:label "terminated"@en .
 
 
 #################################################################
@@ -190,7 +336,11 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
 ###  http://w3id.org/nemo/gufoevents#changedValueTo
 :changedValueTo rdf:type owl:DatatypeProperty ,
                          owl:FunctionalProperty ;
-                rdfs:domain :QualityValueChange .
+                rdfs:domain :QualityValueChange ;
+                rdfs:comment """Identifies, as a literal, the new value acquired by the quality changed in a :QualityValueChange.
+
+This data property plays for literal values the role that :changedReifiedValueTo plays for reified quality values, mirroring the pair gufo:hasQualityValue / gufo:hasReifiedQualityValue. No range is declared, since the datatype depends on the quality at hand; users are expected to declare sub-properties with the appropriate domain and range (for example, a \"changedWeightInKilogramsTo\" with range xsd:double)."""@en ;
+                rdfs:label "changedValueTo"@en .
 
 
 #################################################################
@@ -205,7 +355,7 @@ gufo:isProperPartOf owl:inverseOf :hasProperPart .
                                  ) ;
              rdfs:comment """An :InstantaneousEvent that is telic/resultative.
 
-An achievement is the culmination of an accomplishment (which is a telic gufo:Event that is extended in time.) 
+An achievement is the culmination of an accomplishment (which is a telic gufo:Event that is extended in time.)
 
 An achievement may be simple (having no proper parts) or complex. In complex achievements, all parts are achievements and have the same begin and end points.
 
@@ -213,7 +363,8 @@ Corresponds to \"Achievement\" in DOLCE.  See Casati, R., & Varzi, A. (2015), fo
 
 Casati, R., & Varzi, A. (2015). Events. In E. N. Zalta (Ed.), The Stanford encyclopedia of philosophy. Metaphysics Research Lab, Stanford University.
 G. Ryle (1949), The Concept of Mind, pp. 44, 118.
-Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.""" .
+Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160."""@en ;
+             rdfs:label "Achievement"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#Classification
@@ -221,7 +372,10 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.""" .
                 rdfs:subClassOf :EndurantChange ;
                 rdfs:comment """An :EndurantChange in which one endurant was classified as an instance of a specific non-rigid type.
 
-A :Classification brings about a situation in which the classified endurant is an instance of the specific type.""" .
+A :Classification brings about a situation in which the classified endurant is an instance of the specific type.
+
+Use :classified to identify the endurant and :classifiedAsInstanceOf to identify the type. A classification is disjoint from a :Declassification: when an endurant leaves one phase and enters another, two distinct events occur, which may be grouped in a :Reclassification."""@en ;
+                rdfs:label "Classification"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#ComplexAchievement
@@ -238,19 +392,28 @@ A :Classification brings about a situation in which the classified endurant is a
                     rdfs:subClassOf :Achievement ;
                     rdfs:comment """An :Achievement that has proper parts.
 
-All parts of a complex achievement occur simultaneously (have the same begin and end points), and are the culmination of the same accomplishment(s).""" .
+All parts of a complex achievement occur simultaneously (have the same begin and end points), and are the culmination of the same accomplishment(s).
+
+A complex achievement is defined as an achievement that has at least one gufo:isEventProperPartOf-related part; it is thus inferred, and need not be asserted, whenever the parts are declared."""@en ;
+                    rdfs:label "ComplexAchievement"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#ConstituentIntroduction
 :ConstituentIntroduction rdf:type owl:Class ;
                          rdfs:subClassOf :ConstitutionChange ;
-                         rdfs:comment "A :ConstitutionChange in which the constituent was introduced into a constitution." .
+                         rdfs:comment """A :ConstitutionChange in which the constituent was introduced into a constitution.
+
+Use :introducedAsConstituent to identify the constituent and :introducedAsConstituentOf to identify the constituted endurant."""@en ;
+                         rdfs:label "ConstituentIntroduction"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#ConstituentRemoval
 :ConstituentRemoval rdf:type owl:Class ;
                     rdfs:subClassOf :ConstitutionChange ;
-                    rdfs:comment "A :ConstitutionChange in which the constituent was removed from constitution." .
+                    rdfs:comment """A :ConstitutionChange in which the constituent was removed from constitution.
+
+Use :removedAsConstituent to identify the constituent and :removedAsConstituentFrom to identify the constituted endurant."""@en ;
+                    rdfs:label "ConstituentRemoval"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#ConstitutionChange
@@ -259,7 +422,10 @@ All parts of a complex achievement occur simultaneously (have the same begin and
                     owl:disjointUnionOf ( :ConstituentIntroduction
                                           :ConstituentRemoval
                                         ) ;
-                    rdfs:comment "An :EndurantChange in which an endurant was introduced as a constituent of another or removed from constitution." .
+                    rdfs:comment """An :EndurantChange in which an endurant was introduced as a constituent of another or removed from constitution.
+
+Constitution changes correspond in gUFO to the transitions between instances of gufo:TemporaryConstitutionSituation: for example, the quantity of marble that constitutes a statue may be replaced over time."""@en ;
+                    rdfs:label "ConstitutionChange"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#Declassification
@@ -267,7 +433,10 @@ All parts of a complex achievement occur simultaneously (have the same begin and
                   rdfs:subClassOf :EndurantChange ;
                   rdfs:comment """A gufoevents:EndurantChange in which one endurant ceased to instantiate a specific non-rigid type.
 
-A :Classification brings about a situation in which the classified endurant is no longer instance of the specific type.""" .
+A :Classification brings about a situation in which the classified endurant is no longer instance of the specific type.
+
+Use :declassified to identify the endurant and :declassifiedAsInstanceOf to identify the type it no longer instantiates."""@en ;
+                  rdfs:label "Declassification"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#EndurantChange
@@ -277,7 +446,8 @@ A :Classification brings about a situation in which the classified endurant is n
 
 Subclasses of :EndurantChange include classification and declassification of an endurant to/from non-rigid types, change in the value of a quality of an endurant, incorporation or separation into/from a whole and incorporation or incorporation as a constituent of a constituted endurant.
 
-Each endurant change concerns one endurant in particular. When more than one endurant changes at the same time, there are simultaneous endurant changes. Complex achievements with multiple endurant changes may also be used.""" .
+Each endurant change concerns one endurant in particular. When more than one endurant changes at the same time, there are simultaneous endurant changes. Complex achievements with multiple endurant changes may also be used."""@en ;
+                rdfs:label "EndurantChange"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#EndurantCreation
@@ -289,7 +459,8 @@ See :created for the property that identifies the created endurant.
 
 The end point of the endurant creation coincides with the begin point of the created endurant.
 
-Further, we can infer that the endurant gufo:wasCreatedIn the endurant creation (or any other complex event that contains the endurant creation as part).""" .
+Further, we can infer that the endurant gufo:wasCreatedIn the endurant creation (or any other complex event that contains the endurant creation as part)."""@en ;
+                  rdfs:label "EndurantCreation"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#EndurantTermination
@@ -301,18 +472,28 @@ See :terminated for the property that identifies the terminated endurant.
 
 The begin and end points of the endurant termination coincides with the end point of the terminated endurant.
 
-Further, we can infer that the endurant gufo:wasTerminatedIn the endurant termination (or any other complex event that contains the endurant termination as part).""" .
+Further, we can infer that the endurant gufo:wasTerminatedIn the endurant termination (or any other complex event that contains the endurant termination as part)."""@en ;
+                     rdfs:label "EndurantTermination"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#InstantaneousEvent
 :InstantaneousEvent rdf:type owl:Class ;
                     rdfs:subClassOf gufo:Event ;
-                    rdfs:comment "A gufo:Event that is instantaneous, i.e., its begin and end point coincide." .
+                    rdfs:comment """A gufo:Event that is instantaneous, i.e., its begin and end point coincide.
+
+Instantaneous events are the atomic steps out of which the history of endurants is composed in gUFOevents. Events that are extended in time (in particular, the accomplishments that culminate in achievements) remain instances of gufo:Event."""@en ;
+                    rdfs:label "InstantaneousEvent"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#Merging
 :Merging rdf:type owl:Class ;
-         rdfs:subClassOf :Transformation .
+         rdfs:subClassOf :Transformation ;
+         rdfs:comment """A :Transformation in which two or more endurants are terminated and a single endurant is created.
+
+For example, the merging of two organizations into a new one, or the merging of two quantities of liquid into a single quantity.
+
+Note that the cardinalities mentioned here are not axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance."""@en ;
+         rdfs:label "Merging"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#PartIncorporation
@@ -320,7 +501,10 @@ Further, we can infer that the endurant gufo:wasTerminatedIn the endurant termin
                    rdfs:subClassOf :ParthoodChange ;
                    rdfs:comment """An :ParthoodChange in which an endurant was incorporated into a whole as a part of it.
 
-May coincide with the creation of the part and with the creation of the whole.""" .
+May coincide with the creation of the part and with the creation of the whole.
+
+Use :incorporatedAsPart to identify the part and :incorporatedAsPartInto to identify the whole."""@en ;
+                   rdfs:label "PartIncorporation"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#PartSeparation
@@ -328,7 +512,10 @@ May coincide with the creation of the part and with the creation of the whole.""
                 rdfs:subClassOf :ParthoodChange ;
                 rdfs:comment """An :ParthoodChange in which an endurant was separated from a whole.
 
-May coincide with the termination of the part or with the termination of the whole. (Note: if the part or the whole are terminated, then this change is trivialized.)""" .
+May coincide with the termination of the part or with the termination of the whole. (Note: if the part or the whole are terminated, then this change is trivialized.)
+
+Use :separatedAsPart to identify the part and :separatedAsPartFrom to identify the whole."""@en ;
+                rdfs:label "PartSeparation"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#ParthoodChange
@@ -337,7 +524,10 @@ May coincide with the termination of the part or with the termination of the who
                 owl:disjointUnionOf ( :PartIncorporation
                                       :PartSeparation
                                     ) ;
-                rdfs:comment "An :EndurantChange in which an endurant is incorporated into a whole as a part of it or separated from a whole." .
+                rdfs:comment """An :EndurantChange in which an endurant is incorporated into a whole as a part of it or separated from a whole.
+
+Parthood changes correspond in gUFO to the transitions between instances of gufo:TemporaryParthoodSituation: for example, the replaceable parts of a functional complex, or the varying membership of a gufo:VariableCollection."""@en ;
+                rdfs:label "ParthoodChange"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#QualityValueChange
@@ -347,7 +537,10 @@ May coincide with the termination of the part or with the termination of the who
 
 A :QualityValueChange brings about a situation in which the quality has a new value.
 
-(Change implies the value is different from what it was before the event occurred.)""" .
+(Change implies the value is different from what it was before the event occurred.)
+
+Use :changedValueOf to identify the quality, and either :changedValueTo (for a literal value) or :changedReifiedValueTo (for a reified gufo:QualityValue) to identify the new value."""@en ;
+                    rdfs:label "QualityValueChange"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#Reclassification
@@ -366,7 +559,12 @@ A :QualityValueChange brings about a situation in which the quality has a new va
                                                        ) ;
                                     rdf:type owl:Class
                                   ] ;
-                  rdfs:comment "A :ComplexAchievement that consists of a :Declassification and a :Classification of the same endurant with different types." .
+                  rdfs:comment """A :ComplexAchievement that consists of a :Declassification and a :Classification of the same endurant with different types.
+
+The typical case is the transition of an endurant from one phase of a phase partition to another (e.g., an order that ceases to be pending and becomes fulfilled). Since classification and declassification are disjoint, the transition is represented by two parts occurring simultaneously, grouped by the reclassification.
+
+Note that the requirement that both parts concern the same endurant is not axiomatized in this implementation."""@en ;
+                  rdfs:label "Reclassification"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#SimpleAchievement
@@ -383,12 +581,21 @@ A :QualityValueChange brings about a situation in which the quality has a new va
                                          rdf:type owl:Class
                                        ] ;
                    rdfs:subClassOf :Achievement ;
-                   rdfs:comment "An :Achievement that has no proper parts." .
+                   rdfs:comment """An :Achievement that has no proper parts.
+
+Simple achievements are the atomic changes recognized in gUFOevents: the creation of an endurant (:EndurantCreation), its termination (:EndurantTermination) and its change (:EndurantChange), which are pairwise disjoint."""@en ;
+                   rdfs:label "SimpleAchievement"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#Splitting
 :Splitting rdf:type owl:Class ;
-           rdfs:subClassOf :Transformation .
+           rdfs:subClassOf :Transformation ;
+           rdfs:comment """A :Transformation in which a single endurant is terminated and two or more endurants are created.
+
+For example, the split of an organization into two new organizations, or the division of a quantity of liquid into several quantities.
+
+Note that the cardinalities mentioned here are not axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance."""@en ;
+           rdfs:label "Splitting"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#Transformation
@@ -407,13 +614,23 @@ A :QualityValueChange brings about a situation in which the quality has a new va
                                                      ) ;
                                   rdf:type owl:Class
                                 ] ;
-                rdfs:comment "A :ComplexAchievement that consists of one or more endurant terminations and one or more creations." .
+                rdfs:comment """A :ComplexAchievement that consists of one or more endurant terminations and one or more creations.
+
+Transformations are used when an endurant cannot survive a change and is instead replaced by another. Contrast this with :EndurantChange, in which the endurant retains its identity throughout.
+
+See the specializations :Merging, :Splitting and :Transmutation."""@en ;
+                rdfs:label "Transformation"@en .
 
 
 ###  http://w3id.org/nemo/gufoevents#Transmutation
 :Transmutation rdf:type owl:Class ;
                rdfs:subClassOf :Transformation ;
-               rdfs:comment "A :ComplexAchievement that consists of one endurant terminations and one creation." .
+               rdfs:comment """A :ComplexAchievement that consists of one endurant terminations and one creation.
+
+For example, the transmutation of a caterpillar into a butterfly, if the two are taken to be instances of different kinds and hence distinct endurants.
+
+Note that the cardinalities mentioned here are not axiomatized in this implementation, in order to retain computational properties; they are stated as usage guidance."""@en ;
+               rdfs:label "Transmutation"@en .
 
 
 #################################################################
