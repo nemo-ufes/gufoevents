@@ -141,9 +141,13 @@ A gufoevents:EndurantCreation is a simple achievement in which one endurant was 
                       gufo:hasBeginPointInXSDDate "2025-05-12"^^xsd:date ;
                       gufo:hasEndPointInXSDDate "2025-05-12"^^xsd:date .
 
-The end point of the creation coincides with the begin point of the created endurant. Further, the created endurant gufo:wasCreatedIn the creation — or in any complex event that contains the creation as a part:
+The end point of the creation coincides with the begin point of the created endurant. Further, the created endurant gufo:wasCreatedIn the creation — or any complex event that contains the creation as a part:
 
     :order123 gufo:wasCreatedIn :order123Creation .
+
+That triple need not be asserted: gufoevents:created is declared a sub-property of the inverse of gufo:wasCreatedIn, so a reasoner derives it. Note that it is a sub-property of the inverse and not the inverse itself, precisely because gufo:wasCreatedIn is the broader relation — the parenthesis above is doing real work. An order is created in its acceptance as well as in the creation that is part of the acceptance, and the acceptance is a complex achievement, not a gufoevents:EndurantCreation:
+
+    :order123 gufo:wasCreatedIn :order123Acceptance .
 
 Since gufoevents:created is functional, each creation concerns exactly one endurant. When several endurants come into existence at the same time, assert several creations, and group them, if useful, in a gufoevents:ComplexAchievement.
 
@@ -159,7 +163,7 @@ A gufoevents:EndurantTermination is the mirror image of a creation: a simple ach
                                     gufo:hasEndPointInXSDDate "1986-01-28"^^xsd:date ;
                                     gufo:isEventProperPartOf :challengers10thLaunch .
 
-The begin and end points of the termination coincide with the end point of the terminated endurant, and the terminated endurant gufo:wasTerminatedIn the termination.
+The begin and end points of the termination coincide with the end point of the terminated endurant, and the terminated endurant gufo:wasTerminatedIn the termination — again a derived triple, since gufoevents:terminated is a sub-property of the inverse of gufo:wasTerminatedIn.
 
 Note that endurants in gUFO include aspects as well as objects. The termination of a relator, for example, is the event at which a marriage or an employment ends:
 
@@ -408,7 +412,7 @@ gUFOevents adds no temporal machinery of its own: the temporal properties of gUF
 Likewise, the relations of gUFO between events and endurants apply:
 
 * gufo:participatedIn relates the endurants that participate in an achievement (for example, the surgeon who participated in the transplant);
-* gufo:wasCreatedIn and gufo:wasTerminatedIn relate an endurant to the events in which it came into or went out of existence, and can be asserted alongside gufoevents:created and gufoevents:terminated;
+* gufo:wasCreatedIn and gufo:wasTerminatedIn relate an endurant to the events in which it came into or went out of existence; gufoevents:created and gufoevents:terminated are sub-properties of their inverses, so these follow from the corresponding achievement, and may in addition be asserted of any larger event containing it;
 * gufo:historicallyDependsOn relates an achievement to the events it depends on;
 * gufo:isEventProperPartOf relates an achievement to a larger event — either to a complex achievement occurring at the same instant, or to an accomplishment extended in time that it culminates;
 * gufo:broughtAbout and gufo:contributedToTrigger relate achievements to the situations they bring about and to the situations that contributed to triggering them.

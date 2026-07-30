@@ -73,9 +73,12 @@ These are checked by `validate.py`, and a reasoner will flag them in your own da
 | Every `changed`/`created`/`terminated` sub-property is functional | one event concerns exactly one endurant |
 | `changedValueOf` requires a `gufo:Quality` | what changes is the quality, not its bearer |
 | An achievement with a part is inferred to be a `ComplexAchievement` | `ComplexAchievement` is a defined class |
+| `created` entails `gufo:wasCreatedIn`, and `terminated` entails `gufo:wasTerminatedIn` | each is a sub-property of the inverse of its gUFO counterpart |
 
-That last one is worth noticing: you never assert `ComplexAchievement`. Declare the
-parts with `gufo:isEventProperPartOf` and the reasoner concludes it.
+The last two are worth noticing. You never assert `ComplexAchievement`: declare the
+parts with `gufo:isEventProperPartOf` and the reasoner concludes it. And you need not
+assert `gufo:wasCreatedIn` alongside `gufoevents:created` — it follows. The examples
+assert it anyway, so that they still read correctly without a reasoner.
 
 ## What the ontology does *not* enforce
 
@@ -109,12 +112,10 @@ much as the price of staying in OWL 2 DL, but you should know where the guard ra
    properties, not sub-properties of `gufoevents:changed`, which is ontologically right
    — a creation is not a change — but it means "which endurant does this achievement
    concern?" is a union of three properties, not one. Plan your SPARQL accordingly.
-9. **`gufoevents:created` does not entail `gufo:wasCreatedIn`**, and `terminated` does
-   not entail `wasTerminatedIn`, even though the comments on those elements say the
-   inference can be drawn. There is no inverse or property-chain axiom connecting them.
-   Assert both if you want both, as the examples do. Adding
-   `gufoevents:created owl:inverseOf gufo:wasCreatedIn` to your own ontology would close
-   the gap.
+9. **`gufo:wasCreatedIn` does not entail `gufoevents:created`.** The converse *does*
+   hold — see below — but not this direction, and deliberately so: an endurant is also
+   said to have been created in any complex event that contains the creation as a part,
+   and such an event is not itself a `gufoevents:EndurantCreation`.
 
 ## A note on the two-property pattern
 

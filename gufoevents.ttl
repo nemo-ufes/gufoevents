@@ -189,11 +189,14 @@ Since the type occupies the position of an object in this object property, OWL 2
 ###  http://w3id.org/nemo/gufoevents#created
 :created rdf:type owl:ObjectProperty ,
                   owl:FunctionalProperty ;
+         rdfs:subPropertyOf [ owl:inverseOf gufo:wasCreatedIn ] ;
          rdfs:domain :EndurantCreation ;
          rdfs:range gufo:Endurant ;
          rdfs:comment """Identifies the gufo:Endurant that is created in a gufoevents:EndurantCreation.
 
-The end point of the creation coincides with the begin point of the created endurant. Further, the created endurant gufo:wasCreatedIn the creation (or any complex event that has the creation as a part)."""@en ;
+The end point of the creation coincides with the begin point of the created endurant. Further, the created endurant gufo:wasCreatedIn the creation (or any complex event that has the creation as a part).
+
+This last entailment is axiomatized: gufoevents:created is declared a sub-property of the inverse of gufo:wasCreatedIn, so asserting the creation is enough. Note that it is a sub-property of that inverse and not the inverse itself, because gufo:wasCreatedIn is the broader relation: an endurant is also said to have been created in any complex event that contains the creation as a part, and such an event is not itself a gufoevents:EndurantCreation."""@en ;
          rdfs:label "created"@en .
 
 
@@ -321,11 +324,14 @@ This property is introduced here for convenience, as gUFO declares parthood in t
 ###  http://w3id.org/nemo/gufoevents#terminated
 :terminated rdf:type owl:ObjectProperty ,
                      owl:FunctionalProperty ;
+            rdfs:subPropertyOf [ owl:inverseOf gufo:wasTerminatedIn ] ;
             rdfs:domain :EndurantTermination ;
             rdfs:range gufo:Endurant ;
             rdfs:comment """Identifies the gufo:Endurant that is terminated in a gufoevents:EndurantTermination.
 
-The begin and end points of the termination coincide with the end point of the terminated endurant. Further, the terminated endurant gufo:wasTerminatedIn the termination (or any complex event that has the termination as a part)."""@en ;
+The begin and end points of the termination coincide with the end point of the terminated endurant. Further, the terminated endurant gufo:wasTerminatedIn the termination (or any complex event that has the termination as a part).
+
+As with gufoevents:created, this entailment is axiomatized: gufoevents:terminated is declared a sub-property of the inverse of gufo:wasTerminatedIn. It is a sub-property of that inverse and not the inverse itself, because an endurant is also said to have been terminated in any complex event that contains the termination as a part."""@en ;
             rdfs:label "terminated"@en .
 
 

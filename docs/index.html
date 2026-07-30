@@ -230,8 +230,11 @@ EAfDe6H3Dy6Ll456WEJsRZS630MwCAOI20ei5OBpxse5zcBZw8eS4uPpfIuDiCainIg9umBCU0GZzgLZ
                   gufo:hasBeginPointInXSDDate "2025-05-12"^^xsd:date ;
                   gufo:hasEndPointInXSDDate "2025-05-12"^^xsd:date .
 </code></pre>
-<p>The end point of the creation coincides with the begin point of the created endurant. Further, the created endurant gufo:wasCreatedIn the creation — or in any complex event that contains the creation as a part:</p>
+<p>The end point of the creation coincides with the begin point of the created endurant. Further, the created endurant gufo:wasCreatedIn the creation — or any complex event that contains the creation as a part:</p>
 <pre><code>:order123 gufo:wasCreatedIn :order123Creation .
+</code></pre>
+<p>That triple need not be asserted: gufoevents:created is declared a sub-property of the inverse of gufo:wasCreatedIn, so a reasoner derives it. Note that it is a sub-property of the inverse and not the inverse itself, precisely because gufo:wasCreatedIn is the broader relation — the parenthesis above is doing real work. An order is created in its acceptance as well as in the creation that is part of the acceptance, and the acceptance is a complex achievement, not a gufoevents:EndurantCreation:</p>
+<pre><code>:order123 gufo:wasCreatedIn :order123Acceptance .
 </code></pre>
 <p>Since gufoevents:created is functional, each creation concerns exactly one endurant. When several endurants come into existence at the same time, assert several creations, and group them, if useful, in a gufoevents:ComplexAchievement.</p>
 <p><a name="termination"></a></p>
@@ -243,7 +246,7 @@ EAfDe6H3Dy6Ll456WEJsRZS630MwCAOI20ei5OBpxse5zcBZw8eS4uPpfIuDiCainIg9umBCU0GZzgLZ
                                 gufo:hasEndPointInXSDDate "1986-01-28"^^xsd:date ;
                                 gufo:isEventProperPartOf :challengers10thLaunch .
 </code></pre>
-<p>The begin and end points of the termination coincide with the end point of the terminated endurant, and the terminated endurant gufo:wasTerminatedIn the termination.</p>
+<p>The begin and end points of the termination coincide with the end point of the terminated endurant, and the terminated endurant gufo:wasTerminatedIn the termination — again a derived triple, since gufoevents:terminated is a sub-property of the inverse of gufo:wasTerminatedIn.</p>
 <p>Note that endurants in gUFO include aspects as well as objects. The termination of a relator, for example, is the event at which a marriage or an employment ends:</p>
 <pre><code>:johnMarysDivorce rdf:type gufoevents:EndurantTermination ;
                   gufoevents:terminated :johnMarysMarriage .
@@ -490,7 +493,7 @@ EAfDe6H3Dy6Ll456WEJsRZS630MwCAOI20ei5OBpxse5zcBZw8eS4uPpfIuDiCainIg9umBCU0GZzgLZ
 <p>Likewise, the relations of gUFO between events and endurants apply:</p>
 <ul>
 <li>gufo:participatedIn relates the endurants that participate in an achievement (for example, the surgeon who participated in the transplant);</li>
-<li>gufo:wasCreatedIn and gufo:wasTerminatedIn relate an endurant to the events in which it came into or went out of existence, and can be asserted alongside gufoevents:created and gufoevents:terminated;</li>
+<li>gufo:wasCreatedIn and gufo:wasTerminatedIn relate an endurant to the events in which it came into or went out of existence; gufoevents:created and gufoevents:terminated are sub-properties of their inverses, so these follow from the corresponding achievement, and may in addition be asserted of any larger event containing it;</li>
 <li>gufo:historicallyDependsOn relates an achievement to the events it depends on;</li>
 <li>gufo:isEventProperPartOf relates an achievement to a larger event — either to a complex achievement occurring at the same instant, or to an accomplishment extended in time that it culminates;</li>
 <li>gufo:broughtAbout and gufo:contributedToTrigger relate achievements to the situations they bring about and to the situations that contributed to triggering them.</li>
@@ -714,8 +717,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>In domain of</th>
                 <td>
-                    <a href="#introducedAsConstituent">introducedAsConstituent</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                     <a href="#introducedAsConstituentOf">introducedAsConstituentOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#introducedAsConstituent">introducedAsConstituent</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                 </td>
             </tr>
         </table>
@@ -746,8 +749,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>In domain of</th>
                 <td>
-                    <a href="#removedAsConstituentFrom">removedAsConstituentFrom</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                     <a href="#removedAsConstituent">removedAsConstituent</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#removedAsConstituentFrom">removedAsConstituentFrom</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                 </td>
             </tr>
         </table>
@@ -844,11 +847,11 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Sub-classes</th>
                 <td>
-                    <a href="#ConstitutionChange">ConstitutionChange</a><sup class="sup-c" title="class">c</sup><br/>
-                    <a href="#Declassification">Declassification</a><sup class="sup-c" title="class">c</sup><br/>
-                    <a href="#Classification">Classification</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#ParthoodChange">ParthoodChange</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#Classification">Classification</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#Declassification">Declassification</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#QualityValueChange">QualityValueChange</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#ConstitutionChange">ConstitutionChange</a><sup class="sup-c" title="class">c</sup><br/>
                 </td>
             </tr>
             <tr>
@@ -1109,8 +1112,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>In domain of</th>
                 <td>
-                    <a href="#changedValueTo">changedValueTo</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                     <a href="#changedReifiedValueTo">changedReifiedValueTo</a><sup class="sup-fp" title="functional property">fp</sup><br/>
+                    <a href="#changedValueTo">changedValueTo</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                     <a href="#changedValueOf">changedValueOf</a><sup class="sup-fp" title="functional property">fp</sup><br/>
                 </td>
             </tr>
@@ -1138,7 +1141,7 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
                 <th>Super-classes</th>
                 <td>
                     <a href="#ComplexAchievement">ComplexAchievement</a><sup class="sup-c" title="class">c</sup><br/>
-                    (<a href="ndb570bf42e0b4d23bbceba2d27fbb413b13">ndb570bf42e0b4d23bbceba2d27fbb413b13</a><sup class="sup-c" title="class">c</sup> and <a href="ndb570bf42e0b4d23bbceba2d27fbb413b15">ndb570bf42e0b4d23bbceba2d27fbb413b15</a><sup class="sup-c" title="class">c</sup>)<br/>
+                    (<a href="n08910d9a9be449efa46157c6ef0b7118b15">n08910d9a9be449efa46157c6ef0b7118b15</a><sup class="sup-c" title="class">c</sup> and <a href="n08910d9a9be449efa46157c6ef0b7118b17">n08910d9a9be449efa46157c6ef0b7118b17</a><sup class="sup-c" title="class">c</sup>)<br/>
                 </td>
             </tr>
         </table>
@@ -1169,8 +1172,8 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Sub-classes</th>
                 <td>
-                    <a href="#EndurantChange">EndurantChange</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#EndurantCreation">EndurantCreation</a><sup class="sup-c" title="class">c</sup><br/>
+                    <a href="#EndurantChange">EndurantChange</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#EndurantTermination">EndurantTermination</a><sup class="sup-c" title="class">c</sup><br/>
                 </td>
             </tr>
@@ -1223,16 +1226,16 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
             <tr>
                 <th>Super-classes</th>
                 <td>
-                    (<a href="ndb570bf42e0b4d23bbceba2d27fbb413b26">ndb570bf42e0b4d23bbceba2d27fbb413b26</a><sup class="sup-c" title="class">c</sup> and <a href="ndb570bf42e0b4d23bbceba2d27fbb413b28">ndb570bf42e0b4d23bbceba2d27fbb413b28</a><sup class="sup-c" title="class">c</sup>)<br/>
                     <a href="#ComplexAchievement">ComplexAchievement</a><sup class="sup-c" title="class">c</sup><br/>
+                    (<a href="n08910d9a9be449efa46157c6ef0b7118b28">n08910d9a9be449efa46157c6ef0b7118b28</a><sup class="sup-c" title="class">c</sup> and <a href="n08910d9a9be449efa46157c6ef0b7118b30">n08910d9a9be449efa46157c6ef0b7118b30</a><sup class="sup-c" title="class">c</sup>)<br/>
                 </td>
             </tr>
             <tr>
                 <th>Sub-classes</th>
                 <td>
+                    <a href="#Merging">Merging</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#Transmutation">Transmutation</a><sup class="sup-c" title="class">c</sup><br/>
                     <a href="#Splitting">Splitting</a><sup class="sup-c" title="class">c</sup><br/>
-                    <a href="#Merging">Merging</a><sup class="sup-c" title="class">c</sup><br/>
                 </td>
             </tr>
         </table>
@@ -1562,6 +1565,7 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
                 <td>
                     <p>Identifies the gufo:Endurant that is created in a gufoevents:EndurantCreation.</p>
 <p>The end point of the creation coincides with the begin point of the created endurant. Further, the created endurant gufo:wasCreatedIn the creation (or any complex event that has the creation as a part).</p>
+<p>This last entailment is axiomatized: gufoevents:created is declared a sub-property of the inverse of gufo:wasCreatedIn, so asserting the creation is enough. Note that it is a sub-property of that inverse and not the inverse itself, because gufo:wasCreatedIn is the broader relation: an endurant is also said to have been created in any complex event that contains the creation as a part, and such an event is not itself a gufoevents:EndurantCreation.</p>
                 </td>
             </tr>
             <tr>
@@ -1943,6 +1947,7 @@ Vendler, Z. (1957), The Philosophical Review, Vol. 66, No. 2, pp. 143-160.</p>
                 <td>
                     <p>Identifies the gufo:Endurant that is terminated in a gufoevents:EndurantTermination.</p>
 <p>The begin and end points of the termination coincide with the end point of the terminated endurant. Further, the terminated endurant gufo:wasTerminatedIn the termination (or any complex event that has the termination as a part).</p>
+<p>As with gufoevents:created, this entailment is axiomatized: gufoevents:terminated is declared a sub-property of the inverse of gufo:wasTerminatedIn. It is a sub-property of that inverse and not the inverse itself, because an endurant is also said to have been terminated in any complex event that contains the termination as a part.</p>
                 </td>
             </tr>
             <tr>

@@ -124,6 +124,56 @@ MUST_BE_INCONSISTENT = [
 ]
 
 
+# Entailments gUFOevents is expected to license. Each entry is
+# (what it should entail, subject IRI, property IRI, snippet).
+MUST_ENTAIL = [
+    (
+        "ge:created entails gufo:wasCreatedIn",
+        "http://example.org/probe#o", "http://purl.org/nemo/gufo#wasCreatedIn",
+        """
+        :c rdf:type ge:EndurantCreation ; ge:created :o .
+        :o rdf:type gufo:Object .
+        """,
+    ),
+    (
+        "ge:terminated entails gufo:wasTerminatedIn",
+        "http://example.org/probe#o", "http://purl.org/nemo/gufo#wasTerminatedIn",
+        """
+        :t rdf:type ge:EndurantTermination ; ge:terminated :o .
+        :o rdf:type gufo:Object .
+        """,
+    ),
+]
+
+# gufo:wasCreatedIn is broader than ge:created: an endurant is also created in
+# any complex event containing the creation. Were ge:created declared the full
+# inverse rather than a sub-property of it, this would be inconsistent.
+BROADER_USAGE_STAYS_LEGAL = """
+:acceptance rdf:type ge:ComplexAchievement .
+:c rdf:type ge:EndurantCreation ; gufo:isEventProperPartOf :acceptance ; ge:created :o .
+:o rdf:type gufo:Object ; gufo:wasCreatedIn :acceptance .
+"""
+
+
+def entails(gufo, subject, prop, snippet):
+    """True if `subject prop ?x` has some value after reasoning."""
+    import owlready2
+
+    graph = merge(gufo, extra_data=snippet)
+    fd, path = tempfile.mkstemp(suffix=".owl")
+    os.close(fd)
+    try:
+        graph.serialize(destination=path, format="xml")
+        world = owlready2.World()
+        onto = world.get_ontology("file://" + path).load()
+        with onto:
+            owlready2.sync_reasoner_pellet(world, infer_property_values=True, debug=0)
+        subj, p = world[subject], world[prop]
+        return bool(subj is not None and p is not None and p[subj])
+    finally:
+        os.unlink(path)
+
+
 def gufo_path(explicit):
     if explicit:
         return Path(explicit)
@@ -207,6 +257,21 @@ def main():
         failures += (not caught)
         print(f"  [{'ok' if caught else 'FAIL':4}] {what}")
         print(f"         {why}")
+
+    print()
+    print("=" * 72)
+    print("Entailments gUFOevents licenses (expected: entailed)")
+    print("=" * 72)
+    for what, subject, prop, snippet in MUST_ENTAIL:
+        got = entails(gufo, subject, prop, snippet)
+        failures += (not got)
+        print(f"  [{'ok' if got else 'FAIL':4}] {what}")
+
+    ok, _ = reason(merge(gufo, extra_data=BROADER_USAGE_STAYS_LEGAL))
+    failures += (not ok)
+    print(f"  [{'ok' if ok else 'FAIL':4}] gufo:wasCreatedIn may still name a "
+          f"containing complex event")
+    print("         ge:created is a sub-property of the inverse, not the inverse")
 
     print()
     if failures:
