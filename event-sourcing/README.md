@@ -14,12 +14,21 @@ This folder has what you need to run one:
 | [`shapes-event-sourcing.ttl`](shapes-event-sourcing.ttl) | The stricter invariants a projection depends on |
 | [`queries/`](queries) | Eleven SPARQL projections: current state, state as of any instant, audit trails, provenance |
 | [`run.py`](run.py) | Normalizes, validates, and runs the projections |
+| [`validate_shapes.py`](validate_shapes.py) | Proves each shape actually catches the violation it claims to |
 
 ```
 pip install rdflib pyshacl
 python event-sourcing/run.py --validate                       # all examples
 python event-sourcing/run.py --query 02-current-types mylog.ttl
+python event-sourcing/validate_shapes.py                      # shape self-test
 ```
+
+`run.py --validate` only proves that the (correct, hand-written) examples conform; it
+cannot tell you whether a shape would catch the violation it claims to, since none of
+the examples are broken in any particular way. `validate_shapes.py` closes that gap: one
+deliberately broken snippet per shape, checked to fail with that shape's own message, plus
+a handful of legitimate-looking snippets that must still conform, for shapes whose date
+arithmetic is easy to get subtly wrong in the direction of over-triggering.
 
 No reasoner and no Java: the shapes walk `rdfs:subPropertyOf*` and `rdfs:subClassOf*`
 themselves, so a domain sub-property such as `:mountedTyre` counts as a use of
