@@ -1,0 +1,127 @@
+%------------------------------------------------------------------------------
+% File     : log-discipline.ax
+% Domain   : gUFOevents -- the event-sourcing invariants, as axioms
+% Source   : event-sourcing/shapes-event-sourcing.ttl, and the temporal shapes
+%            of event-sourcing/shapes-core.ttl
+%
+% A SHACL shape is a rejection: it selects the graphs that violate it. Read the
+% other way round -- what holds of every graph that conforms -- it is an axiom,
+% and that is what each formula below is. They are stated in the vocabulary of
+% the proj-*.ax files, with at/2 for the instant and tlt/2, tle/2 for the order.
+%
+% The point of having them: the projections are only well behaved on a log that
+% obeys the discipline, and "well behaved" is then something to be proved rather
+% than assumed. See the es-projection-*.p and es-ex08-conforms-*.p problems.
+%
+% Requires : time.ax, gufoevents.ax, proj-common.ax (enteredTypeAt, leftTypeAt) and
+%            proj-values.ax (setsValue). A problem may include this file without
+%            those definitions: the invariants then constrain uninterpreted
+%            predicates, which is weaker but never unsound.
+%------------------------------------------------------------------------------
+
+%----shapes-core: temporal integrity ------------------------------------------
+
+% :InstantaneousEventShape -- an instantaneous event's begin and end coincide.
+% gUFOevents cannot say this (no axiom relates the two temporal properties);
+% the shape does.
+fof(instantaneous_event_shape, axiom,
+    ! [E, T, U] : ( ( iof(E, ge_InstantaneousEvent)
+                    & beginsAt(E, T) & endsAt(E, U) ) => T = U ) ).
+
+% :ComplexAchievementPartsSimultaneousShape -- the parts of a complex
+% achievement are simultaneous with it.
+fof(parts_simultaneous_shape, axiom,
+    ! [W, P, Tw, Tp] : ( ( iof(W, ge_ComplexAchievement)
+                         & gufo_isEventProperPartOf(P, W)
+                         & at(W, Tw) & at(P, Tp) ) => Tw = Tp ) ).
+
+% :ComplexAchievementPartsAreAchievementsShape
+fof(parts_are_achievements_shape, axiom,
+    ! [W, P] : ( ( iof(W, ge_ComplexAchievement) & gufo_isEventProperPartOf(P, W) )
+              => iof(P, ge_Achievement) ) ).
+
+% :NoSelfParthoodShape -- nothing becomes a part or a constituent of itself.
+fof(no_self_parthood_shape, axiom,
+    ! [E, X] : ~ ( ge_incorporatedAsPart(E, X) & ge_incorporatedAsPartInto(E, X) ) ).
+fof(no_self_separation_shape, axiom,
+    ! [E, X] : ~ ( ge_separatedAsPart(E, X) & ge_separatedAsPartFrom(E, X) ) ).
+fof(no_self_constitution_shape, axiom,
+    ! [E, X] : ~ ( ge_introducedAsConstituent(E, X) & ge_introducedAsConstituentOf(E, X) ) ).
+fof(no_self_deconstitution_shape, axiom,
+    ! [E, X] : ~ ( ge_removedAsConstituent(E, X) & ge_removedAsConstituentFrom(E, X) ) ).
+
+%----shapes-event-sourcing: the log discipline --------------------------------
+
+% :EveryAchievementIsDatedShape -- every achievement carries an instant.
+fof(every_achievement_is_dated_shape, axiom,
+    ! [E] : ( iof(E, ge_Achievement) => ? [T] : at(E, T) ) ).
+
+% at/2 is the COALESCE of one begin point: an event is at one instant.
+fof(at_functional, axiom,
+    ! [E, T, U] : ( ( at(E, T) & at(E, U) ) => T = U ) ).
+
+% :SingleCreationShape and :SingleTerminationShape -- an endurant comes into
+% existence once and goes out of existence once.
+fof(single_creation_shape, axiom,
+    ! [C, D, X] : ( ( ge_created(C, X) & ge_created(D, X) ) => C = D ) ).
+fof(single_termination_shape, axiom,
+    ! [K, L, X] : ( ( ge_terminated(K, X) & ge_terminated(L, X) ) => K = L ) ).
+
+% :CreationPrecedesTerminationShape
+fof(creation_precedes_termination_shape, axiom,
+    ! [C, K, X, Tc, Tk] : ( ( ge_created(C, X) & at(C, Tc)
+                            & ge_terminated(K, X) & at(K, Tk) ) => tle(Tc, Tk) ) ).
+
+% :NoChangeOutsideLifespanShape -- nothing happens to an endurant before it
+% exists or after it has ceased to. The shape most likely to catch a real bug.
+fof(no_change_before_creation_shape, axiom,
+    ! [E, X, Te, C, Tc] : ( ( ge_changed(E, X) & at(E, Te)
+                            & ge_created(C, X) & at(C, Tc) ) => tle(Tc, Te) ) ).
+fof(no_change_after_termination_shape, axiom,
+    ! [E, X, Te, K, Tk] : ( ( ge_changed(E, X) & at(E, Te)
+                            & ge_terminated(K, X) & at(K, Tk) ) => tle(Te, Tk) ) ).
+
+% :NoRedundantClassificationShape -- the fold never enters a state it is in.
+% Between two classifications of the same endurant into the same type there is a
+% declassification, in (Tc1, Tc2].
+fof(no_redundant_classification_shape, axiom,
+    ! [C1, C2, X, Ty, T1, T2] :
+      ( ( enteredTypeAt(C1, X, Ty, T1) & enteredTypeAt(C2, X, Ty, T2) & tlt(T1, T2) )
+     => ? [D, Td] : ( leftTypeAt(D, X, Ty, Td) & tlt(T1, Td) & tle(Td, T2) ) ) ).
+
+% :DeclassificationNeedsPriorClassificationShape -- nor leaves one it never
+% entered.
+fof(declassification_needs_classification_shape, axiom,
+    ! [D, X, Ty, Td] : ( leftTypeAt(D, X, Ty, Td)
+                      => ? [C, Tc] : ( enteredTypeAt(C, X, Ty, Tc) & tle(Tc, Td) ) ) ).
+
+% :SeparationNeedsPriorIncorporationShape
+fof(separation_needs_incorporation_shape, axiom,
+    ! [S, X, W, Ts] : ( ( ge_separatedAsPart(S, X) & ge_separatedAsPartFrom(S, W)
+                        & at(S, Ts) )
+                     => ? [I, Ti] : ( ge_incorporatedAsPart(I, X)
+                                    & ge_incorporatedAsPartInto(I, W)
+                                    & at(I, Ti) & tle(Ti, Ts) ) ) ).
+
+% :QualityValueActuallyChangesShape -- a change changes the value: two changes
+% to the same quality with the same value must have another change in between.
+fof(quality_value_actually_changes_shape, axiom,
+    ! [E1, E2, Q, V, T1, T2] :
+      ( ( setsValue(E1, Q, V, T1) & setsValue(E2, Q, V, T2) & tlt(T1, T2) )
+     => ? [M, Tm] : ( ge_changedValueOf(M, Q) & at(M, Tm)
+                    & tlt(T1, Tm) & tlt(Tm, T2) ) ) ).
+
+% :HistoricalDependenceRespectsTimeShape -- an event never depends on a later
+% one. Note "later", not "at or later": simultaneous dependence is admitted,
+% which is why the acyclicity shape below is not redundant. That the two are
+% independent is proved in problems/event-sourcing/.
+fof(dependence_respects_time_shape, axiom,
+    ! [E, F, Te, Tf] : ( ( gufo_historicallyDependsOn(E, F) & at(E, Te) & at(F, Tf) )
+                      => tle(Tf, Te) ) ).
+
+% :HistoricalDependenceIsAcyclicShape. gufo:historicallyDependsOn is transitive,
+% so irreflexivity of the relation is acyclicity of the chain.
+fof(dependence_is_acyclic_shape, axiom,
+    ! [E] : ~ gufo_historicallyDependsOn(E, E) ).
+
+%------------------------------------------------------------------------------

@@ -1,0 +1,20 @@
+%------------------------------------------------------------------------------
+% File     : time-total.ax
+% Domain   : gUFOevents -- instants are totally ordered
+%
+% Kept apart from time.ax because most problems do not need it, and trichotomy
+% is expensive to search over. It is needed wherever an argument has to compare
+% two instants it was not handed in order -- as in the uniqueness of the
+% classification a projection reports.
+%
+% This is why event-sourcing/README.md says to date every event to the second:
+% a log dated only to the day cannot order two events on the same day, and the
+% fold needs a total order. Here that requirement becomes an axiom.
+%
+% Requires : time.ax
+%------------------------------------------------------------------------------
+
+fof(tlt_total, axiom,
+    ! [T, U] : ( tlt(T, U) | T = U | tlt(U, T) ) ).
+
+%------------------------------------------------------------------------------

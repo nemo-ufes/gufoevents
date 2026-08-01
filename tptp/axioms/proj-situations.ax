@@ -1,0 +1,34 @@
+%------------------------------------------------------------------------------
+% File     : proj-situations.ax
+% Domain   : gUFOevents -- the bridge to gUFO's situation view
+% Source   : event-sourcing/queries/08-materialize-situations.rq
+%
+% gUFO records change with gufo:Situation -- a configuration obtaining over an
+% interval -- and gUFOevents records the instants at which configurations begin
+% and end. The CONSTRUCT derives the first from the second, so that a graph
+% written as an event log can still be read by consumers who expect the
+% situation view, with no change to the log.
+%
+% situationSpan(X, Ty, Since, Until) is the derived situation;
+% situationOpen(X, Ty, Since) is the case where the query's OPTIONAL finds no
+% declassification and leaves ?until unbound.
+%
+% Requires : time.ax, gufoevents.ax, proj-common.ax
+%------------------------------------------------------------------------------
+
+fof(situation_span_definition, axiom,
+    ! [X, Ty, Since, Until] : ( situationSpan(X, Ty, Since, Until)
+                            <=> ( ? [C] : enteredTypeAt(C, X, Ty, Since)
+                                & ? [D] : leftTypeAt(D, X, Ty, Until)
+                                & tle(Since, Until)
+                                & ~ ? [M, Tm] : ( leftTypeAt(M, X, Ty, Tm)
+                                                & tle(Since, Tm)
+                                                & tlt(Tm, Until) ) ) ) ).
+
+fof(situation_open_definition, axiom,
+    ! [X, Ty, Since] : ( situationOpen(X, Ty, Since)
+                     <=> ( ? [C] : enteredTypeAt(C, X, Ty, Since)
+                         & ~ ? [D, Td] : ( leftTypeAt(D, X, Ty, Td)
+                                         & tle(Since, Td) ) ) ) ).
+
+%------------------------------------------------------------------------------

@@ -62,6 +62,7 @@ Authors:
 | [`examples/validate.py`](examples/validate.py) | Checks every example with an OWL 2 DL reasoner, and checks that the constraints gUFOevents states are actually enforced. |
 | [`docs/explorer.html`](docs/explorer.html) | Interactive companion to the examples: scrub through a log and watch the state be projected from it. Built by [`examples/build-explorer.py`](examples/build-explorer.py). |
 | [`event-sourcing/`](event-sourcing) | SHACL shapes and SPARQL projections for using gUFOevents as an append-only event log. See [`event-sourcing/README.md`](event-sourcing/README.md). |
+| [`tptp/`](tptp) | The ontology, the examples and the event-sourcing strategy rendered in first-order logic, with the claims this repository makes stated as theorems and checked by a prover. See [`tptp/README.md`](tptp/README.md). |
 
 ## Usage
 

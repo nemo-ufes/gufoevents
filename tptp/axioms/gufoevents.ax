@@ -1,0 +1,389 @@
+%------------------------------------------------------------------------------
+% File     : gufoevents.ax
+% Domain   : gUFOevents -- the ontology
+% Source   : gufoevents.ttl 1.0.0, <https://w3id.org/nemo/gufoevents>
+%            (J. P. A. Almeida, G. Guizzardi, 2025)
+%
+% Encoding : class membership is iof/2; object and datatype properties are
+%            binary predicates. Every axiom below carries the Turtle it renders.
+%            This is a complete rendering: every logical axiom of gufoevents.ttl
+%            appears here, and nothing else does. Annotations (labels, comments,
+%            seeAlso) carry no first-order content and are omitted.
+%
+% Requires : gufo-core.ax
+%------------------------------------------------------------------------------
+
+%----1. The taxonomy of instantaneous events ----------------------------------
+
+% :InstantaneousEvent rdfs:subClassOf gufo:Event
+fof(ge_instantaneousevent_event, axiom,
+    ! [X] : ( iof(X, ge_InstantaneousEvent) => iof(X, gufo_Event) ) ).
+
+% :Achievement rdfs:subClassOf :InstantaneousEvent
+fof(ge_achievement_instantaneous, axiom,
+    ! [X] : ( iof(X, ge_Achievement) => iof(X, ge_InstantaneousEvent) ) ).
+
+% :Achievement owl:disjointUnionOf ( :ComplexAchievement :SimpleAchievement )
+fof(ge_achievement_union, axiom,
+    ! [X] : ( iof(X, ge_Achievement)
+          <=> ( iof(X, ge_ComplexAchievement) | iof(X, ge_SimpleAchievement) ) ) ).
+fof(ge_achievement_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_ComplexAchievement) & iof(X, ge_SimpleAchievement) ) ).
+
+% :ComplexAchievement owl:equivalentClass
+%     [ owl:intersectionOf ( :Achievement
+%                            [ owl:onProperty [ owl:inverseOf gufo:isEventProperPartOf ] ;
+%                              owl:someValuesFrom owl:Thing ] ) ]
+%
+% "an achievement that has at least one event proper part". The inverse of
+% gufo:isEventProperPartOf is written here by swapping the arguments.
+fof(ge_complexachievement_definition, axiom,
+    ! [X] : ( iof(X, ge_ComplexAchievement)
+          <=> ( iof(X, ge_Achievement)
+              & ? [Y] : gufo_isEventProperPartOf(Y, X) ) ) ).
+
+% :SimpleAchievement owl:equivalentClass
+%     [ owl:intersectionOf ( :Achievement
+%                            [ owl:complementOf [ ... someValuesFrom owl:Thing ] ] ) ]
+fof(ge_simpleachievement_definition, axiom,
+    ! [X] : ( iof(X, ge_SimpleAchievement)
+          <=> ( iof(X, ge_Achievement)
+              & ~ ? [Y] : gufo_isEventProperPartOf(Y, X) ) ) ).
+
+%----2. Simple achievements ---------------------------------------------------
+
+% :EndurantCreation rdfs:subClassOf :SimpleAchievement
+fof(ge_creation_simple, axiom,
+    ! [X] : ( iof(X, ge_EndurantCreation) => iof(X, ge_SimpleAchievement) ) ).
+% :EndurantTermination rdfs:subClassOf :SimpleAchievement
+fof(ge_termination_simple, axiom,
+    ! [X] : ( iof(X, ge_EndurantTermination) => iof(X, ge_SimpleAchievement) ) ).
+% :EndurantChange rdfs:subClassOf :SimpleAchievement
+fof(ge_change_simple, axiom,
+    ! [X] : ( iof(X, ge_EndurantChange) => iof(X, ge_SimpleAchievement) ) ).
+
+% AllDisjointClasses ( :EndurantChange :EndurantCreation :EndurantTermination )
+fof(ge_change_creation_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_EndurantChange) & iof(X, ge_EndurantCreation) ) ).
+fof(ge_change_termination_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_EndurantChange) & iof(X, ge_EndurantTermination) ) ).
+fof(ge_creation_termination_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_EndurantCreation) & iof(X, ge_EndurantTermination) ) ).
+
+%----3. The kinds of endurant change ------------------------------------------
+
+% :Classification rdfs:subClassOf :EndurantChange
+fof(ge_classification_change, axiom,
+    ! [X] : ( iof(X, ge_Classification) => iof(X, ge_EndurantChange) ) ).
+% :Declassification rdfs:subClassOf :EndurantChange
+fof(ge_declassification_change, axiom,
+    ! [X] : ( iof(X, ge_Declassification) => iof(X, ge_EndurantChange) ) ).
+% :QualityValueChange rdfs:subClassOf :EndurantChange
+fof(ge_qualityvaluechange_change, axiom,
+    ! [X] : ( iof(X, ge_QualityValueChange) => iof(X, ge_EndurantChange) ) ).
+% :ParthoodChange rdfs:subClassOf :EndurantChange
+fof(ge_parthoodchange_change, axiom,
+    ! [X] : ( iof(X, ge_ParthoodChange) => iof(X, ge_EndurantChange) ) ).
+% :ConstitutionChange rdfs:subClassOf :EndurantChange
+fof(ge_constitutionchange_change, axiom,
+    ! [X] : ( iof(X, ge_ConstitutionChange) => iof(X, ge_EndurantChange) ) ).
+
+% AllDisjointClasses ( :Classification :ConstitutionChange :Declassification
+%                      :ParthoodChange :QualityValueChange )
+fof(ge_classification_constitution_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_Classification) & iof(X, ge_ConstitutionChange) ) ).
+fof(ge_classification_declassification_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_Classification) & iof(X, ge_Declassification) ) ).
+fof(ge_classification_parthood_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_Classification) & iof(X, ge_ParthoodChange) ) ).
+fof(ge_classification_qvc_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_Classification) & iof(X, ge_QualityValueChange) ) ).
+fof(ge_constitution_declassification_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_ConstitutionChange) & iof(X, ge_Declassification) ) ).
+fof(ge_constitution_parthood_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_ConstitutionChange) & iof(X, ge_ParthoodChange) ) ).
+fof(ge_constitution_qvc_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_ConstitutionChange) & iof(X, ge_QualityValueChange) ) ).
+fof(ge_declassification_parthood_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_Declassification) & iof(X, ge_ParthoodChange) ) ).
+fof(ge_declassification_qvc_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_Declassification) & iof(X, ge_QualityValueChange) ) ).
+fof(ge_parthood_qvc_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_ParthoodChange) & iof(X, ge_QualityValueChange) ) ).
+
+% :ParthoodChange owl:disjointUnionOf ( :PartIncorporation :PartSeparation )
+fof(ge_parthoodchange_union, axiom,
+    ! [X] : ( iof(X, ge_ParthoodChange)
+          <=> ( iof(X, ge_PartIncorporation) | iof(X, ge_PartSeparation) ) ) ).
+fof(ge_parthoodchange_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_PartIncorporation) & iof(X, ge_PartSeparation) ) ).
+
+% :ConstitutionChange owl:disjointUnionOf ( :ConstituentIntroduction :ConstituentRemoval )
+fof(ge_constitutionchange_union, axiom,
+    ! [X] : ( iof(X, ge_ConstitutionChange)
+          <=> ( iof(X, ge_ConstituentIntroduction) | iof(X, ge_ConstituentRemoval) ) ) ).
+fof(ge_constitutionchange_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_ConstituentIntroduction) & iof(X, ge_ConstituentRemoval) ) ).
+
+%----4. Complex achievements --------------------------------------------------
+
+% :Reclassification rdfs:subClassOf :ComplexAchievement ,
+%     [ owl:intersectionOf ( [ inverse(gufo:isEventProperPartOf) some :Classification ]
+%                            [ inverse(gufo:isEventProperPartOf) some :Declassification ] ) ]
+fof(ge_reclassification_complex, axiom,
+    ! [X] : ( iof(X, ge_Reclassification) => iof(X, ge_ComplexAchievement) ) ).
+fof(ge_reclassification_parts, axiom,
+    ! [X] : ( iof(X, ge_Reclassification)
+           => ( ? [Y] : ( gufo_isEventProperPartOf(Y, X) & iof(Y, ge_Classification) )
+              & ? [Z] : ( gufo_isEventProperPartOf(Z, X) & iof(Z, ge_Declassification) ) ) ) ).
+
+% :Transformation rdfs:subClassOf :ComplexAchievement ,
+%     [ owl:intersectionOf ( [ inverse(gufo:isEventProperPartOf) some :EndurantCreation ]
+%                            [ inverse(gufo:isEventProperPartOf) some :EndurantTermination ] ) ]
+fof(ge_transformation_complex, axiom,
+    ! [X] : ( iof(X, ge_Transformation) => iof(X, ge_ComplexAchievement) ) ).
+fof(ge_transformation_parts, axiom,
+    ! [X] : ( iof(X, ge_Transformation)
+           => ( ? [Y] : ( gufo_isEventProperPartOf(Y, X) & iof(Y, ge_EndurantCreation) )
+              & ? [Z] : ( gufo_isEventProperPartOf(Z, X) & iof(Z, ge_EndurantTermination) ) ) ) ).
+
+% :Merging, :Splitting, :Transmutation rdfs:subClassOf :Transformation
+fof(ge_merging_transformation, axiom,
+    ! [X] : ( iof(X, ge_Merging) => iof(X, ge_Transformation) ) ).
+fof(ge_splitting_transformation, axiom,
+    ! [X] : ( iof(X, ge_Splitting) => iof(X, ge_Transformation) ) ).
+fof(ge_transmutation_transformation, axiom,
+    ! [X] : ( iof(X, ge_Transmutation) => iof(X, ge_Transformation) ) ).
+
+% AllDisjointClasses ( :Merging :Splitting :Transmutation )
+%
+% The cardinalities that distinguish the three (many-to-one, one-to-many,
+% one-to-one) are NOT axiomatized in gufoevents.ttl and are not axiomatized
+% here: they would need qualified cardinality restrictions on the inverse of the
+% transitive gufo:isEventProperPartOf, which OWL 2 DL forbids. Their mutual
+% exclusivity, which is what the cardinalities imply, is stated instead.
+fof(ge_merging_splitting_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_Merging) & iof(X, ge_Splitting) ) ).
+fof(ge_merging_transmutation_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_Merging) & iof(X, ge_Transmutation) ) ).
+fof(ge_splitting_transmutation_disjoint, axiom,
+    ! [X] : ~ ( iof(X, ge_Splitting) & iof(X, ge_Transmutation) ) ).
+
+%----5. hasProperPart ---------------------------------------------------------
+
+% gufo:isProperPartOf owl:inverseOf :hasProperPart
+fof(ge_hasproperpart_inverse, axiom,
+    ! [X, Y] : ( ge_hasProperPart(X, Y) <=> gufo_isProperPartOf(Y, X) ) ).
+% :hasProperPart rdf:type owl:TransitiveProperty
+fof(ge_hasproperpart_transitive, axiom,
+    ! [X, Y, Z] : ( ( ge_hasProperPart(X, Y) & ge_hasProperPart(Y, Z) )
+                 => ge_hasProperPart(X, Z) ) ).
+
+%----6. The endurant that changed ---------------------------------------------
+
+% :changed  a owl:FunctionalProperty ; rdfs:domain :EndurantChange ; rdfs:range gufo:Endurant
+fof(ge_changed_functional, axiom,
+    ! [E, X, Y] : ( ( ge_changed(E, X) & ge_changed(E, Y) ) => X = Y ) ).
+fof(ge_changed_domain, axiom,
+    ! [E, X] : ( ge_changed(E, X) => iof(E, ge_EndurantChange) ) ).
+fof(ge_changed_range, axiom,
+    ! [E, X] : ( ge_changed(E, X) => iof(X, gufo_Endurant) ) ).
+
+% :classified rdfs:subPropertyOf :changed ; a owl:FunctionalProperty ;
+%             rdfs:domain :Classification ; rdfs:range gufo:Endurant
+fof(ge_classified_sub, axiom,
+    ! [E, X] : ( ge_classified(E, X) => ge_changed(E, X) ) ).
+fof(ge_classified_functional, axiom,
+    ! [E, X, Y] : ( ( ge_classified(E, X) & ge_classified(E, Y) ) => X = Y ) ).
+fof(ge_classified_domain, axiom,
+    ! [E, X] : ( ge_classified(E, X) => iof(E, ge_Classification) ) ).
+fof(ge_classified_range, axiom,
+    ! [E, X] : ( ge_classified(E, X) => iof(X, gufo_Endurant) ) ).
+
+% :declassified rdfs:subPropertyOf :changed ; ... rdfs:domain :Declassification
+fof(ge_declassified_sub, axiom,
+    ! [E, X] : ( ge_declassified(E, X) => ge_changed(E, X) ) ).
+fof(ge_declassified_functional, axiom,
+    ! [E, X, Y] : ( ( ge_declassified(E, X) & ge_declassified(E, Y) ) => X = Y ) ).
+fof(ge_declassified_domain, axiom,
+    ! [E, X] : ( ge_declassified(E, X) => iof(E, ge_Declassification) ) ).
+fof(ge_declassified_range, axiom,
+    ! [E, X] : ( ge_declassified(E, X) => iof(X, gufo_Endurant) ) ).
+
+% :changedValueOf rdfs:subPropertyOf :changed ; ... rdfs:domain :QualityValueChange ;
+%                 rdfs:range gufo:Quality
+fof(ge_changedvalueof_sub, axiom,
+    ! [E, X] : ( ge_changedValueOf(E, X) => ge_changed(E, X) ) ).
+fof(ge_changedvalueof_functional, axiom,
+    ! [E, X, Y] : ( ( ge_changedValueOf(E, X) & ge_changedValueOf(E, Y) ) => X = Y ) ).
+fof(ge_changedvalueof_domain, axiom,
+    ! [E, X] : ( ge_changedValueOf(E, X) => iof(E, ge_QualityValueChange) ) ).
+fof(ge_changedvalueof_range, axiom,
+    ! [E, X] : ( ge_changedValueOf(E, X) => iof(X, gufo_Quality) ) ).
+
+% :incorporatedAsPart rdfs:subPropertyOf :changed ; ... rdfs:domain :PartIncorporation
+fof(ge_incorporatedaspart_sub, axiom,
+    ! [E, X] : ( ge_incorporatedAsPart(E, X) => ge_changed(E, X) ) ).
+fof(ge_incorporatedaspart_functional, axiom,
+    ! [E, X, Y] : ( ( ge_incorporatedAsPart(E, X) & ge_incorporatedAsPart(E, Y) ) => X = Y ) ).
+fof(ge_incorporatedaspart_domain, axiom,
+    ! [E, X] : ( ge_incorporatedAsPart(E, X) => iof(E, ge_PartIncorporation) ) ).
+fof(ge_incorporatedaspart_range, axiom,
+    ! [E, X] : ( ge_incorporatedAsPart(E, X) => iof(X, gufo_Endurant) ) ).
+
+% :separatedAsPart rdfs:subPropertyOf :changed ; ... rdfs:domain :PartSeparation
+fof(ge_separatedaspart_sub, axiom,
+    ! [E, X] : ( ge_separatedAsPart(E, X) => ge_changed(E, X) ) ).
+fof(ge_separatedaspart_functional, axiom,
+    ! [E, X, Y] : ( ( ge_separatedAsPart(E, X) & ge_separatedAsPart(E, Y) ) => X = Y ) ).
+fof(ge_separatedaspart_domain, axiom,
+    ! [E, X] : ( ge_separatedAsPart(E, X) => iof(E, ge_PartSeparation) ) ).
+fof(ge_separatedaspart_range, axiom,
+    ! [E, X] : ( ge_separatedAsPart(E, X) => iof(X, gufo_Endurant) ) ).
+
+% :introducedAsConstituent rdfs:subPropertyOf :changed ; ... domain :ConstituentIntroduction
+fof(ge_introducedasconstituent_sub, axiom,
+    ! [E, X] : ( ge_introducedAsConstituent(E, X) => ge_changed(E, X) ) ).
+fof(ge_introducedasconstituent_functional, axiom,
+    ! [E, X, Y] : ( ( ge_introducedAsConstituent(E, X) & ge_introducedAsConstituent(E, Y) )
+                 => X = Y ) ).
+fof(ge_introducedasconstituent_domain, axiom,
+    ! [E, X] : ( ge_introducedAsConstituent(E, X) => iof(E, ge_ConstituentIntroduction) ) ).
+fof(ge_introducedasconstituent_range, axiom,
+    ! [E, X] : ( ge_introducedAsConstituent(E, X) => iof(X, gufo_Endurant) ) ).
+
+% :removedAsConstituent rdfs:subPropertyOf :changed ; ... domain :ConstituentRemoval
+fof(ge_removedasconstituent_sub, axiom,
+    ! [E, X] : ( ge_removedAsConstituent(E, X) => ge_changed(E, X) ) ).
+fof(ge_removedasconstituent_functional, axiom,
+    ! [E, X, Y] : ( ( ge_removedAsConstituent(E, X) & ge_removedAsConstituent(E, Y) )
+                 => X = Y ) ).
+fof(ge_removedasconstituent_domain, axiom,
+    ! [E, X] : ( ge_removedAsConstituent(E, X) => iof(E, ge_ConstituentRemoval) ) ).
+fof(ge_removedasconstituent_range, axiom,
+    ! [E, X] : ( ge_removedAsConstituent(E, X) => iof(X, gufo_Endurant) ) ).
+
+%----7. What the endurant changed relative to ---------------------------------
+
+% :changedEndurantRelativeTo rdfs:domain :EndurantChange (no range is declared)
+fof(ge_relativeto_domain, axiom,
+    ! [E, X] : ( ge_changedEndurantRelativeTo(E, X) => iof(E, ge_EndurantChange) ) ).
+
+% :classifiedAsInstanceOf rdfs:subPropertyOf :changedEndurantRelativeTo ;
+%     a owl:FunctionalProperty ; rdfs:domain :Classification ; rdfs:range gufo:NonRigidType
+fof(ge_classifiedasinstanceof_sub, axiom,
+    ! [E, X] : ( ge_classifiedAsInstanceOf(E, X) => ge_changedEndurantRelativeTo(E, X) ) ).
+fof(ge_classifiedasinstanceof_functional, axiom,
+    ! [E, X, Y] : ( ( ge_classifiedAsInstanceOf(E, X) & ge_classifiedAsInstanceOf(E, Y) )
+                 => X = Y ) ).
+fof(ge_classifiedasinstanceof_domain, axiom,
+    ! [E, X] : ( ge_classifiedAsInstanceOf(E, X) => iof(E, ge_Classification) ) ).
+fof(ge_classifiedasinstanceof_range, axiom,
+    ! [E, X] : ( ge_classifiedAsInstanceOf(E, X) => iof(X, gufo_NonRigidType) ) ).
+
+% :declassifiedAsInstanceOf rdfs:subPropertyOf :changedEndurantRelativeTo ; ...
+fof(ge_declassifiedasinstanceof_sub, axiom,
+    ! [E, X] : ( ge_declassifiedAsInstanceOf(E, X) => ge_changedEndurantRelativeTo(E, X) ) ).
+fof(ge_declassifiedasinstanceof_functional, axiom,
+    ! [E, X, Y] : ( ( ge_declassifiedAsInstanceOf(E, X) & ge_declassifiedAsInstanceOf(E, Y) )
+                 => X = Y ) ).
+fof(ge_declassifiedasinstanceof_domain, axiom,
+    ! [E, X] : ( ge_declassifiedAsInstanceOf(E, X) => iof(E, ge_Declassification) ) ).
+fof(ge_declassifiedasinstanceof_range, axiom,
+    ! [E, X] : ( ge_declassifiedAsInstanceOf(E, X) => iof(X, gufo_NonRigidType) ) ).
+
+% :changedReifiedValueTo rdfs:subPropertyOf :changedEndurantRelativeTo ;
+%     a owl:FunctionalProperty ; rdfs:domain :QualityValueChange ; rdfs:range gufo:QualityValue
+fof(ge_changedreifiedvalueto_sub, axiom,
+    ! [E, X] : ( ge_changedReifiedValueTo(E, X) => ge_changedEndurantRelativeTo(E, X) ) ).
+fof(ge_changedreifiedvalueto_functional, axiom,
+    ! [E, X, Y] : ( ( ge_changedReifiedValueTo(E, X) & ge_changedReifiedValueTo(E, Y) )
+                 => X = Y ) ).
+fof(ge_changedreifiedvalueto_domain, axiom,
+    ! [E, X] : ( ge_changedReifiedValueTo(E, X) => iof(E, ge_QualityValueChange) ) ).
+fof(ge_changedreifiedvalueto_range, axiom,
+    ! [E, X] : ( ge_changedReifiedValueTo(E, X) => iof(X, gufo_QualityValue) ) ).
+
+% :incorporatedAsPartInto rdfs:subPropertyOf :changedEndurantRelativeTo ; ...
+fof(ge_incorporatedaspartinto_sub, axiom,
+    ! [E, X] : ( ge_incorporatedAsPartInto(E, X) => ge_changedEndurantRelativeTo(E, X) ) ).
+fof(ge_incorporatedaspartinto_functional, axiom,
+    ! [E, X, Y] : ( ( ge_incorporatedAsPartInto(E, X) & ge_incorporatedAsPartInto(E, Y) )
+                 => X = Y ) ).
+fof(ge_incorporatedaspartinto_domain, axiom,
+    ! [E, X] : ( ge_incorporatedAsPartInto(E, X) => iof(E, ge_PartIncorporation) ) ).
+fof(ge_incorporatedaspartinto_range, axiom,
+    ! [E, X] : ( ge_incorporatedAsPartInto(E, X) => iof(X, gufo_Endurant) ) ).
+
+% :separatedAsPartFrom rdfs:subPropertyOf :changedEndurantRelativeTo ; ...
+fof(ge_separatedaspartfrom_sub, axiom,
+    ! [E, X] : ( ge_separatedAsPartFrom(E, X) => ge_changedEndurantRelativeTo(E, X) ) ).
+fof(ge_separatedaspartfrom_functional, axiom,
+    ! [E, X, Y] : ( ( ge_separatedAsPartFrom(E, X) & ge_separatedAsPartFrom(E, Y) ) => X = Y ) ).
+fof(ge_separatedaspartfrom_domain, axiom,
+    ! [E, X] : ( ge_separatedAsPartFrom(E, X) => iof(E, ge_PartSeparation) ) ).
+fof(ge_separatedaspartfrom_range, axiom,
+    ! [E, X] : ( ge_separatedAsPartFrom(E, X) => iof(X, gufo_Endurant) ) ).
+
+% :introducedAsConstituentOf rdfs:subPropertyOf :changedEndurantRelativeTo ; ...
+fof(ge_introducedasconstituentof_sub, axiom,
+    ! [E, X] : ( ge_introducedAsConstituentOf(E, X)
+              => ge_changedEndurantRelativeTo(E, X) ) ).
+fof(ge_introducedasconstituentof_functional, axiom,
+    ! [E, X, Y] : ( ( ge_introducedAsConstituentOf(E, X) & ge_introducedAsConstituentOf(E, Y) )
+                 => X = Y ) ).
+fof(ge_introducedasconstituentof_domain, axiom,
+    ! [E, X] : ( ge_introducedAsConstituentOf(E, X) => iof(E, ge_ConstituentIntroduction) ) ).
+fof(ge_introducedasconstituentof_range, axiom,
+    ! [E, X] : ( ge_introducedAsConstituentOf(E, X) => iof(X, gufo_Endurant) ) ).
+
+% :removedAsConstituentFrom rdfs:subPropertyOf :changedEndurantRelativeTo ; ...
+fof(ge_removedasconstituentfrom_sub, axiom,
+    ! [E, X] : ( ge_removedAsConstituentFrom(E, X) => ge_changedEndurantRelativeTo(E, X) ) ).
+fof(ge_removedasconstituentfrom_functional, axiom,
+    ! [E, X, Y] : ( ( ge_removedAsConstituentFrom(E, X) & ge_removedAsConstituentFrom(E, Y) )
+                 => X = Y ) ).
+fof(ge_removedasconstituentfrom_domain, axiom,
+    ! [E, X] : ( ge_removedAsConstituentFrom(E, X) => iof(E, ge_ConstituentRemoval) ) ).
+fof(ge_removedasconstituentfrom_range, axiom,
+    ! [E, X] : ( ge_removedAsConstituentFrom(E, X) => iof(X, gufo_Endurant) ) ).
+
+% :changedValueTo a owl:DatatypeProperty, owl:FunctionalProperty ;
+%                 rdfs:domain :QualityValueChange (no range is declared)
+fof(ge_changedvalueto_functional, axiom,
+    ! [E, X, Y] : ( ( ge_changedValueTo(E, X) & ge_changedValueTo(E, Y) ) => X = Y ) ).
+fof(ge_changedvalueto_domain, axiom,
+    ! [E, X] : ( ge_changedValueTo(E, X) => iof(E, ge_QualityValueChange) ) ).
+
+%----8. Creation and termination ----------------------------------------------
+
+% :created a owl:FunctionalProperty ;
+%          rdfs:subPropertyOf [ owl:inverseOf gufo:wasCreatedIn ] ;
+%          rdfs:domain :EndurantCreation ; rdfs:range gufo:Endurant
+%
+% Sub-property of the *inverse*, not the inverse itself: an endurant is also
+% said to have been created in any complex event that has the creation as a
+% part, and such an event is not an :EndurantCreation. So the implication goes
+% one way only.
+fof(ge_created_entails_wascreatedin, axiom,
+    ! [E, X] : ( ge_created(E, X) => gufo_wasCreatedIn(X, E) ) ).
+fof(ge_created_functional, axiom,
+    ! [E, X, Y] : ( ( ge_created(E, X) & ge_created(E, Y) ) => X = Y ) ).
+fof(ge_created_domain, axiom,
+    ! [E, X] : ( ge_created(E, X) => iof(E, ge_EndurantCreation) ) ).
+fof(ge_created_range, axiom,
+    ! [E, X] : ( ge_created(E, X) => iof(X, gufo_Endurant) ) ).
+
+% :terminated a owl:FunctionalProperty ;
+%             rdfs:subPropertyOf [ owl:inverseOf gufo:wasTerminatedIn ] ;
+%             rdfs:domain :EndurantTermination ; rdfs:range gufo:Endurant
+fof(ge_terminated_entails_wasterminatedin, axiom,
+    ! [E, X] : ( ge_terminated(E, X) => gufo_wasTerminatedIn(X, E) ) ).
+fof(ge_terminated_functional, axiom,
+    ! [E, X, Y] : ( ( ge_terminated(E, X) & ge_terminated(E, Y) ) => X = Y ) ).
+fof(ge_terminated_domain, axiom,
+    ! [E, X] : ( ge_terminated(E, X) => iof(E, ge_EndurantTermination) ) ).
+fof(ge_terminated_range, axiom,
+    ! [E, X] : ( ge_terminated(E, X) => iof(X, gufo_Endurant) ) ).
+
+%------------------------------------------------------------------------------
