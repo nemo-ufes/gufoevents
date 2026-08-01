@@ -71,6 +71,10 @@ The script confirms that each example is consistent and leaves no class unsatisf
 and then runs a suite of deliberately broken snippets to confirm that gUFOevents
 actually rejects them.
 
+Both lists below — what the ontology enforces, and what it does not — are also
+theorems in [`../lean`](../lean), where the second list is proved by exhibiting a model
+in which each missing guard rail fails, with the misbehaving individual named.
+
 > **Use Pellet, not HermiT.** gUFO's `gufo:hasBeginPointInXSDDate` ranges over
 > `xsd:date`, which is not in the OWL 2 datatype map. HermiT refuses to load the
 > ontology at all (`UnsupportedDatatypeException`); Pellet accepts it. If you reason in

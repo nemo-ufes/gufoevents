@@ -62,6 +62,7 @@ Authors:
 | [`examples/validate.py`](examples/validate.py) | Checks every example with an OWL 2 DL reasoner, and checks that the constraints gUFOevents states are actually enforced. |
 | [`docs/explorer.html`](docs/explorer.html) | Interactive companion to the examples: scrub through a log and watch the state be projected from it. Built by [`examples/build-explorer.py`](examples/build-explorer.py). |
 | [`event-sourcing/`](event-sourcing) | SHACL shapes and SPARQL projections for using gUFOevents as an append-only event log. See [`event-sourcing/README.md`](event-sourcing/README.md). |
+| [`lean/`](lean) | The ontology and the event-sourcing strategy in Lean 4: the entailments as theorems, the guard rails it deliberately lacks as explicit countermodels, and the projections as functions whose answers are computed. See [`lean/README.md`](lean/README.md). |
 
 ## Usage
 

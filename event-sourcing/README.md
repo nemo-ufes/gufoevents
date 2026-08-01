@@ -15,6 +15,7 @@ This folder has what you need to run one:
 | [`queries/`](queries) | Eleven SPARQL projections: current state, state as of any instant, audit trails, provenance |
 | [`run.py`](run.py) | Normalizes, validates, and runs the projections |
 | [`validate_shapes.py`](validate_shapes.py) | Proves each shape actually catches the violation it claims to |
+| [`../lean/`](../lean) | These projections as Lean functions, with the fold's guarantees as theorems |
 
 ```
 pip install rdflib pyshacl
@@ -42,7 +43,10 @@ scrub through it and watch the projection rebuild itself.
 
 **Append only.** Nothing is ever retracted. A mistake is corrected by adding an event
 that supersedes its effect *from the correction's own instant*, never by editing or
-backdating the original. Example 8 has a mis-posting on 14 March and its correction on
+backdating the original. This is the rule the whole discipline rests on, and it has its
+own proof: [`../lean`](../lean) renders these projections as functions and shows that
+appending to a log never changes what the log said about any earlier instant, given only
+that the appended events are dated later. Example 8 has a mis-posting on 14 March and its correction on
 18 March; `10-audit-value.rq` still reports the wrong value as in force between them,
 which is the whole point — the bank did believe it, and an auditor asking what the
 system said on 16 March must be told.
