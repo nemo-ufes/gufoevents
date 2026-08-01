@@ -72,9 +72,11 @@ and then runs a suite of deliberately broken snippets to confirm that gUFOevents
 actually rejects them.
 
 Every row of the two lists below — what the ontology enforces, and what it does not —
-is also a problem in [`../tptp`](../tptp), where it is proved as a theorem or refuted
-by a countermodel with a first-order prover. So is the consistency of each example.
-See [`../tptp/README.md`](../tptp/README.md).
+is also checked twice over, mechanically. In [`../tptp`](../tptp) each is a problem
+proved as a theorem or refuted by a countermodel with a first-order prover, along with
+the consistency of every example; in [`../lean`](../lean) each is a Lean theorem, and the
+second list is proved by exhibiting a model in which the missing guard rail fails, with
+the misbehaving individual named.
 
 > **Use Pellet, not HermiT.** gUFO's `gufo:hasBeginPointInXSDDate` ranges over
 > `xsd:date`, which is not in the OWL 2 datatype map. HermiT refuses to load the

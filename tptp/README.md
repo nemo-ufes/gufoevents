@@ -279,6 +279,26 @@ Neither is a bug. Both are the price of comparing instants with a strict
 inequality, which is the right thing to do when events at one instant are the
 normal case, as they are for the parts of a complex achievement.
 
+## Relation to the Lean rendering
+
+[`lean/`](../lean) states the same claims in Lean 4 and checks them with a proof
+assistant. The two are independent renderings and they agree where they overlap,
+but they are good at different things:
+
+* **Countermodels.** Here a non-entailment is `CounterSatisfiable` — the prover
+  exhausted the search and found no refutation. There it is a model you can
+  read, with the misbehaving individual named. Better.
+* **Projections.** Here the fold is a definition and each answer is an
+  entailment to be proved, one problem and some minutes each. There it is a
+  function and the answers are computed. Much better.
+* **Example ABoxes.** This rendering carries each example's whole assertion set
+  — its taxonomy, its punned phases, its `gufo:` vocabulary — and proves each
+  example consistent under unique names and closed under the ontology's
+  entailments. The Lean rendering does not: the examples enter it as *logs*.
+* **Causality and temporal integrity.** The invariants about
+  `gufo:historicallyDependsOn` and about the instants of a complex achievement
+  are checked here and not there, because the Lean log does not carry them.
+
 ## What this does not claim
 
 **It is a rendering, and a rendering can be wrong.** Every axiom in
