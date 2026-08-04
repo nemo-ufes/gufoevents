@@ -1,0 +1,74 @@
+%------------------------------------------------------------------------------
+% File     : proj-common.ax
+% Domain   : gUFOevents -- the pieces every projection is built from
+% Source   : event-sourcing/queries/*.rq
+%
+% The projections in event-sourcing/queries/ are rendered as definitions, one
+% file per group, following the queries clause by clause:
+%
+%   * a graph pattern becomes a conjunction;
+%   * FILTER NOT EXISTS becomes a negated existential -- faithful only because
+%     SPARQL evaluates it against the graph and the graph is assumed complete.
+%     That assumption is not made here: it is supplied per log by the completion
+%     axioms in generated/exNN-log.ax. Read the two together and the negated
+%     existentials mean what SPARQL means;
+%   * `?p rdfs:subPropertyOf* gufoevents:classified` and `?e a/rdfs:subClassOf*
+%     gufoevents:Classification` are why the generated log files materialize the
+%     sub-property and subclass closures: a domain property such as :mountedTyre
+%     counts as a use of gufoevents:incorporatedAsPart, and the projections are
+%     written to see that;
+%   * the COALESCE over the two begin-point properties is at/2, computed by
+%     ttl2tptp.py.
+%
+% The files are kept apart so that a problem can include the projection it is
+% about and no others: the definitions are existential, and a prover made to
+% carry four it does not need will often fail to settle one it does.
+%
+% Requires : time.ax, gufoevents.ax
+%------------------------------------------------------------------------------
+
+%----the two temporal properties, coalesced -----------------------------------
+%
+% gUFO offers a begin point as an xsd:dateTimeStamp and as an xsd:date, and a
+% constraint written against one of them silently passes on data that uses the
+% other. beginsAt/2 and endsAt/2 are the two read together, as every query and
+% shape in the repository reads them. They range over the literal as written;
+% at/2, which the fold uses, ranges over instants that have been normalized and
+% ordered -- see generated/exNN-log.ax.
+
+fof(begins_at_definition, axiom,
+    ! [E, T] : ( beginsAt(E, T)
+             <=> ( gufo_hasBeginPointInXSDDateTimeStamp(E, T)
+                 | gufo_hasBeginPointInXSDDate(E, T) ) ) ).
+
+fof(ends_at_definition, axiom,
+    ! [E, T] : ( endsAt(E, T)
+             <=> ( gufo_hasEndPointInXSDDateTimeStamp(E, T)
+                 | gufo_hasEndPointInXSDDate(E, T) ) ) ).
+
+%----classification and declassification, dated -------------------------------
+
+fof(entered_type_definition, axiom,
+    ! [C, X, Ty, Tc] : ( enteredTypeAt(C, X, Ty, Tc)
+                     <=> ( iof(C, ge_Classification)
+                         & ge_classified(C, X)
+                         & ge_classifiedAsInstanceOf(C, Ty)
+                         & at(C, Tc) ) ) ).
+
+fof(left_type_definition, axiom,
+    ! [D, X, Ty, Td] : ( leftTypeAt(D, X, Ty, Td)
+                     <=> ( iof(D, ge_Declassification)
+                         & ge_declassified(D, X)
+                         & ge_declassifiedAsInstanceOf(D, Ty)
+                         & at(D, Td) ) ) ).
+
+%----out of existence by an instant -------------------------------------------
+%
+% The FILTER NOT EXISTS that ends queries/03: an endurant that no longer exists
+% instantiates nothing.
+
+fof(terminated_by_definition, axiom,
+    ! [X, T] : ( terminatedBy(X, T)
+             <=> ? [K, Tk] : ( ge_terminated(K, X) & at(K, Tk) & tle(Tk, T) ) ) ).
+
+%------------------------------------------------------------------------------

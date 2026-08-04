@@ -1,0 +1,28 @@
+%------------------------------------------------------------------------------
+% File     : time.ax
+% Domain   : gUFOevents -- instants and their order
+%
+% gUFOevents relates events to time points and states no axiom over them: the
+% ontology cannot even say that an "instantaneous" event begins and ends
+% together (see examples/README.md, "What the ontology does not enforce"). Every
+% temporal claim about a log therefore rests on axioms that live outside the
+% ontology -- in the SHACL shapes, in the SPARQL projections, and here.
+%
+% tlt/2 is strict precedence over instants, tle/2 its reflexive closure. The
+% instants themselves, and the chain of tlt facts that orders them, are
+% generated per example into generated/exNN-log.ax; only the order's properties
+% are stated here. Asymmetry, and hence the distinctness of any two ordered
+% instants, follows from irreflexivity with transitivity, so no unique-name
+% assumption over instants is needed anywhere.
+%------------------------------------------------------------------------------
+
+fof(tlt_irreflexive, axiom,
+    ! [T] : ~ tlt(T, T) ).
+
+fof(tlt_transitive, axiom,
+    ! [T, U, V] : ( ( tlt(T, U) & tlt(U, V) ) => tlt(T, V) ) ).
+
+fof(tle_definition, axiom,
+    ! [T, U] : ( tle(T, U) <=> ( tlt(T, U) | T = U ) ) ).
+
+%------------------------------------------------------------------------------

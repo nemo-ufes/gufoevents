@@ -1,0 +1,367 @@
+%------------------------------------------------------------------------------
+% File     : gufo-core.ax
+% Domain   : gUFO -- the fragment gUFOevents and its examples depend on
+% Source   : gufo.ttl 1.0.0, <http://purl.org/nemo/gufo>
+%            (J. P. A. Almeida, G. Guizzardi, T. P. Sales, R. A. Falbo, 2019)
+%
+% Encoding : class membership is the binary iof/2, so that a punned name -- a
+%            class of endurants that is also an instance of gufo:Kind -- is one
+%            constant with two roles, which is what the punning is for. Object
+%            properties are binary predicates. See tptp/README.md.
+%
+% Scope    : this is a fragment, not a rendering of all of gUFO. It carries the
+%            taxonomy of individuals and of endurant types, the disjointness
+%            axioms that make a rigid type incompatible with a non-rigid one,
+%            and the object properties gUFOevents or the eight examples use.
+%            Omitted: relationship types, powertypes/categorization, the
+%            datatype-valued properties, and the parts of the situation
+%            vocabulary no example touches.
+%------------------------------------------------------------------------------
+
+%----1. Individuals -----------------------------------------------------------
+
+% gufo:Individual owl:disjointUnionOf ( gufo:AbstractIndividual gufo:ConcreteIndividual )
+fof(gufo_individual_union, axiom,
+    ! [X] : ( iof(X, gufo_Individual)
+          <=> ( iof(X, gufo_AbstractIndividual) | iof(X, gufo_ConcreteIndividual) ) ) ).
+fof(gufo_individual_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_AbstractIndividual) & iof(X, gufo_ConcreteIndividual) ) ).
+
+% gufo:ConcreteIndividual owl:disjointUnionOf ( gufo:Endurant gufo:Event gufo:Situation )
+fof(gufo_concrete_union, axiom,
+    ! [X] : ( iof(X, gufo_ConcreteIndividual)
+          <=> ( iof(X, gufo_Endurant) | iof(X, gufo_Event) | iof(X, gufo_Situation) ) ) ).
+fof(gufo_endurant_event_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_Endurant) & iof(X, gufo_Event) ) ).
+fof(gufo_endurant_situation_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_Endurant) & iof(X, gufo_Situation) ) ).
+fof(gufo_event_situation_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_Event) & iof(X, gufo_Situation) ) ).
+
+% gufo:Endurant owl:disjointUnionOf ( gufo:Aspect gufo:Object )
+fof(gufo_endurant_union, axiom,
+    ! [X] : ( iof(X, gufo_Endurant)
+          <=> ( iof(X, gufo_Aspect) | iof(X, gufo_Object) ) ) ).
+fof(gufo_aspect_object_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_Aspect) & iof(X, gufo_Object) ) ).
+
+% gufo:Aspect owl:disjointUnionOf ( gufo:ExtrinsicAspect gufo:IntrinsicAspect )
+fof(gufo_aspect_union, axiom,
+    ! [X] : ( iof(X, gufo_Aspect)
+          <=> ( iof(X, gufo_ExtrinsicAspect) | iof(X, gufo_IntrinsicAspect) ) ) ).
+fof(gufo_aspect_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_ExtrinsicAspect) & iof(X, gufo_IntrinsicAspect) ) ).
+
+% gufo:IntrinsicAspect owl:disjointUnionOf ( gufo:IntrinsicMode gufo:Quality )
+fof(gufo_intrinsic_union, axiom,
+    ! [X] : ( iof(X, gufo_IntrinsicAspect)
+          <=> ( iof(X, gufo_IntrinsicMode) | iof(X, gufo_Quality) ) ) ).
+fof(gufo_intrinsic_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_IntrinsicMode) & iof(X, gufo_Quality) ) ).
+
+% gufo:ExtrinsicAspect owl:disjointUnionOf ( gufo:ExtrinsicMode gufo:Relator )
+fof(gufo_extrinsic_union, axiom,
+    ! [X] : ( iof(X, gufo_ExtrinsicAspect)
+          <=> ( iof(X, gufo_ExtrinsicMode) | iof(X, gufo_Relator) ) ) ).
+fof(gufo_extrinsic_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_ExtrinsicMode) & iof(X, gufo_Relator) ) ).
+
+% gufo:Object: AllDisjointClasses ( gufo:Collection gufo:FunctionalComplex gufo:Quantity )
+fof(gufo_collection_object, axiom,
+    ! [X] : ( iof(X, gufo_Collection) => iof(X, gufo_Object) ) ).
+fof(gufo_functionalcomplex_object, axiom,
+    ! [X] : ( iof(X, gufo_FunctionalComplex) => iof(X, gufo_Object) ) ).
+fof(gufo_quantity_object, axiom,
+    ! [X] : ( iof(X, gufo_Quantity) => iof(X, gufo_Object) ) ).
+fof(gufo_collection_fc_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_Collection) & iof(X, gufo_FunctionalComplex) ) ).
+fof(gufo_collection_quantity_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_Collection) & iof(X, gufo_Quantity) ) ).
+fof(gufo_fc_quantity_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_FunctionalComplex) & iof(X, gufo_Quantity) ) ).
+
+% gufo:Collection owl:disjointUnionOf ( gufo:FixedCollection gufo:VariableCollection )
+fof(gufo_collection_union, axiom,
+    ! [X] : ( iof(X, gufo_Collection)
+          <=> ( iof(X, gufo_FixedCollection) | iof(X, gufo_VariableCollection) ) ) ).
+fof(gufo_collection_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_FixedCollection) & iof(X, gufo_VariableCollection) ) ).
+
+% gufo:QualityValue rdfs:subClassOf gufo:AbstractIndividual
+fof(gufo_qualityvalue_abstract, axiom,
+    ! [X] : ( iof(X, gufo_QualityValue) => iof(X, gufo_AbstractIndividual) ) ).
+
+%----2. Endurant types --------------------------------------------------------
+%
+% gUFO's type level. gUFOevents restricts classification and declassification to
+% gufo:NonRigidType, and it is the disjointness of rigid from non-rigid types
+% below that turns "classified as an instance of a kind" into an inconsistency
+% rather than merely an oddity.
+
+% gufo:Individual owl:disjointWith gufo:Type
+fof(gufo_individual_type_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_Individual) & iof(X, gufo_Type) ) ).
+
+fof(gufo_concreteindividualtype_type, axiom,
+    ! [X] : ( iof(X, gufo_ConcreteIndividualType) => iof(X, gufo_Type) ) ).
+fof(gufo_enduranttype_cit, axiom,
+    ! [X] : ( iof(X, gufo_EndurantType) => iof(X, gufo_ConcreteIndividualType) ) ).
+fof(gufo_eventtype_cit, axiom,
+    ! [X] : ( iof(X, gufo_EventType) => iof(X, gufo_ConcreteIndividualType) ) ).
+fof(gufo_endurenttype_eventtype_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_EndurantType) & iof(X, gufo_EventType) ) ).
+
+% gufo:EndurantType owl:disjointUnionOf ( gufo:NonRigidType gufo:RigidType )
+fof(gufo_endurenttype_rigidity_union, axiom,
+    ! [X] : ( iof(X, gufo_EndurantType)
+          <=> ( iof(X, gufo_NonRigidType) | iof(X, gufo_RigidType) ) ) ).
+fof(gufo_rigid_nonrigid_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_NonRigidType) & iof(X, gufo_RigidType) ) ).
+
+% gufo:EndurantType owl:disjointUnionOf ( gufo:NonSortal gufo:Sortal )
+fof(gufo_endurenttype_sortality_union, axiom,
+    ! [X] : ( iof(X, gufo_EndurantType)
+          <=> ( iof(X, gufo_NonSortal) | iof(X, gufo_Sortal) ) ) ).
+fof(gufo_sortal_nonsortal_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_NonSortal) & iof(X, gufo_Sortal) ) ).
+
+% gufo:NonRigidType owl:disjointUnionOf ( gufo:AntiRigidType gufo:SemiRigidType )
+fof(gufo_nonrigid_union, axiom,
+    ! [X] : ( iof(X, gufo_NonRigidType)
+          <=> ( iof(X, gufo_AntiRigidType) | iof(X, gufo_SemiRigidType) ) ) ).
+fof(gufo_antirigid_semirigid_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_AntiRigidType) & iof(X, gufo_SemiRigidType) ) ).
+
+% the leaf types
+fof(gufo_kind_rigid, axiom,
+    ! [X] : ( iof(X, gufo_Kind) => ( iof(X, gufo_RigidType) & iof(X, gufo_Sortal) ) ) ).
+fof(gufo_subkind_rigid, axiom,
+    ! [X] : ( iof(X, gufo_SubKind) => ( iof(X, gufo_RigidType) & iof(X, gufo_Sortal) ) ) ).
+fof(gufo_category_rigid, axiom,
+    ! [X] : ( iof(X, gufo_Category) => ( iof(X, gufo_RigidType) & iof(X, gufo_NonSortal) ) ) ).
+fof(gufo_phase_antirigid, axiom,
+    ! [X] : ( iof(X, gufo_Phase) => ( iof(X, gufo_AntiRigidType) & iof(X, gufo_Sortal) ) ) ).
+fof(gufo_role_antirigid, axiom,
+    ! [X] : ( iof(X, gufo_Role) => ( iof(X, gufo_AntiRigidType) & iof(X, gufo_Sortal) ) ) ).
+fof(gufo_phasemixin_antirigid, axiom,
+    ! [X] : ( iof(X, gufo_PhaseMixin) => ( iof(X, gufo_AntiRigidType) & iof(X, gufo_NonSortal) ) ) ).
+fof(gufo_rolemixin_antirigid, axiom,
+    ! [X] : ( iof(X, gufo_RoleMixin) => ( iof(X, gufo_AntiRigidType) & iof(X, gufo_NonSortal) ) ) ).
+fof(gufo_mixin_semirigid, axiom,
+    ! [X] : ( iof(X, gufo_Mixin) => ( iof(X, gufo_SemiRigidType) & iof(X, gufo_NonSortal) ) ) ).
+fof(gufo_kind_subkind_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_Kind) & iof(X, gufo_SubKind) ) ).
+fof(gufo_phase_role_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_Phase) & iof(X, gufo_Role) ) ).
+fof(gufo_phasemixin_rolemixin_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_PhaseMixin) & iof(X, gufo_RoleMixin) ) ).
+
+%----3. Situations ------------------------------------------------------------
+
+fof(gufo_tis_situation, axiom,
+    ! [X] : ( iof(X, gufo_TemporaryInstantiationSituation) => iof(X, gufo_Situation) ) ).
+fof(gufo_tps_situation, axiom,
+    ! [X] : ( iof(X, gufo_TemporaryParthoodSituation) => iof(X, gufo_Situation) ) ).
+fof(gufo_tcs_situation, axiom,
+    ! [X] : ( iof(X, gufo_TemporaryConstitutionSituation) => iof(X, gufo_Situation) ) ).
+fof(gufo_qvas_situation, axiom,
+    ! [X] : ( iof(X, gufo_QualityValueAttributionSituation) => iof(X, gufo_Situation) ) ).
+fof(gufo_trs_situation, axiom,
+    ! [X] : ( iof(X, gufo_TemporaryRelationshipSituation) => iof(X, gufo_Situation) ) ).
+fof(gufo_tis_tps_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_TemporaryInstantiationSituation)
+              & iof(X, gufo_TemporaryParthoodSituation) ) ).
+fof(gufo_tis_tcs_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_TemporaryInstantiationSituation)
+              & iof(X, gufo_TemporaryConstitutionSituation) ) ).
+fof(gufo_tps_tcs_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_TemporaryParthoodSituation)
+              & iof(X, gufo_TemporaryConstitutionSituation) ) ).
+fof(gufo_qvas_tis_disjoint, axiom,
+    ! [X] : ~ ( iof(X, gufo_QualityValueAttributionSituation)
+              & iof(X, gufo_TemporaryInstantiationSituation) ) ).
+
+fof(gufo_participation_event, axiom,
+    ! [X] : ( iof(X, gufo_Participation) => iof(X, gufo_Event) ) ).
+
+%----4. Parthood --------------------------------------------------------------
+%
+% gufo:isProperPartOf is transitive, and that is all: OWL 2 DL forbids
+% asymmetry and irreflexivity on a non-simple property, so gUFO cannot say that
+% nothing is a proper part of itself. The omission is deliberate and is
+% reproduced here rather than repaired -- see problems/ontology/neg-*.p, which
+% show what it costs.
+
+fof(gufo_ipp_transitive, axiom,
+    ! [X, Y, Z] : ( ( gufo_isProperPartOf(X, Y) & gufo_isProperPartOf(Y, Z) )
+                 => gufo_isProperPartOf(X, Z) ) ).
+
+fof(gufo_ieppo_sub_ipp, axiom,
+    ! [X, Y] : ( gufo_isEventProperPartOf(X, Y) => gufo_isProperPartOf(X, Y) ) ).
+fof(gufo_ieppo_transitive, axiom,
+    ! [X, Y, Z] : ( ( gufo_isEventProperPartOf(X, Y) & gufo_isEventProperPartOf(Y, Z) )
+                 => gufo_isEventProperPartOf(X, Z) ) ).
+fof(gufo_ieppo_domain, axiom,
+    ! [X, Y] : ( gufo_isEventProperPartOf(X, Y) => iof(X, gufo_Event) ) ).
+fof(gufo_ieppo_range, axiom,
+    ! [X, Y] : ( gufo_isEventProperPartOf(X, Y) => iof(Y, gufo_Event) ) ).
+
+fof(gufo_ioppo_sub_ipp, axiom,
+    ! [X, Y] : ( gufo_isObjectProperPartOf(X, Y) => gufo_isProperPartOf(X, Y) ) ).
+fof(gufo_ioppo_transitive, axiom,
+    ! [X, Y, Z] : ( ( gufo_isObjectProperPartOf(X, Y) & gufo_isObjectProperPartOf(Y, Z) )
+                 => gufo_isObjectProperPartOf(X, Z) ) ).
+fof(gufo_ioppo_domain, axiom,
+    ! [X, Y] : ( gufo_isObjectProperPartOf(X, Y) => iof(X, gufo_Object) ) ).
+fof(gufo_ioppo_range, axiom,
+    ! [X, Y] : ( gufo_isObjectProperPartOf(X, Y) => iof(Y, gufo_Object) ) ).
+
+fof(gufo_component_sub_ioppo, axiom,
+    ! [X, Y] : ( gufo_isComponentOf(X, Y) => gufo_isObjectProperPartOf(X, Y) ) ).
+fof(gufo_component_range, axiom,
+    ! [X, Y] : ( gufo_isComponentOf(X, Y) => iof(Y, gufo_FunctionalComplex) ) ).
+
+fof(gufo_iappo_sub_ipp, axiom,
+    ! [X, Y] : ( gufo_isAspectProperPartOf(X, Y) => gufo_isProperPartOf(X, Y) ) ).
+fof(gufo_iappo_transitive, axiom,
+    ! [X, Y, Z] : ( ( gufo_isAspectProperPartOf(X, Y) & gufo_isAspectProperPartOf(Y, Z) )
+                 => gufo_isAspectProperPartOf(X, Z) ) ).
+fof(gufo_iappo_domain, axiom,
+    ! [X, Y] : ( gufo_isAspectProperPartOf(X, Y) => iof(X, gufo_Aspect) ) ).
+fof(gufo_iappo_range, axiom,
+    ! [X, Y] : ( gufo_isAspectProperPartOf(X, Y) => iof(Y, gufo_Aspect) ) ).
+
+%----5. Events, existence and dependence --------------------------------------
+
+fof(gufo_hdo_transitive, axiom,
+    ! [X, Y, Z] : ( ( gufo_historicallyDependsOn(X, Y) & gufo_historicallyDependsOn(Y, Z) )
+                 => gufo_historicallyDependsOn(X, Z) ) ).
+fof(gufo_hdo_domain, axiom,
+    ! [X, Y] : ( gufo_historicallyDependsOn(X, Y) => iof(X, gufo_ConcreteIndividual) ) ).
+fof(gufo_hdo_range, axiom,
+    ! [X, Y] : ( gufo_historicallyDependsOn(X, Y) => iof(Y, gufo_ConcreteIndividual) ) ).
+
+fof(gufo_wascreatedin_domain, axiom,
+    ! [X, Y] : ( gufo_wasCreatedIn(X, Y) => iof(X, gufo_Endurant) ) ).
+fof(gufo_wascreatedin_range, axiom,
+    ! [X, Y] : ( gufo_wasCreatedIn(X, Y) => iof(Y, gufo_Event) ) ).
+fof(gufo_wasterminatedin_domain, axiom,
+    ! [X, Y] : ( gufo_wasTerminatedIn(X, Y) => iof(X, gufo_Endurant) ) ).
+fof(gufo_wasterminatedin_range, axiom,
+    ! [X, Y] : ( gufo_wasTerminatedIn(X, Y) => iof(Y, gufo_Event) ) ).
+
+fof(gufo_participatedin_domain, axiom,
+    ! [X, Y] : ( gufo_participatedIn(X, Y) => iof(X, gufo_Object) ) ).
+fof(gufo_participatedin_range, axiom,
+    ! [X, Y] : ( gufo_participatedIn(X, Y) => iof(Y, gufo_Event) ) ).
+
+fof(gufo_broughtabout_domain, axiom,
+    ! [X, Y] : ( gufo_broughtAbout(X, Y) => iof(X, gufo_Event) ) ).
+fof(gufo_broughtabout_range, axiom,
+    ! [X, Y] : ( gufo_broughtAbout(X, Y) => iof(Y, gufo_Situation) ) ).
+
+fof(gufo_manifestedin_domain, axiom,
+    ! [X, Y] : ( gufo_manifestedIn(X, Y) => iof(X, gufo_Aspect) ) ).
+fof(gufo_manifestedin_range, axiom,
+    ! [X, Y] : ( gufo_manifestedIn(X, Y) => iof(Y, gufo_Event) ) ).
+
+fof(gufo_contributedtotrigger_domain, axiom,
+    ! [X, Y] : ( gufo_contributedToTrigger(X, Y) => iof(X, gufo_Situation) ) ).
+fof(gufo_contributedtotrigger_range, axiom,
+    ! [X, Y] : ( gufo_contributedToTrigger(X, Y) => iof(Y, gufo_Event) ) ).
+
+%----6. Aspects and quality values --------------------------------------------
+
+fof(gufo_inheresin_functional, axiom,
+    ! [X, Y, Z] : ( ( gufo_inheresIn(X, Y) & gufo_inheresIn(X, Z) ) => Y = Z ) ).
+fof(gufo_inheresin_irreflexive, axiom,
+    ! [X] : ~ gufo_inheresIn(X, X) ).
+fof(gufo_inheresin_asymmetric, axiom,
+    ! [X, Y] : ( gufo_inheresIn(X, Y) => ~ gufo_inheresIn(Y, X) ) ).
+fof(gufo_inheresin_domain, axiom,
+    ! [X, Y] : ( gufo_inheresIn(X, Y) => iof(X, gufo_Aspect) ) ).
+fof(gufo_inheresin_range, axiom,
+    ! [X, Y] : ( gufo_inheresIn(X, Y) => iof(Y, gufo_ConcreteIndividual) ) ).
+
+fof(gufo_externallydependson_irreflexive, axiom,
+    ! [X] : ~ gufo_externallyDependsOn(X, X) ).
+fof(gufo_externallydependson_domain, axiom,
+    ! [X, Y] : ( gufo_externallyDependsOn(X, Y) => iof(X, gufo_ExtrinsicMode) ) ).
+fof(gufo_externallydependson_range, axiom,
+    ! [X, Y] : ( gufo_externallyDependsOn(X, Y) => iof(Y, gufo_Endurant) ) ).
+
+fof(gufo_mediates_irreflexive, axiom,
+    ! [X] : ~ gufo_mediates(X, X) ).
+fof(gufo_mediates_domain, axiom,
+    ! [X, Y] : ( gufo_mediates(X, Y) => iof(X, gufo_Relator) ) ).
+fof(gufo_mediates_range, axiom,
+    ! [X, Y] : ( gufo_mediates(X, Y) => iof(Y, gufo_Endurant) ) ).
+
+fof(gufo_hasreifiedqualityvalue_domain, axiom,
+    ! [X, Y] : ( gufo_hasReifiedQualityValue(X, Y) => iof(X, gufo_ConcreteIndividual) ) ).
+fof(gufo_hasreifiedqualityvalue_range, axiom,
+    ! [X, Y] : ( gufo_hasReifiedQualityValue(X, Y) => iof(Y, gufo_QualityValue) ) ).
+
+fof(gufo_constitutes_domain, axiom,
+    ! [X, Y] : ( gufo_constitutes(X, Y) => iof(X, gufo_ConcreteIndividual) ) ).
+fof(gufo_constitutes_range, axiom,
+    ! [X, Y] : ( gufo_constitutes(X, Y) => iof(Y, gufo_ConcreteIndividual) ) ).
+
+%----7. Standing in a situation -----------------------------------------------
+
+fof(gufo_standsin_range, axiom,
+    ! [X, Y] : ( gufo_standsIn(X, Y) => iof(Y, gufo_Situation) ) ).
+fof(gufo_sqi_sub_standsin, axiom,
+    ! [X, Y] : ( gufo_standsInQualifiedInstantiation(X, Y) => gufo_standsIn(X, Y) ) ).
+fof(gufo_sqi_domain, axiom,
+    ! [X, Y] : ( gufo_standsInQualifiedInstantiation(X, Y) => iof(X, gufo_Endurant) ) ).
+fof(gufo_sqi_range, axiom,
+    ! [X, Y] : ( gufo_standsInQualifiedInstantiation(X, Y)
+              => iof(Y, gufo_TemporaryInstantiationSituation) ) ).
+fof(gufo_sqp_sub_standsin, axiom,
+    ! [X, Y] : ( gufo_standsInQualifiedParthood(X, Y) => gufo_standsIn(X, Y) ) ).
+fof(gufo_sqp_range, axiom,
+    ! [X, Y] : ( gufo_standsInQualifiedParthood(X, Y)
+              => iof(Y, gufo_TemporaryParthoodSituation) ) ).
+fof(gufo_sqc_sub_standsin, axiom,
+    ! [X, Y] : ( gufo_standsInQualifiedConstitution(X, Y) => gufo_standsIn(X, Y) ) ).
+fof(gufo_sqc_range, axiom,
+    ! [X, Y] : ( gufo_standsInQualifiedConstitution(X, Y)
+              => iof(Y, gufo_TemporaryConstitutionSituation) ) ).
+fof(gufo_sqa_sub_standsin, axiom,
+    ! [X, Y] : ( gufo_standsInQualifiedAttribution(X, Y) => gufo_standsIn(X, Y) ) ).
+fof(gufo_sqa_range, axiom,
+    ! [X, Y] : ( gufo_standsInQualifiedAttribution(X, Y)
+              => iof(Y, gufo_QualityValueAttributionSituation) ) ).
+
+fof(gufo_concernsnonrigidtype_functional, axiom,
+    ! [X, Y, Z] : ( ( gufo_concernsNonRigidType(X, Y) & gufo_concernsNonRigidType(X, Z) )
+                 => Y = Z ) ).
+fof(gufo_concernsnonrigidtype_domain, axiom,
+    ! [X, Y] : ( gufo_concernsNonRigidType(X, Y)
+              => iof(X, gufo_TemporaryInstantiationSituation) ) ).
+fof(gufo_concernsnonrigidtype_range, axiom,
+    ! [X, Y] : ( gufo_concernsNonRigidType(X, Y) => iof(Y, gufo_NonRigidType) ) ).
+
+fof(gufo_concernstemporarywhole_domain, axiom,
+    ! [X, Y] : ( gufo_concernsTemporaryWhole(X, Y)
+              => iof(X, gufo_TemporaryParthoodSituation) ) ).
+fof(gufo_concernstemporarywhole_range, axiom,
+    ! [X, Y] : ( gufo_concernsTemporaryWhole(X, Y) => iof(Y, gufo_Endurant) ) ).
+fof(gufo_concernsconstitutedendurant_domain, axiom,
+    ! [X, Y] : ( gufo_concernsConstitutedEndurant(X, Y)
+              => iof(X, gufo_TemporaryConstitutionSituation) ) ).
+fof(gufo_concernsconstitutedendurant_range, axiom,
+    ! [X, Y] : ( gufo_concernsConstitutedEndurant(X, Y) => iof(Y, gufo_Endurant) ) ).
+fof(gufo_concernsqualitytype_domain, axiom,
+    ! [X, Y] : ( gufo_concernsQualityType(X, Y)
+              => iof(X, gufo_QualityValueAttributionSituation) ) ).
+fof(gufo_concernsqualitytype_range, axiom,
+    ! [X, Y] : ( gufo_concernsQualityType(X, Y) => iof(Y, gufo_EndurantType) ) ).
+fof(gufo_concernsreifiedqualityvalue_domain, axiom,
+    ! [X, Y] : ( gufo_concernsReifiedQualityValue(X, Y)
+              => iof(X, gufo_QualityValueAttributionSituation) ) ).
+fof(gufo_concernsreifiedqualityvalue_range, axiom,
+    ! [X, Y] : ( gufo_concernsReifiedQualityValue(X, Y) => iof(Y, gufo_QualityValue) ) ).
+
+%------------------------------------------------------------------------------

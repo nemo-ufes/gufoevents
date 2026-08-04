@@ -1,0 +1,43 @@
+%------------------------------------------------------------------------------
+% File     : proj-types.ax
+% Domain   : gUFOevents -- which types an endurant instantiates
+% Source   : event-sourcing/queries/02-current-types.rq
+%          : event-sourcing/queries/03-types-as-of.rq
+%
+% The fold: an endurant is in a type from the classification that entered it
+% until the declassification that left it. This is the read model most
+% applications actually want, and the reason gufoevents:Classification and
+% gufoevents:Declassification are separate, disjoint events rather than one
+% "phase transition".
+%
+% Requires : time.ax, gufoevents.ax, proj-common.ax
+%------------------------------------------------------------------------------
+
+% inForceVia(C, X, Ty, T): the classification C is the one that puts X in Ty at
+% instant T -- entered at or before T, and not left between the entry and T.
+fof(in_force_via_definition, axiom,
+    ! [C, X, Ty, T] : ( inForceVia(C, X, Ty, T)
+                    <=> ? [Tc] : ( enteredTypeAt(C, X, Ty, Tc)
+                                 & tle(Tc, T)
+                                 & ~ ? [D, Td] : ( leftTypeAt(D, X, Ty, Td)
+                                                 & tle(Tc, Td)
+                                                 & tle(Td, T) ) ) ) ).
+
+% 03-types-as-of, as a relation: X instantiates Ty at T.
+fof(type_at_definition, axiom,
+    ! [X, Ty, T] : ( typeAt(X, Ty, T)
+                 <=> ( ? [C] : inForceVia(C, X, Ty, T)
+                     & ~ terminatedBy(X, T) ) ) ).
+
+% 02-current-types: the same fold, run to the end of the log. Two differences,
+% both visible in the query: no cutoff on the classification's instant, and an
+% endurant that has been terminated at all -- not merely by the instant asked
+% about -- instantiates nothing.
+fof(current_type_definition, axiom,
+    ! [X, Ty] : ( currentType(X, Ty)
+              <=> ( ? [C, Tc] : ( enteredTypeAt(C, X, Ty, Tc)
+                                & ~ ? [D, Td] : ( leftTypeAt(D, X, Ty, Td)
+                                                & tle(Tc, Td) ) )
+                  & ~ ? [K] : ge_terminated(K, X) ) ) ).
+
+%------------------------------------------------------------------------------

@@ -1,0 +1,20 @@
+%------------------------------------------------------------------------------
+% File     : proj-lifespans.ax
+% Domain   : gUFOevents -- lifespans
+% Source   : event-sourcing/queries/06-lifespans.rq
+%
+% "Still in existence" means only that no termination has been recorded. Under
+% the open world assumption that is not a positive claim that the thing still
+% exists; in an event-sourced graph, where the log is by construction complete,
+% it is -- and the completion axioms in generated/exNN-log.ax are where that
+% construction is written down.
+%
+% Requires : time.ax, gufoevents.ax, proj-common.ax
+%------------------------------------------------------------------------------
+
+fof(alive_definition, axiom,
+    ! [X, T] : ( aliveAt(X, T)
+             <=> ( ? [C, Tc] : ( ge_created(C, X) & at(C, Tc) & tle(Tc, T) )
+                 & ~ terminatedBy(X, T) ) ) ).
+
+%------------------------------------------------------------------------------

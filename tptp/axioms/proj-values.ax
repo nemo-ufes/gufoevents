@@ -1,0 +1,45 @@
+%------------------------------------------------------------------------------
+% File     : proj-values.ax
+% Domain   : gUFOevents -- the value in force for a quality
+% Source   : event-sourcing/queries/04-current-quality-values.rq
+%          : event-sourcing/queries/10-audit-value.rq
+%
+% The last quality value change wins. Note what the fold ranges over: the
+% quality (John's mass), not its bearer.
+%
+% Requires : time.ax, gufoevents.ax
+%------------------------------------------------------------------------------
+
+% setsValue(E, Q, V, T): E is a quality value change setting Q to V at T. The
+% UNION over gufoevents:changedValueTo and gufoevents:changedReifiedValueTo is
+% the disjunction: a literal value and a reified one play the same role.
+fof(sets_value_definition, axiom,
+    ! [E, Q, V, T] : ( setsValue(E, Q, V, T)
+                   <=> ( iof(E, ge_QualityValueChange)
+                       & ge_changedValueOf(E, Q)
+                       & ( ge_changedValueTo(E, V) | ge_changedReifiedValueTo(E, V) )
+                       & at(E, T) ) ) ).
+
+% 10-audit-value, read at an instant: the value in force for Q at T is the one
+% set by the last change to Q at or before T.
+fof(value_at_definition, axiom,
+    ! [Q, V, T] : ( valueAt(Q, V, T)
+                <=> ? [E, Te] : ( setsValue(E, Q, V, Te)
+                                & tle(Te, T)
+                                & ~ ? [F, Tf] : ( ge_changedValueOf(F, Q)
+                                                & at(F, Tf)
+                                                & tlt(Te, Tf)
+                                                & tle(Tf, T) ) ) ) ).
+
+% 04-current-quality-values: the value in force now. As with 02, a terminated
+% quality has no current value at all -- a closed account has no balance, not a
+% balance of zero.
+fof(current_value_definition, axiom,
+    ! [Q, V] : ( currentValue(Q, V)
+             <=> ( ? [E, Te] : ( setsValue(E, Q, V, Te)
+                               & ~ ? [F, Tf] : ( ge_changedValueOf(F, Q)
+                                               & at(F, Tf)
+                                               & tlt(Te, Tf) ) )
+                 & ~ ? [K] : ge_terminated(K, Q) ) ) ).
+
+%------------------------------------------------------------------------------

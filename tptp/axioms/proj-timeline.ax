@@ -1,0 +1,22 @@
+%------------------------------------------------------------------------------
+% File     : proj-timeline.ax
+% Domain   : gUFOevents -- what an event mentions, and what depends on what
+% Source   : event-sourcing/queries/01-timeline.rq
+%          : event-sourcing/queries/09-causal-chain.rq
+%
+% The three UNION branches of the timeline query are three properties because
+% gUFOevents keeps them apart on purpose: creation and termination are not
+% changes. gufo:historicallyDependsOn is transitive in gUFO, so the + of the
+% causal-chain query is the property itself under the ontology's own axioms.
+%
+% Requires : gufoevents.ax
+%------------------------------------------------------------------------------
+
+fof(mentions_definition, axiom,
+    ! [E, X] : ( mentions(E, X)
+             <=> ( ge_created(E, X) | ge_terminated(E, X) | ge_changed(E, X) ) ) ).
+
+fof(depends_on_definition, axiom,
+    ! [E, F] : ( dependsOn(E, F) <=> gufo_historicallyDependsOn(E, F) ) ).
+
+%------------------------------------------------------------------------------
